@@ -1,0 +1,270 @@
+@import "tailwindcss";
+
+/* Configure dark mode for TailwindCSS 4.x */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  /* Enable dark mode with class strategy */
+  --default-transition-duration: 200ms;
+  --default-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Add smooth transitions for theme changes */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Highlight.js syntax highlighting theme */
+@import 'highlight.js/styles/github.css';
+
+/* Dark mode highlight.js theme */
+.dark {
+  @import 'highlight.js/styles/github-dark.css';
+}
+
+/* Enhanced typography and visual hierarchy */
+.prose-enhanced {
+  line-height: 1.7;
+}
+
+/* Custom list styling removed - handled by component styling */
+
+/* Enhanced focus and hover states */
+.prose a:hover {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Better table styling */
+.prose table {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.prose thead th {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.prose tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.prose tbody tr:hover {
+  background-color: #f1f5f9;
+  transition: background-color 0.2s ease;
+}
+
+/* Dark mode table styling */
+.dark .prose table {
+  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
+}
+
+.dark .prose thead th {
+  background: linear-gradient(135deg, #374151, #4b5563);
+  border-bottom: 2px solid #6b7280;
+  color: #f9fafb;
+}
+
+.dark .prose tbody tr:nth-child(even) {
+  background-color: #374151;
+}
+
+.dark .prose tbody tr:hover {
+  background-color: #4b5563;
+}
+
+/* Improved blockquote styling */
+.prose blockquote {
+  position: relative;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.prose blockquote::before {
+  content: '"';
+  font-size: 3rem;
+  color: #3b82f6;
+  position: absolute;
+  left: 1rem;
+  top: 0.5rem;
+  line-height: 1;
+  opacity: 0.3;
+}
+
+/* Dark mode blockquote styling */
+.dark .prose blockquote {
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+  border-left-color: #60a5fa;
+}
+
+.dark .prose blockquote::before {
+  color: #60a5fa;
+}
+
+/* Enhanced code styling */
+.prose :not(pre) > code {
+  box-shadow: 0 1px 3px rgba(147, 51, 234, 0.1);
+  border: 1px solid #e0e7ff;
+}
+
+/* Dark mode code styling */
+.dark .prose :not(pre) > code {
+  box-shadow: 0 1px 3px rgba(147, 51, 234, 0.2);
+  border: 1px solid #4b5563;
+  background-color: #374151;
+}
+
+/* Smooth transitions for interactive elements */
+.prose a,
+.prose code,
+.prose blockquote {
+  transition: all 0.2s ease;
+}
+
+/* Section divider styling */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+  margin: 2rem 0;
+}
+
+/* Dark mode section divider */
+.dark .section-divider {
+  background: linear-gradient(90deg, transparent, #4b5563, transparent);
+}
+
+/* Improved spacing and rhythm */
+.prose > * + * {
+  margin-top: 1.25rem;
+}
+
+.prose h1 + *,
+.prose h2 + *,
+.prose h3 + * {
+  margin-top: 1rem;
+}
+
+/* Custom animations for processing UI */
+@keyframes slide-right {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(300%) skewX(-12deg);
+  }
+}
+
+.animate-slide-right {
+  animation: slide-right 2s ease-in-out infinite;
+}
+
+/* Friendly AI assistant animations */
+@keyframes breathing {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-breathing {
+  animation: breathing 2s ease-in-out infinite;
+}
+
+/* Modern shadow for content containers */
+.content-shadow {
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 10px 15px -3px rgba(0, 0, 0, 0.03),
+    0 4px 6px -2px rgba(0, 0, 0, 0.02);
+}
+
+/* Dark mode content shadow */
+.dark .content-shadow {
+  box-shadow: 
+    0 1px 3px rgba(255, 255, 255, 0.05),
+    0 10px 15px -3px rgba(255, 255, 255, 0.03),
+    0 4px 6px -2px rgba(255, 255, 255, 0.02);
+}
+
+/* Mobile-optimized spacing utilities */
+@media (max-width: 640px) {
+  .mobile-compact {
+    padding: 0.75rem !important;
+  }
+  
+  .mobile-compact-x {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  .mobile-compact-y {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+  
+  .mobile-tight-spacing > * + * {
+    margin-top: 0.75rem !important;
+  }
+  
+  /* Optimize prose typography for mobile */
+  .prose {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  
+  .prose h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    margin-top: 1rem;
+  }
+  
+  .prose h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .prose h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+    margin-top: 0.75rem;
+  }
+  
+  .prose p {
+    margin-bottom: 0.75rem;
+  }
+  
+  .prose ul, .prose ol {
+    margin-bottom: 0.75rem;
+  }
+  
+  .prose li {
+    margin-bottom: 0.25rem;
+  }
+}

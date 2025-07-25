@@ -1,0 +1,151 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_DB: n8n
+      POSTGRES_USER: n8n
+      POSTGRES_PASSWORD: n8n_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - servicenow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U n8n -d n8n"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  n8n:
+    image: n8nio/n8n:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Use normal N8N entrypoint - setup will be done from host
+    # entrypoint: ["/init/entrypoint.sh"]
+    environment:
+      # Database configuration
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_USER: n8n
+      DB_POSTGRESDB_PASSWORD: n8n_password
+      
+      # N8N configuration
+      N8N_HOST: 0.0.0.0
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: http://n8n:5678/
+      
+      # API Keys for automation
+      CLAUDE_API_KEY: ${CLAUDE_API_KEY:-your-claude-api-key-here}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-your-openai-api-key-here}
+      WEBHOOK_API_KEY: ${WEBHOOK_API_KEY:-your-webhook-api-key-here}
+      
+      # Security - Disable basic auth to allow webhook access
+      N8N_BASIC_AUTH_ACTIVE: false
+      N8N_BASIC_AUTH_USER: admin
+      N8N_BASIC_AUTH_PASSWORD: admin123
+      
+      # Execution settings
+      EXECUTIONS_DATA_SAVE_ON_ERROR: all
+      EXECUTIONS_DATA_SAVE_ON_SUCCESS: all
+      EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS: true
+      
+      # Timezone
+      GENERIC_TIMEZONE: UTC
+      
+      # Essential settings to prevent shell issues
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: false
+      N8N_LOG_LEVEL: info
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-your-secure-n8n-encryption-key-here}
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/init:/init
+    networks:
+      - servicenow-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  servicenow-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      n8n:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      # N8N webhook URLs (internal Docker network) - correct webhook path
+      N8N_WEBHOOK_URL: http://n8n:5678/webhook/d8f43068-431e-405b-bdbb-e7dba6862299
+      N8N_WEBHOOK_URL_RESPONSE: http://n8n:5678/webhook/3d871efe-423d-422d-b431-33a1f8888e2c
+      N8N_API_KEY: ${WEBHOOK_API_KEY:-test-api-key-123}
+      
+      # JWT configuration
+      JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-here}
+      
+      # Authentication configuration
+      AUTH_USERNAME: ${AUTH_USERNAME:-admin}
+      AUTH_PASSWORD: ${AUTH_PASSWORD:-password123}
+      
+      # Database configuration for session storage
+      DATABASE_URL: postgresql://n8n:n8n_password@postgres:5432/n8n
+      
+      # App configuration
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    networks:
+      - servicenow-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://0.0.0.0:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  n8n-setup:
+    image: alpine:latest
+    profiles:
+      - setup
+    depends_on:
+      n8n:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - WEBHOOK_API_KEY=${WEBHOOK_API_KEY}
+    volumes:
+      - ./scripts/setup-n8n.sh:/setup-n8n.sh
+      - ./n8n:/n8n
+      - ./.env:/.env
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - servicenow-network
+    command: >
+      sh -c "
+        echo 'Starting n8n setup container...' &&
+        apk add --no-cache curl docker-cli bash jq &&
+        echo 'Dependencies installed. Running setup script...' &&
+        chmod +x /setup-n8n.sh &&
+        bash /setup-n8n.sh &&
+        echo 'Setup script completed successfully!'
+      "
+    restart: "no"
+
+volumes:
+  postgres_data:
+  n8n_data:
+
+networks:
+  servicenow-network:
+    driver: bridge

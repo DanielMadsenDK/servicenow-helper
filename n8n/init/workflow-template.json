@@ -1,0 +1,2390 @@
+{
+  "name": "ServiceNow AI Helper V3",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "d8f43068-431e-405b-bdbb-e7dba6862299",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        80,
+        375
+      ],
+      "id": "cba20181-e50b-4fee-bb3a-6a3a2245219a",
+      "name": "Initiate",
+      "webhookId": "d8f43068-431e-405b-bdbb-e7dba6862298",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "HEADER_AUTH_CREDENTIAL_ID",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"key\": \"{{ $json.key }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        1840,
+        275
+      ],
+      "id": "2ad009c2-8149-4178-834b-bef224f48f99",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.type }}",
+                    "rightValue": "recommendation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "9944eee4-fb8d-4789-ae58-21f140280568"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "recommendation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a0783dc7-3447-46d1-8b2d-eab4d0380856",
+                    "leftValue": "={{ $json.type }}",
+                    "rightValue": "documentation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "documentation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "792ea6eb-9469-4997-bf56-31cae02c2b98",
+                    "leftValue": "={{ $json.type }}",
+                    "rightValue": "script",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "script"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6c33437c-18de-4c89-8540-2552d0709698",
+                    "leftValue": "={{ $json.type }}",
+                    "rightValue": "troubleshoot",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "troubleshoot"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Invalid"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        520,
+        335
+      ],
+      "id": "ef475062-b0dd-412d-a977-580d352e0335",
+      "name": "Switch",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"message\": \"unsupported type\"\n}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        740,
+        775
+      ],
+      "id": "a1208bf8-ee09-4959-b65a-b3ce4bfcfd54",
+      "name": "Error Resposne"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0fa670a1-4f6b-4ad2-9073-52137bfea731",
+              "name": "prompt",
+              "value": "={{ $json.prompt }}\n\n## Recommendation Mode\nProvide expert consulting guidance as if discussing with a client's leadership team.\n\n### Response Framework\n1. **Executive Summary** (2-3 sentences)\n   - Core recommendation with business impact\n   - Why this approach over alternatives\n\n2. **Solution Architecture**\n   - Technical approach aligned to ServiceNow best practices\n   - Key platform components and their interactions\n   - Integration points and dependencies\n\n3. **Implementation Roadmap**\n   - Phase 1: Quick wins (1-2 weeks)\n   - Phase 2: Core functionality (2-4 weeks)\n   - Phase 3: Optimization & scale (ongoing)\n\n4. **Critical Success Factors**\n   - Required configurations/customizations\n   - Resource requirements (roles, skills, time)\n   - Risk mitigation strategies\n   - Success metrics and KPIs\n\n### Consultant Priorities\n- **Business Value First**: Lead with outcomes, not features\n- **Practical Phasing**: Deliver value incrementally\n- **Future-Proofing**: Consider upgrade impacts and scalability\n- **Change Management**: Address adoption challenges upfront\n- **Alternative Approaches**: Briefly note why recommended approach beats alternatives\n\n### Coverage Areas\nPlatform Design | Process Optimization | User Experience | Integration Strategy | Security Model | Performance Tuning | Governance | ROI Justification\n\nFocus: Actionable recommendations with clear next steps. Avoid theoretical discussions.",
+              "type": "string"
+            },
+            {
+              "id": "8020e7be-bcb5-4e9e-874c-e61d3683a5b2",
+              "name": "temperature",
+              "value": 0.3,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        740,
+        -25
+      ],
+      "id": "97997242-3b83-4c22-b735-14ff263a7354",
+      "name": "Append Recommendation"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d4eaade8-28f5-4f5e-8226-04acdd6d84fd",
+              "name": "prompt",
+              "value": "={{ $json.prompt }}\n\n## Documentation Mode\nProvide authoritative guidance backed by official ServiceNow documentation.\n\n### Response Framework\n1. **Concept Summary** (2-3 sentences)\n   - What it is and primary use case\n   - Which ServiceNow module/capability it belongs to\n\n2. **Documentation Hierarchy**\n   - **Primary Reference**: Main product doc for this topic\n   - **Prerequisites**: Docs to read first (if applicable)\n   - **Deep Dives**: Advanced documentation for specific aspects\n   - **Examples**: Implementation guides or use cases\n\n3. **Learning Path**\nBeginner → [Doc 1: Basics] → [Doc 2: Configuration] → [Doc 3: Best Practices]\nAdvanced → [Doc 4: Architecture] → [Doc 5: Optimization]\n\n4. **Quick Reference**\n- API/Class references (if applicable)\n- Property/System settings\n- Related KB articles for common issues\n\n### Documentation Integration\nWhen referencing injected documentation:\n- Quote specific sections when critical\n- Highlight version-specific information\n- Note if docs apply to specific ServiceNow releases\n- Flag any deprecated approaches in older docs\n\n### Source Priority\n1. **Official Docs** (docs.servicenow.com) - Always primary\n2. **Knowledge Base** - For troubleshooting and edge cases\n3. **Community** - Only when official docs lack detail\n4. **Now Learning** - For structured learning paths\n\nFocus: Guide users through documentation efficiently. Assume docs are available via RAG - reference them naturally.",
+              "type": "string"
+            },
+            {
+              "id": "55c4e90c-d672-433a-864e-84ef644fcc69",
+              "name": "temperature",
+              "value": 0.1,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        740,
+        175
+      ],
+      "id": "3b4b6da2-93e3-46c3-a037-6949b6378beb",
+      "name": "Append Documentation"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "36e3620f-39bc-41ea-a156-4aff6297a0bf",
+              "name": "=prompt",
+              "value": "={{ $json.prompt }}\n\n## Script Mode\nProvide a single, complete ServiceNow script solution focused on solving the specific problem.\n\n### Response Framework\n1. **Solution Summary** (2-3 sentences)\n   - What the script accomplishes\n   - Why this approach is best\n\n2. **The Script** (ONE primary solution)\n   ```javascript\n   // Complete, production-ready code\n   // Only essential comments for complex logic\n\nImplementation Guide\n\nWhere: Exact location (e.g., Business Rule on incident table)\nWhen: Trigger conditions (e.g., before insert, async)\nSetup: Required properties, roles, or dependencies\n\n\nCritical Considerations\n\nPerformance impact (if significant)\nError handling approach\nTesting checklist (2-3 key tests)\n\n\n\nScript Selection Rules\n\nONE Script First: Solve with a single script whenever possible\nSecond Script Only If: Client + Server required, or truly separate concerns\nNever: Multiple variations of the same solution\nAlways: The simplest approach that meets requirements\n\nCode Quality Standards\n\nServiceNow APIs only (no direct DB queries)\nGlide best practices (use GlideRecord, GlideAggregate appropriately)\nScope-aware (respect application boundaries)\nUpgrade-safe (no deprecated methods)\nPerformance-conscious (bulk operations, efficient queries)\n\nFocus: One excellent solution, not multiple options. Quality over quantity.",
+              "type": "string"
+            },
+            {
+              "id": "96ed3d9a-1fba-48fc-a77f-515dc9f0d121",
+              "name": "max_tokens",
+              "value": 3000,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        740,
+        375
+      ],
+      "id": "3e0cc808-db18-4c9d-b791-c13f31c431bc",
+      "name": "Append Script"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "65b94016-aa51-4f0a-a7f7-6b8aedca9778",
+              "name": "model",
+              "value": "claude-opus-4-20250514",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1180,
+        175
+      ],
+      "id": "a81fc29f-8376-4d0c-a475-45b897f4cd5a",
+      "name": "Set Opus Model"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e4f1a4a3-dd5b-4716-9d0f-eceb75442f6d",
+              "leftValue": "={{ $('Initiate').item.json.body.expert }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        275
+      ],
+      "id": "733f8d41-565e-441c-baa8-bbd16adb602c",
+      "name": "If Expert Mode"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6826c860-d64c-465d-bbef-b3b14212d2bc",
+              "name": "model",
+              "value": "claude-sonnet-4-20250514",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1180,
+        375
+      ],
+      "id": "3264a381-7e1a-4c5a-a3a7-53d607c44394",
+      "name": "Set Sonnet Model"
+    },
+    {
+      "parameters": {
+        "action": "generate",
+        "dataPropertyName": "key"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        275
+      ],
+      "id": "841f72ce-3aa0-463f-8553-8b5c22b21405",
+      "name": "Generate Key"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0dad757f-358a-4f52-8990-1103696b3f5c",
+              "name": "prompt",
+              "value": "You are a ServiceNow expert providing concise, actionable guidance that prioritizes brevity while maintaining clarity and technical accuracy.\n\n## Core Principles\n- **Out-of-Box First**: Prioritize native functionality over customization\n- **Best Practices**: Follow ServiceNow's documented standards strictly\n- **Upgrade Safety**: Ensure recommendations survive platform updates\n- **Performance Focus**: Consider scalability and maintainability\n\n## Interaction Guidelines\n- **Clarification First**: If requirements are ambiguous, ask ONE specific question\n- **Assumptions**: State any assumptions made clearly\n- **Iterative Refinement**: Build upon previous responses in continued sessions\n- **Follow-up Format**: \"To provide the best solution, could you clarify: [specific question]?\"\n\n## Knowledge Integration Rules\n- **Never Reference Context**: Do not mention \"search context\", \"provided documentation\", \"available results\", or any reference to how information was obtained\n- **Seamless Integration**: Present all information as direct knowledge without attribution to sources\n- **Natural Response**: Write as if you inherently know the information\n- **Missing Information**: If specific details aren't available, simply state what you know without explaining why you don't know more\n\n### Examples:\nWRONG: \"Based on the search context provided, ServiceBridge is not explicitly detailed...\"\nRIGHT: \"ServiceBridge is a ServiceNow integration component that...\"\n\nWRONG: \"The documentation results don't mention this feature...\"\nRIGHT: \"This feature works by...\" or \"To implement this, you'll need to...\"\n\nWRONG: \"According to the provided context...\"\nRIGHT: [Direct answer without mentioning context]\n\n### When Information is Limited:\n- Provide what you know directly\n- Suggest related concepts if helpful\n- Never apologize for or explain gaps in provided content\n- Focus on actionable guidance with available information\n\nExamples of when to ask:\n- Multiple valid interpretations exist\n- Critical details missing (table names, field names, timing)\n- Performance requirements unclear for large data operations\n\n## Response Format\n1. **Direct Answer First** - Lead with the solution\n2. **Brief Explanation** - \"Why\" in 1-2 sentences maximum\n3. **Implementation Steps** - Only if essential\n4. **Best Practice Note** - When redirecting from poor approaches\n\n## Markdown Requirements\n- Headers: #, ##, ### for clear hierarchy\n- **Bold** for key terms and emphasis\n- Code blocks: ```javascript\n- Lists: Use - or * consistently\n- **Spacing**: Double newlines between ALL sections, before/after code blocks\n\n## Best Practice Redirection\nWhen redirecting from poor approaches:\n\"ServiceNow best practice is [solution] because [brief reason]. This ensures [key benefit].\"\n\n## Expertise Coverage\nPlatform Architecture, Development, Workflow/Automation, Integration, Security, Performance, ITSM/ITOM/HR/CSM, Upgrades, ALM\n\n## Response Guidelines\n- Be comprehensive but concise\n- Quality over quantity\n- Target: 200-300 words unless complexity requires more\n- Always use proper Markdown formatting with clear visual structure\n\n## Tone\n- Authoritative but approachable\n- Implementation-focused\n- Educational but concise\n\nIMPORTANT:\n- If you are giving code examples with GlideRecord objects, never name the variables gr. Name the variable something with a relation to the table being used, for instance grIncident for incidents.\n\nMANDATORY: Never reference how you obtained information. Never use phrases like \"based on\", \"according to\", \"search context\", \"provided documentation\", or similar. Respond with direct knowledge only.",
+              "type": "string"
+            },
+            {
+              "id": "772b4d4a-7147-400f-afcf-fa0651725313",
+              "name": "model",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "e10f1016-2e47-4ce6-8d36-1457d4249ee0",
+              "name": "key",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "71a817a0-5151-45d6-8431-70aa2022bee6",
+              "name": "type",
+              "value": "={{ $json.body.type }}",
+              "type": "string"
+            },
+            {
+              "id": "fce1ff07-c2a3-46b2-b36d-81193926bc68",
+              "name": "expert",
+              "value": "={{ $json.body.expert }}",
+              "type": "boolean"
+            },
+            {
+              "id": "d4af9534-d7cd-4a3a-821f-c8caa7c2215f",
+              "name": "enable_thinking",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "43151627-1d9b-40b4-855d-69cfe30289e3",
+              "name": "max_tokens",
+              "value": 2500,
+              "type": "number"
+            },
+            {
+              "id": "43500782-d374-4687-a59e-7bf79b59dbad",
+              "name": "top_p",
+              "value": 0.9,
+              "type": "number"
+            },
+            {
+              "id": "9e960197-3ff2-4065-8b57-d87726905bba",
+              "name": "top_k",
+              "value": 40,
+              "type": "number"
+            },
+            {
+              "id": "b77f5b04-5dc2-43f8-a0e2-e5f9ec2c4cba",
+              "name": "temperature",
+              "value": 0.2,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        300,
+        375
+      ],
+      "id": "f5f4238c-1429-4e9c-a9b3-1dd9884e9ae4",
+      "name": "Set Basic Variables"
+    },
+    {
+      "parameters": {
+        "content": "## Intiate",
+        "height": 1120,
+        "width": 2100
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -185
+      ],
+      "id": "57e3a4ef-dfcb-4ba8-8128-70534f4cd962",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "ServiceNowSupportTool",
+          "mode": "list",
+          "cachedResultName": "ServiceNowSupportTool"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "key": "={{ $json.key }}",
+            "state": "processing",
+            "prompt": "={{ $json.prompt }}",
+            "model": "={{ $json.model }}",
+            "question": "={{ $('Initiate').item.json.body.question }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "key",
+              "displayName": "key",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "response",
+              "displayName": "response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prompt",
+              "displayName": "prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model",
+              "displayName": "model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1620,
+        275
+      ],
+      "id": "1a679a22-e862-4c1e-ab2f-4e666fdf0b43",
+      "name": "Create Work Record",
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Async Processing",
+        "height": 1660,
+        "width": 2060,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2260,
+        -620
+      ],
+      "id": "131bd71b-5db2-408e-a836-d0fafdeb647e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "ServiceNowSupportTool",
+          "mode": "list",
+          "cachedResultName": "ServiceNowSupportTool"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "key": "={{ $('Respond to Webhook').first().json.key }}",
+            "response": "={{ $json.output }}",
+            "state": "done"
+          },
+          "matchingColumns": [
+            "key"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "key",
+              "displayName": "key",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "response",
+              "displayName": "response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prompt",
+              "displayName": "prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "model",
+              "displayName": "model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4180,
+        175
+      ],
+      "id": "b61197d2-48cf-4499-b2c7-dded7c8f0898",
+      "name": "Save response",
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Response",
+        "height": 440,
+        "width": 1440,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -150,
+        1315
+      ],
+      "id": "f595d347-6faa-4914-bbf8-7b7e8e0ef09c",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "688f7e3f-3a7c-44b5-a0bc-a792fb684ce6",
+              "leftValue": "=done",
+              "rightValue": "={{ $('Query workitem').item.json.state }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        740,
+        1495
+      ],
+      "id": "bcd91951-37b7-4f72-acdd-14fbfa484bdd",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "3d871efe-423d-422d-b431-33a1f8888e2c",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        80,
+        1495
+      ],
+      "id": "4d1d8cb3-3bc7-4ef0-9c0b-8d92799611af",
+      "name": "Poll result",
+      "webhookId": "3d871efe-423d-422d-b431-33a1f8888e2b",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "HEADER_AUTH_CREDENTIAL_ID",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "81566dfc-3c70-4c9c-98c7-5a415a63d940",
+              "name": "databaseKey",
+              "value": "={{ $json.body.key }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        300,
+        1495
+      ],
+      "id": "5c0475c0-524c-48a3-9be8-54f7fd3d1fb3",
+      "name": "Set database key"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "ServiceNowSupportTool",
+          "mode": "list",
+          "cachedResultName": "ServiceNowSupportTool"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "key",
+              "value": "={{ $json.databaseKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        520,
+        1495
+      ],
+      "id": "9c117d56-62cf-4e6a-a6e4-94c7dff0201a",
+      "name": "Query workitem",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"state\": \"done\",\n  \"message\": {{ $json.response.toJsonString() }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        960,
+        1395
+      ],
+      "id": "358be37d-9f90-4f17-b8d5-1f8d71f25d2b",
+      "name": "Return result"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"state\": \"processing\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        960,
+        1595
+      ],
+      "id": "a4d11597-2037-4933-996b-280dedb41d5c",
+      "name": "Return status"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "36e3620f-39bc-41ea-a156-4aff6297a0bf",
+              "name": "=prompt",
+              "value": "={{ $json.prompt }}\n\n## Troubleshooting Mode\nSystematically diagnose and resolve ServiceNow issues using platform-native tools and methods.\n\n### Diagnostic Framework\n1. **Issue Classification**\n   - **Symptoms**: What's happening vs. expected behavior\n   - **Scope**: Single user/record vs. system-wide\n   - **Timing**: When it started (after upgrade? config change?)\n   - **Severity**: Production down vs. minor inconvenience\n\n2. **Root Cause Analysis**\nStep 1: Check System Logs (filter by time/user/transaction)\nStep 2: Review Debug Output (session debug, SQL logs)\nStep 3: Validate Configuration (compare to baseline/OOB)\nStep 4: Test in Isolation (impersonate user, test instance)\n\n3. **Solution Path**\n- **Immediate Fix**: Workaround to restore service\n- **Root Fix**: Permanent solution addressing cause\n- **Implementation**: Specific steps with rollback plan\n\n4. **Verification & Prevention**\n- **Test**: Specific scenarios to confirm resolution\n- **Monitor**: What to watch for next 24-48 hours\n- **Prevent**: Configuration/process changes to avoid recurrence\n\n### ServiceNow Diagnostic Tools\n- **System Diagnostics**: Debug modules, performance analytics\n- **Session Debugging**: Enable for specific user/transaction\n- **Flow Debugger**: For workflow/flow designer issues\n- **Script Debugger**: For business rule/script include problems\n- **Update Set Preview**: For deployment-related issues\n- **Instance Scan**: For best practice violations\n\n### Escalation Triggers\nIf these occur, recommend ServiceNow support:\n- Production data corruption\n- Platform-level errors (Java stack traces)\n- Upgrade rollback scenarios\n- Security breaches\n\nFocus: Methodical diagnosis before solution. Use ServiceNow's native tools. Document findings for knowledge base.",
+              "type": "string"
+            },
+            {
+              "id": "d2294647-4c10-4729-869a-040f627f5c86",
+              "name": "temperature",
+              "value": 0.3,
+              "type": "number"
+            },
+            {
+              "id": "03f86893-67c9-4fc7-b5a1-e37aad107aff",
+              "name": "enable_thinking",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        740,
+        575
+      ],
+      "id": "35388cea-62f0-4200-8b5d-e284ae4dcbe5",
+      "name": "Append Troubleshoot"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "69ed723c-3456-4b43-8162-b12916afbcca",
+              "leftValue": "={{ $('Initiate').item.json.body.searching }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2060,
+        275
+      ],
+      "id": "049fc48d-f3f0-4b49-882b-5e836d44db81",
+      "name": "Searchmode"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4o-mini"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [\n  {\n    \"role\": \"system\",\n    \"content\": \"You are a ServiceNow search query optimizer. Transform user questions into effective ServiceNow search terms by:\\n\\n1. Extract key ServiceNow concepts, features, modules, and terminology\\n2. Add relevant ServiceNow-specific keywords\\n3. Include common synonyms and technical terms\\n4. Focus on searchable terms that would appear in documentation\\n5. Remove conversational words and focus on technical content\\n\\nExamples:\\n- 'How do I create a user?' → 'ServiceNow create user account sys_user table administration'\\n- 'Business rule vs workflow' → 'ServiceNow business rule workflow comparison scripting automation'\\n- 'ACL vs query business rule' → 'ServiceNow ACL access control list query business rule security permissions'\\n\\nReturn ONLY the optimized search query, nothing else. Keep it to 3 to 4 words or terms maximum. Do not include the word ServiceNow.\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Question type: \" + $('Initiate').first().json.body.type + \"\\nUser question: \" + $('Initiate').first().json.body.question\n  }\n] }}"
+            },
+            {
+              "name": "max_tokens",
+              "value": 100
+            },
+            {
+              "name": "temperature",
+              "value": 0.1
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2280,
+        475
+      ],
+      "id": "53bcad98-4920-44da-a82d-506f974f5253",
+      "name": "Search Query Optimizer",
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "search-query-1",
+              "name": "searchQuery",
+              "value": "={{ $json.choices[0].message.content.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "search-query-2",
+              "name": "questionType",
+              "value": "={{ $('Initiate').item.json.body.type }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2500,
+        475
+      ],
+      "id": "a662e1d0-0700-4de8-9acd-1cf5a1b327b4",
+      "name": "Search Query Prep"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.servicenow.com/community/s/plugins/custom/servicenow/servicenow/sn.search-ais-ep-settings-config",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.searchQuery }}"
+            },
+            {
+              "name": "filters",
+              "value": "[{\"label\":\"Sources\",\"value\":\"Knowledge Articles\"}]"
+            },
+            {
+              "name": "sourcers",
+              "value": "[\"eddd7b40976d9e10145979c11153af54\"]"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2720,
+        275
+      ],
+      "id": "bff47c69-b40d-4e64-879e-810ff68069e2",
+      "name": "ServiceNow KB Search"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.servicenow.com/community/s/plugins/custom/servicenow/servicenow/sn.search-ais-ep-settings-config",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.searchQuery }}"
+            },
+            {
+              "name": "filters",
+              "value": "[{\"label\":\"Sources\",\"value\":\"Developer Program\"},{\"label\":\"Release\",\"value\":\"Yokohama\"}]"
+            },
+            {
+              "name": "sourcers",
+              "value": "[\"f36dbb00976d9e10145979c11153af8d\",\"b86dff00976d9e10145979c11153afda\",\"7d6cebc897e99e10145979c11153afe3\",\"dacdfb40976d9e10145979c11153aff8\"]"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2720,
+        475
+      ],
+      "id": "493b2c22-79ad-492a-8772-b079160fbdea",
+      "name": "Developer Portal Search"
+    },
+    {
+      "parameters": {
+        "url": "https://www.servicenow.com/community/s/plugins/custom/servicenow/servicenow/sn.search-ais-ep-settings-config",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.searchQuery }}"
+            },
+            {
+              "name": "filters",
+              "value": "[{\"label\":\"Sources\",\"value\":\"Community\"}]"
+            },
+            {
+              "name": "sourcers",
+              "value": "[\"community_articles\",\"community_discussions\"]"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2720,
+        675
+      ],
+      "id": "320c42c2-e971-4f06-8f22-5be8acea4fab",
+      "name": "Community Search"
+    },
+    {
+      "parameters": {
+        "url": "https://store.servicenow.com/sn_appstore_store.do#search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.searchQuery }}"
+            },
+            {
+              "name": "category",
+              "value": "all"
+            },
+            {
+              "name": "sort",
+              "value": "relevance"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2720,
+        875
+      ],
+      "id": "ef28d992-e1d1-457e-bb9b-940fbf8c605e",
+      "name": "ServiceNow Store Search"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        2940,
+        455
+      ],
+      "id": "619ce4e1-8c15-4bd5-ae1a-50f231575026",
+      "name": "Search Results Collector"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process and extract key information from all merged search results\nconst results = [];\nconst sourceNames = ['ServiceNow Knowledge Base', 'Developer Portal', 'Documentation', 'Community', 'ServiceNow Store', 'Now Learning'];\n\n// Process each search result item\nfor (let i = 0; i < $input.all().length; i++) {\n  const item = $input.all()[i];\n  if (item.json) {\n    const sourceName = sourceNames[i] || `Source ${i + 1}`;\n    \n    // Handle ServiceNow KB and Developer Portal API responses\n    if (item.json.search_content && item.json.search_content.result && item.json.search_content.result.searchResults) {\n      for(let j = 0; j < Math.min(item.json.search_content.result.count, 3); j++) {\n        const searchResult = item.json.search_content.result.searchResults[j];\n        results.push({\n          source: sourceName,\n          content: extractContent(searchResult.columns[1].value, sourceName.toLowerCase().replace(' ', '_')),\n          url: searchResult.columns[4].value\n        });\n      }\n    }\n    // Handle Documentation search responses\n    else if (sourceName === 'Documentation' && item.json.body) {\n      results.push({\n        source: sourceName,\n        content: extractDocumentationContent(item.json.body),\n        url: item.json.url || 'https://docs.servicenow.com'\n      });\n    }\n    // Handle Community search responses\n    else if (sourceName === 'Community' && item.json.search_content) {\n      results.push({\n        source: sourceName,\n        content: extractCommunityContent(item.json),\n        url: item.json.url || 'https://www.servicenow.com/community'\n      });\n    }\n    // Handle Store search responses\n    else if (sourceName === 'ServiceNow Store' && item.json) {\n      results.push({\n        source: sourceName,\n        content: extractStoreContent(item.json),\n        url: item.json.url || 'https://store.servicenow.com'\n      });\n    }\n    // Handle Now Learning search responses\n    else if (sourceName === 'Now Learning' && item.json) {\n      results.push({\n        source: sourceName,\n        content: extractLearningContent(item.json),\n        url: item.json.url || 'https://nowlearning.service-now.com'\n      });\n    }\n    // Fallback for any other response format\n    else {\n      results.push({\n        source: sourceName,\n        content: `Content from ${sourceName} - Response format: ${JSON.stringify(item.json).substring(0, 100)}...`,\n        url: extractUrl(item.json) || ''\n      });\n    }\n  }\n}\n\nfunction extractContent(data, source) {\n  if (typeof data === 'string') {\n    const cleanText = data.replace(/<[^>]*>/g, '').replace(/\\s+/g, ' ').trim();\n    return cleanText.substring(0, 200);\n  }\n  \n  if (data.results && Array.isArray(data.results)) {\n    return data.results.slice(0, 3).map(item => {\n      const title = item.title || item.name || '';\n      const desc = item.description || item.summary || item.content || '';\n      return `${title}: ${desc}`.substring(0, 150);\n    }).join('\\n');\n  }\n  \n  if (data.items && Array.isArray(data.items)) {\n    return data.items.slice(0, 3).map(item => {\n      const title = item.title || item.name || '';\n      const desc = item.snippet || item.description || '';\n      return `${title}: ${desc}`.substring(0, 150);\n    }).join('\\n');\n  }\n  \n  return `Content from ${source} - customize extraction based on actual API response format`;\n}\n\nfunction extractDocumentationContent(body) {\n  if (typeof body === 'string') {\n    return body.replace(/<[^>]*>/g, '').replace(/\\s+/g, ' ').trim().substring(0, 200);\n  }\n  return 'Documentation content available';\n}\n\nfunction extractCommunityContent(data) {\n  if (data.search_content && data.search_content.result && data.search_content.result.searchResults) {\n    return data.search_content.result.searchResults.slice(0, 2).map(item => {\n      const title = item.columns && item.columns[1] ? item.columns[1].value : 'Community Post';\n      return title.replace(/<[^>]*>/g, '').substring(0, 100);\n    }).join('\\n');\n  }\n  return 'Community discussions and articles available';\n}\n\nfunction extractStoreContent(data) {\n  if (data.results && Array.isArray(data.results)) {\n    return data.results.slice(0, 3).map(app => {\n      const name = app.name || app.title || 'ServiceNow App';\n      const desc = app.description || app.summary || '';\n      return `${name}: ${desc}`.substring(0, 120);\n    }).join('\\n');\n  }\n  return 'ServiceNow Store applications and integrations available';\n}\n\nfunction extractLearningContent(data) {\n  if (data.courses && Array.isArray(data.courses)) {\n    return data.courses.slice(0, 3).map(course => {\n      const title = course.title || course.name || 'Learning Content';\n      const desc = course.description || course.summary || '';\n      return `${title}: ${desc}`.substring(0, 120);\n    }).join('\\n');\n  }\n  return 'Now Learning courses and certifications available';\n}\n\nfunction extractUrl(data) {\n  if (data.url) return data.url;\n  if (data.link) return data.link;\n  if (data.results && data.results[0] && data.results[0].url) return data.results[0].url;\n  if (data.items && data.items[0] && data.items[0].link) return data.items[0].link;\n  return '';\n}\n\nreturn { searchResults: results };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3160,
+        475
+      ],
+      "id": "d9974ca8-f7ae-4396-8cac-2bfb1e82cf1e",
+      "name": "Content Processor"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4.1-nano-2025-04-14"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [\n  {\n    \"role\": \"system\",\n    \"content\": \"You are a ServiceNow content summarizer. Create concise, actionable summaries of search results. Focus on key information, links, and practical guidance. Keep each source summary under 100 tokens. If you find any links / URL in the input given, they MUST be added together with the summery. The links are important.\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Summarize these ServiceNow search results for the question: \\\"\" + $('Initiate').first().json.body.question + \"\\\"\\n\\nSearch Results:\\n\" + JSON.stringify($('Content Processor').first().json.searchResults, null, 2)\n  }\n] }}"
+            },
+            {
+              "name": "max_tokens",
+              "value": 500
+            },
+            {
+              "name": "temperature",
+              "value": 0.3
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3380,
+        475
+      ],
+      "id": "7781b404-1bc1-4e39-8b2f-11b209913dd3",
+      "name": "Content Summarizer",
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "enhance-prompt-1",
+              "name": "searchContext",
+              "value": "=SEARCH CONTEXT FOR YOUR RESPONSE:\n\n{{ $('Content Summarizer').first().json.choices[0].message.content }}\n\nBased on this curated information, provide your ServiceNow guidance focusing on practical implementation.",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3600,
+        475
+      ],
+      "id": "2b852a6f-31ae-4e22-becd-3cdf78e49813",
+      "name": "Prompt Enhancer"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Question from the user: \"{{ $('Initiate').first().json.body.question }}\"",
+        "options": {
+          "systemMessage": "={{ $('Prompt Enhancer').first().json.searchContext || '' }}\n\nRESPONSE GUIDELINES:\n- You have been provided with curated search results above (when available)\n- Focus on synthesizing and applying the provided information\n- Provide practical, actionable guidance based on the search context\n- Include URLs from the search results when referencing specific resources\n- If search context is not available, provide general ServiceNow best practices\n\nIMPORTANT:\n- If you are giving code examples with GlideRecord objects, never name the variables gr. Name the variable something with a relation to the table being used, for instance grIncident for incidents.\n- Always cite your sources when using information from the search context\n- Focus on practical implementation rather than theoretical explanations"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        3820,
+        475
+      ],
+      "id": "a67ee64a-03fe-499d-b9ad-f61c5ce9141a",
+      "name": "AI Tool System"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Question from the user: \"{{ $('Initiate').item.json.body.question }}\"",
+        "options": {
+          "systemMessage": "={{ $json.prompt }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        3060,
+        -320
+      ],
+      "id": "a5d17c54-0fee-4f11-a20a-7363c1dfb2aa",
+      "name": "Claude AI system"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Initiate').item.json.body.sessionkey }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        3100,
+        -40
+      ],
+      "id": "9d49a9a2-d142-44a3-850b-12e5e86fae4a",
+      "name": "Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "={{ $json.model }}",
+          "mode": "id"
+        },
+        "options": {
+          "maxTokensToSample": "={{ $('Generate Key').item.json.max_tokens }}",
+          "temperature": "={{ $('Generate Key').item.json.temperature }}",
+          "topK": "={{ $('Generate Key').item.json.top_k }}",
+          "topP": "={{ $('Generate Key').item.json.top_p }}",
+          "thinking": "={{ $('Generate Key').item.json.enable_thinking }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        2900,
+        -20
+      ],
+      "id": "35642707-f816-4c3d-9c44-1eb73e053f27",
+      "name": "AI model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "={{ $('Searchmode').first().json.model }}",
+          "mode": "id"
+        },
+        "options": {
+          "maxTokensToSample": "={{ $('Generate Key').first().json.max_tokens }}",
+          "temperature": "={{ $('Generate Key').first().json.temperature }}",
+          "topK": "={{ $('Generate Key').first().json.top_k }}",
+          "topP": "={{ $('Generate Key').first().json.top_p }}",
+          "thinking": "={{ $('Generate Key').first().json.enable_thinking }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        3680,
+        700
+      ],
+      "id": "cf4657c5-181b-4b33-8877-85d72fcac293",
+      "name": "AI Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Initiate').item.json.body.sessionkey }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        3860,
+        680
+      ],
+      "id": "d8ce39fe-a7ed-4239-a64a-db780c637f0e",
+      "name": "Tool Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "snhelper-add-qa-pair",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        80,
+        1135
+      ],
+      "id": "345b57b6-445a-4075-b04e-5cdf45a90056",
+      "name": "Add QA Pair Webhook",
+      "webhookId": "add-qa-pair-webhook-id",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "HEADER_AUTH_CREDENTIAL_ID",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "extract-data",
+              "name": "question",
+              "value": "={{ $json.body.question }}",
+              "type": "string"
+            },
+            {
+              "id": "extract-answer",
+              "name": "answer",
+              "value": "={{ $json.body.answer }}",
+              "type": "string"
+            },
+            {
+              "id": "extract-category",
+              "name": "category",
+              "value": "={{ $json.body.category || 'general' }}",
+              "type": "string"
+            },
+            {
+              "id": "extract-tags",
+              "name": "tags",
+              "value": "={{ $json.body.tags || [] }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        300,
+        1135
+      ],
+      "id": "a729e1c4-73ca-46f5-97fd-1818d615aba0",
+      "name": "Extract QA Data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/embeddings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "input",
+              "value": "={{ $json.question }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        1135
+      ],
+      "id": "225a13fe-30f1-4fab-85df-e139b8cc1918",
+      "name": "Generate Question Embedding",
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/embeddings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "input",
+              "value": "={{ $('Extract QA Data').item.json.answer }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        740,
+        1135
+      ],
+      "id": "e5a62101-98ad-44c0-a8b2-6d54fd9db86e",
+      "name": "Generate Answer Embedding",
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "combine-embeddings",
+              "name": "question_embedding",
+              "value": "={{ $('Generate Question Embedding').item.json.data[0].embedding }}",
+              "type": "array"
+            },
+            {
+              "id": "combine-answer-embedding",
+              "name": "answer_embedding",
+              "value": "={{ $('Generate Answer Embedding').item.json.data[0].embedding }}",
+              "type": "array"
+            },
+            {
+              "id": "combine-question",
+              "name": "question",
+              "value": "={{ $('Extract QA Data').item.json.question }}",
+              "type": "string"
+            },
+            {
+              "id": "combine-answer",
+              "name": "answer",
+              "value": "={{ $('Extract QA Data').item.json.answer }}",
+              "type": "string"
+            },
+            {
+              "id": "combine-category",
+              "name": "category",
+              "value": "={{ $('Extract QA Data').item.json.category }}",
+              "type": "string"
+            },
+            {
+              "id": "combine-tags",
+              "name": "tags",
+              "value": "={{ $('Extract QA Data').item.json.tags }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        1135
+      ],
+      "id": "9f6e70a8-575c-4b8e-9968-21cfee7a7ada",
+      "name": "Combine Data"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "qa_knowledge_base",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "question": "={{ $json.question }}",
+            "answer": "={{ $json.answer }}",
+            "question_embedding": "={{ JSON.stringify($json.question_embedding) }}",
+            "answer_embedding": "={{ JSON.stringify($json.answer_embedding) }}",
+            "category": "={{ $json.category }}",
+            "tags": "={{ JSON.stringify($json.tags) }}"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "answer",
+              "displayName": "answer",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "question_embedding",
+              "displayName": "question_embedding",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "answer_embedding",
+              "displayName": "answer_embedding",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tags",
+              "displayName": "tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1180,
+        1135
+      ],
+      "id": "8c31799b-716e-4a12-abe0-acda91fcbee6",
+      "name": "Save to Database",
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Embeddings",
+        "height": 260,
+        "width": 1980,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        1035
+      ],
+      "typeVersion": 1,
+      "id": "57ed472a-2e7e-42e8-8332-aaff5832f73d",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"QA pair saved successfully\",\n  \"id\": {{ $json.id }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1400,
+        1135
+      ],
+      "id": "e356eb1f-f1dd-4a17-a88e-9a625d25e924",
+      "name": "Success embedding response"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Searches a knowledge base of previously saved question-and-answer pairs. This tool is designed to retrieve useful answers based on past user queries.\nUse this tool by inputting a question. If similar questions have been asked before, it will return the most relevant answers previously marked as helpful.\n\nInput:\nA natural language question from the user.\n\nOutput:\nOne or more relevant answers from the knowledge base, if any similar questions are found.\n\nExample usage:\nInput: \"How do I reset my database password?\"\nOutput: \"To reset your database password, go to the admin panel, select 'Security', then choose 'Reset Password'.\"",
+        "tableName": "qa_knowledge_base",
+        "options": {
+          "columnNames": {
+            "values": {
+              "vectorColumnName": "question_embedding",
+              "contentColumnName": "answer"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        3340,
+        -100
+      ],
+      "id": "3a898713-2de3-4d81-89e9-cba754c639ae",
+      "name": "Postgres PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3300,
+        120
+      ],
+      "id": "fbaf6906-ab7c-4c97-b815-5ef6a770251b",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        4080,
+        880
+      ],
+      "id": "4cda06a0-97f4-4030-975b-fb3acb0504ac",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Searches a knowledge base of previously saved question-and-answer pairs. This tool is designed to retrieve useful answers based on past user queries.\nUse this tool by inputting a question. If similar questions have been asked before, it will return the most relevant answers previously marked as helpful.\n\nInput:\nA natural language question from the user.\n\nOutput:\nOne or more relevant answers from the knowledge base, if any similar questions are found.\n\nExample usage:\nInput: \"How do I reset my database password?\"\nOutput: \"To reset your database password, go to the admin panel, select 'Security', then choose 'Reset Password'.\"",
+        "tableName": "qa_knowledge_base",
+        "options": {
+          "columnNames": {
+            "values": {
+              "vectorColumnName": "question_embedding",
+              "contentColumnName": "answer"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        4000,
+        700
+      ],
+      "id": "3acb485e-498d-4d00-a792-099e451347ac",
+      "name": "Postgres PGVector Store1",
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Initiate": {
+      "main": [
+        [
+          {
+            "node": "Set Basic Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Append Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append Documentation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append Script",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append Troubleshoot",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Resposne",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Recommendation": {
+      "main": [
+        [
+          {
+            "node": "If Expert Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Documentation": {
+      "main": [
+        [
+          {
+            "node": "If Expert Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Script": {
+      "main": [
+        [
+          {
+            "node": "If Expert Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Opus Model": {
+      "main": [
+        [
+          {
+            "node": "Generate Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Expert Mode": {
+      "main": [
+        [
+          {
+            "node": "Set Opus Model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Sonnet Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Sonnet Model": {
+      "main": [
+        [
+          {
+            "node": "Generate Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Key": {
+      "main": [
+        [
+          {
+            "node": "Create Work Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Searchmode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Basic Variables": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Work Record": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Return result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll result": {
+      "main": [
+        [
+          {
+            "node": "Set database key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set database key": {
+      "main": [
+        [
+          {
+            "node": "Query workitem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query workitem": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Troubleshoot": {
+      "main": [
+        [
+          {
+            "node": "If Expert Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Searchmode": {
+      "main": [
+        [
+          {
+            "node": "Search Query Optimizer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Claude AI system",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Query Optimizer": {
+      "main": [
+        [
+          {
+            "node": "Search Query Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Query Prep": {
+      "main": [
+        [
+          {
+            "node": "ServiceNow KB Search",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Developer Portal Search",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Community Search",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ServiceNow Store Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ServiceNow KB Search": {
+      "main": [
+        [
+          {
+            "node": "Search Results Collector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Developer Portal Search": {
+      "main": [
+        [
+          {
+            "node": "Search Results Collector",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Search Results Collector": {
+      "main": [
+        [
+          {
+            "node": "Content Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Processor": {
+      "main": [
+        [
+          {
+            "node": "Content Summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Summarizer": {
+      "main": [
+        [
+          {
+            "node": "Prompt Enhancer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt Enhancer": {
+      "main": [
+        [
+          {
+            "node": "AI Tool System",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Tool System": {
+      "main": [
+        [
+          {
+            "node": "Save response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude AI system": {
+      "main": [
+        [
+          {
+            "node": "Save response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Claude AI system",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Claude AI system",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Tool System",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Tool System",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Community Search": {
+      "main": [
+        [
+          {
+            "node": "Search Results Collector",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "ServiceNow Store Search": {
+      "main": [
+        [
+          {
+            "node": "Search Results Collector",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Add QA Pair Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract QA Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract QA Data": {
+      "main": [
+        [
+          {
+            "node": "Generate Question Embedding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Question Embedding": {
+      "main": [
+        [
+          {
+            "node": "Generate Answer Embedding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Data": {
+      "main": [
+        [
+          {
+            "node": "Save to Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Database": {
+      "main": [
+        [
+          {
+            "node": "Success embedding response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Answer Embedding": {
+      "main": [
+        [
+          {
+            "node": "Combine Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "Claude AI system",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Tool System",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "TEMPLATE_VERSION_ID",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "TEMPLATE_INSTANCE_ID"
+  },
+  "id": "TEMPLATE_WORKFLOW_ID",
+  "tags": []
+}
