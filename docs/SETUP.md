@@ -37,8 +37,8 @@ Create a `.env` file with the following variables:
 
 ```env
 # Required API Keys
-CLAUDE_API_KEY=your-claude-api-key-here
 OPENAI_API_KEY=your-openai-api-key-here
+OPENROUTER_API_KEY=your-openrouter-api-key-here
 WEBHOOK_API_KEY=your-secure-webhook-api-key-here
 
 # Application Configuration
@@ -66,7 +66,7 @@ NODE_ENV=devel
 The setup process automatically:
 
 1. **Creates N8N default user** with email `admin@servicenow-helper.local` and password `admin123`
-2. **Sets up API credentials** for Claude and OpenAI using your environment variables
+2. **Sets up API credentials** for OpenAI and OpenRouter using your environment variables
 3. **Creates webhook authentication** using your specified API key
 4. **Configures PostgreSQL connections** for both N8N and the application
 5. **Imports and activates the workflow** with correct credential mappings

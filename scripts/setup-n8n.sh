@@ -79,6 +79,11 @@ curl -s -b cookies.txt -X POST "http://$N8N_HOST/rest/credentials" \
     -H "Content-Type: application/json" \
     -d "{\"name\": \"Header Auth account\", \"type\": \"httpHeaderAuth\", \"data\": {\"name\": \"apikey\", \"value\": \"$WEBHOOK_API_KEY\"}}" > /dev/null
 
+echo "  - Creating OpenRouter credential..."
+curl -s -b cookies.txt -X POST "http://$N8N_HOST/rest/credentials" \
+    -H "Content-Type: application/json" \
+    -d "{\"name\": \"OpenRouter account\", \"type\": \"openRouterApi\", \"data\": {\"apiKey\": \"$OPENROUTER_API_KEY\"}}" > /dev/null
+
 echo "✅ Credentials created"
 
 # Get credential IDs
@@ -113,6 +118,7 @@ if command -v jq >/dev/null 2>&1; then
     OPENAI_ID=$(echo "$CREDS_RESPONSE" | jq -r '.data[] | select(.type=="openAiApi") | .id' 2>/dev/null || echo "")
     POSTGRES_ID=$(echo "$CREDS_RESPONSE" | jq -r '.data[] | select(.type=="postgres") | .id' 2>/dev/null || echo "")
     HEADER_ID=$(echo "$CREDS_RESPONSE" | jq -r '.data[] | select(.type=="httpHeaderAuth") | .id' 2>/dev/null || echo "")
+    OPENROUTER_ID=$(echo "$CREDS_RESPONSE" | jq -r '.data[] | select(.type=="openRouterApi") | .id' 2>/dev/null || echo "")
 else
     echo "Using grep/sed for credential extraction..."
     # Simpler pattern matching
@@ -120,6 +126,7 @@ else
     OPENAI_ID=$(echo "$CREDS_RESPONSE" | grep -o '"id":"[^"]*"' | head -2 | tail -1 | cut -d'"' -f4)
     POSTGRES_ID=$(echo "$CREDS_RESPONSE" | grep -o '"id":"[^"]*"' | head -3 | tail -1 | cut -d'"' -f4)
     HEADER_ID=$(echo "$CREDS_RESPONSE" | grep -o '"id":"[^"]*"' | head -4 | tail -1 | cut -d'"' -f4)
+    OPENROUTER_ID=$(echo "$CREDS_RESPONSE" | grep -o '"id":"[^"]*"' | head -5 | tail -1 | cut -d'"' -f4)
 fi
 
 echo "Found credential IDs:"
@@ -127,6 +134,7 @@ echo "  Anthropic: $ANTHROPIC_ID"
 echo "  OpenAI: $OPENAI_ID"
 echo "  Postgres: $POSTGRES_ID"
 echo "  Header: $HEADER_ID"
+echo "  OpenRouter: $OPENROUTER_ID"
 
 # Update workflow with credential IDs
 if [ -f n8n/init/workflow-template.json ] && [ -n "$ANTHROPIC_ID" ]; then
@@ -135,6 +143,7 @@ if [ -f n8n/init/workflow-template.json ] && [ -n "$ANTHROPIC_ID" ]; then
         -e "s/OPENAI_CREDENTIAL_ID/$OPENAI_ID/g" \
         -e "s/POSTGRES_CREDENTIAL_ID/$POSTGRES_ID/g" \
         -e "s/HEADER_AUTH_CREDENTIAL_ID/$HEADER_ID/g" \
+        -e "s/OPENROUTER_CREDENTIAL_ID/$OPENROUTER_ID/g" \
         n8n/init/workflow-template.json > workflow-final.json
     
     # Import main workflow

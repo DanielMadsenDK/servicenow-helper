@@ -1,10 +1,10 @@
 # ServiceNow AI Support Tool
 
-An AI-powered ServiceNow assistance tool built with Next.js 15. This application provides intelligent support for ServiceNow-related questions through an intuitive web interface with JWT-based authentication and real-time AI responses via n8n workflow automation.
+An AI-powered ServiceNow assistance tool built with Next.js 15. This application provides intelligent support for ServiceNow-related questions through an intuitive web interface with JWT-based authentication and real-time AI responses via n8n workflow automation. The application uses OpenRouter to provide access to a wide variety of AI models, allowing users to choose the best model for their specific needs.
 
 ## Features
 
-- **AI-Powered Assistance**: Get intelligent answers to ServiceNow questions across multiple categories.
+- **AI-Powered Assistance**: Get intelligent answers to ServiceNow questions across multiple categories using OpenRouter's extensive model selection.
 - **Secure Authentication**: Server-side JWT-based authentication with httpOnly cookies and Next.js middleware protection.
 - **Conversation History**: Full conversation tracking with search, filtering, and management capabilities.
 - **Multiple Question Types**: Support for documentation, recommendations, scripts, and troubleshooting.
@@ -31,7 +31,7 @@ An AI-powered ServiceNow assistance tool built with Next.js 15. This application
 - **Content Rendering**: ReactMarkdown 10.1.0 with syntax highlighting
 - **Workflow Engine**: n8n for AI processing and external integrations
 - **Database**: PostgreSQL 15-alpine for conversation history, user settings, session storage, and n8n data
-- **AI Models**: Claude (Anthropic) and GPT models (OpenAI)
+- **AI Models**: OpenRouter integration providing access to multiple AI models including Claude (Anthropic), GPT models (OpenAI), and many others
 - **Testing**: Jest 30.0.4 (unit tests) and Playwright 1.53.2 (integration tests)
 - **Deployment**: Docker and Docker Compose (Dockerfile and docker-compose.yml in root)
 - **Performance**: Dynamic imports, lazy loading, React.memo, and code splitting for optimal performance
@@ -87,8 +87,8 @@ sequenceDiagram
     # Edit .env file with your API keys and secrets
     ```
     Required environment variables:
-    - `CLAUDE_API_KEY`: Your Anthropic Claude API key
-    - `OPENAI_API_KEY`: Your OpenAI API key  
+    - `OPENAI_API_KEY`: Your OpenAI API key
+    - `OPENROUTER_API_KEY`: Your OpenRouter API key (provides access to multiple AI models)
     - `WEBHOOK_API_KEY`: A secure random string for webhook authentication
     - `JWT_SECRET`: A secure random string for JWT token signing
     - `N8N_ENCRYPTION_KEY`: A secure random string for n8n credential encryption.

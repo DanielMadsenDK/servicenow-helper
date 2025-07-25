@@ -22,7 +22,7 @@ The application follows a containerized, multi-service architecture orchestrated
 
 ### Core Components
 - **Next.js 15.3.5 Frontend**: A web application for user interaction, authentication, and displaying results.
-- **n8n Workflow Engine**: Handles the backend AI processing, integrating with services like Anthropic Claude.
+- **n8n Workflow Engine**: Handles the backend AI processing, integrating with OpenRouter to provide access to multiple AI models.
 - **PostgreSQL Database**: Provides data storage for n8n and session storage for the Next.js app.
 
 ### Authentication System

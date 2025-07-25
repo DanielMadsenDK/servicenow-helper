@@ -8,8 +8,8 @@ These variables must be configured in your `.env` file:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `CLAUDE_API_KEY` | Anthropic Claude API key | `sk-ant-api03-...` |
 | `OPENAI_API_KEY` | OpenAI API key | `sk-proj-...` |
+| `OPENROUTER_API_KEY` | OpenRouter API key (provides access to multiple AI models) | `sk-or-v1-...` |
 | `WEBHOOK_API_KEY` | Secure key for webhook authentication | `564669d2-7b3c-4c24-b44a-be72461ccd4f` |
 | `JWT_SECRET` | JWT signing secret | `your-jwt-secret-here` |
 | `N8N_ENCRYPTION_KEY` | n8n credential encryption key (must be secure) | `your-secure-n8n-encryption-key-here` |
@@ -46,8 +46,8 @@ These variables are automatically set by Docker Compose and typically don't need
 
 ```env
 # API Keys - Required for automated setup
-CLAUDE_API_KEY=your-claude-api-key-here
 OPENAI_API_KEY=your-openai-api-key-here
+OPENROUTER_API_KEY=your-openrouter-api-key-here
 WEBHOOK_API_KEY=your-secure-webhook-api-key-here
 
 # N8N Configuration  

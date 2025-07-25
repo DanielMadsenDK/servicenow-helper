@@ -12,10 +12,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        80,
-        375
+        -2340,
+        620
       ],
-      "id": "cba20181-e50b-4fee-bb3a-6a3a2245219a",
+      "id": "556ccaef-8a6d-4697-af40-61dcb16bb8c5",
       "name": "Initiate",
       "webhookId": "d8f43068-431e-405b-bdbb-e7dba6862298",
       "credentials": {
@@ -34,10 +34,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.3,
       "position": [
-        1840,
-        275
+        -580,
+        520
       ],
-      "id": "2ad009c2-8149-4178-834b-bef224f48f99",
+      "id": "732a0523-870f-4460-9bc4-9c6cddc46fb8",
       "name": "Respond to Webhook"
     },
     {
@@ -153,10 +153,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        520,
-        335
+        -1900,
+        580
       ],
-      "id": "ef475062-b0dd-412d-a977-580d352e0335",
+      "id": "d9171477-5865-41ac-9a74-57437b81a2a9",
       "name": "Switch",
       "alwaysOutputData": false
     },
@@ -171,10 +171,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.3,
       "position": [
-        740,
-        775
+        -1680,
+        1020
       ],
-      "id": "a1208bf8-ee09-4959-b65a-b3ce4bfcfd54",
+      "id": "2163b6bf-549d-4db5-9b00-efb533f9d6b6",
       "name": "Error Resposne"
     },
     {
@@ -201,10 +201,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        740,
-        -25
+        -1680,
+        220
       ],
-      "id": "97997242-3b83-4c22-b735-14ff263a7354",
+      "id": "27750666-7706-4d45-ba8b-f5be2e865973",
       "name": "Append Recommendation"
     },
     {
@@ -231,10 +231,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        740,
-        175
+        -1680,
+        420
       ],
-      "id": "3b4b6da2-93e3-46c3-a037-6949b6378beb",
+      "id": "4f8bf7c4-abd8-4348-9c7e-de52041765ed",
       "name": "Append Documentation"
     },
     {
@@ -261,93 +261,11 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        740,
-        375
+        -1680,
+        620
       ],
-      "id": "3e0cc808-db18-4c9d-b791-c13f31c431bc",
+      "id": "d2a0ef23-4c93-4d0a-859a-d91d90afc4d0",
       "name": "Append Script"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "65b94016-aa51-4f0a-a7f7-6b8aedca9778",
-              "name": "model",
-              "value": "claude-opus-4-20250514",
-              "type": "string"
-            }
-          ]
-        },
-        "includeOtherFields": true,
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1180,
-        175
-      ],
-      "id": "a81fc29f-8376-4d0c-a475-45b897f4cd5a",
-      "name": "Set Opus Model"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "e4f1a4a3-dd5b-4716-9d0f-eceb75442f6d",
-              "leftValue": "={{ $('Initiate').item.json.body.expert }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        960,
-        275
-      ],
-      "id": "733f8d41-565e-441c-baa8-bbd16adb602c",
-      "name": "If Expert Mode"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "6826c860-d64c-465d-bbef-b3b14212d2bc",
-              "name": "model",
-              "value": "claude-sonnet-4-20250514",
-              "type": "string"
-            }
-          ]
-        },
-        "includeOtherFields": true,
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1180,
-        375
-      ],
-      "id": "3264a381-7e1a-4c5a-a3a7-53d607c44394",
-      "name": "Set Sonnet Model"
     },
     {
       "parameters": {
@@ -357,10 +275,10 @@
       "type": "n8n-nodes-base.crypto",
       "typeVersion": 1,
       "position": [
-        1400,
-        275
+        -1020,
+        520
       ],
-      "id": "841f72ce-3aa0-463f-8553-8b5c22b21405",
+      "id": "fd631256-d97c-4bec-83eb-65f35630a7da",
       "name": "Generate Key"
     },
     {
@@ -436,10 +354,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        300,
-        375
+        -2120,
+        620
       ],
-      "id": "f5f4238c-1429-4e9c-a9b3-1dd9884e9ae4",
+      "id": "3cd32122-4a86-4194-8552-49cb3f221245",
       "name": "Set Basic Variables"
     },
     {
@@ -451,10 +369,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -40,
-        -185
+        -2460,
+        60
       ],
-      "id": "57e3a4ef-dfcb-4ba8-8128-70534f4cd962",
+      "id": "a61af2e4-0298-4e0c-b705-8cac8fc36459",
       "name": "Sticky Note"
     },
     {
@@ -558,10 +476,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1620,
-        275
+        -800,
+        520
       ],
-      "id": "1a679a22-e862-4c1e-ab2f-4e666fdf0b43",
+      "id": "140685ec-821e-42f8-ae3a-5ffd761de685",
       "name": "Create Work Record",
       "credentials": {
         "postgres": {
@@ -572,18 +490,567 @@
     },
     {
       "parameters": {
+        "content": "## Response",
+        "height": 440,
+        "width": 1440,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2580,
+        1560
+      ],
+      "id": "6955f142-903a-4f92-93c7-7b32f7f4de0f",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "688f7e3f-3a7c-44b5-a0bc-a792fb684ce6",
+              "leftValue": "=done",
+              "rightValue": "={{ $('Query workitem').item.json.state }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1680,
+        1740
+      ],
+      "id": "01b4f7ff-8f67-4744-a08a-ff5580b78d95",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "3d871efe-423d-422d-b431-33a1f8888e2c",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2340,
+        1740
+      ],
+      "id": "bb6bf75e-8f2e-48e6-8504-38213382dfae",
+      "name": "Poll result",
+      "webhookId": "3d871efe-423d-422d-b431-33a1f8888e2b",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "HEADER_AUTH_CREDENTIAL_ID",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "81566dfc-3c70-4c9c-98c7-5a415a63d940",
+              "name": "databaseKey",
+              "value": "={{ $json.body.key }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2120,
+        1740
+      ],
+      "id": "f5c482f2-cb60-43e5-b5d6-a68ac5b2e90c",
+      "name": "Set database key"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "ServiceNowSupportTool",
+          "mode": "list",
+          "cachedResultName": "ServiceNowSupportTool"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "key",
+              "value": "={{ $json.databaseKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1900,
+        1740
+      ],
+      "id": "16a4a558-4004-4ada-868c-b6313adba25a",
+      "name": "Query workitem",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"state\": \"done\",\n  \"message\": {{ $json.response.toJsonString() }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        -1460,
+        1640
+      ],
+      "id": "7e2b6bb5-ff3a-4f8c-961f-10108a8d7be1",
+      "name": "Return result"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"state\": \"processing\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        -1460,
+        1840
+      ],
+      "id": "ee35662c-5df7-41e6-97af-0cde62ddaf57",
+      "name": "Return status"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "36e3620f-39bc-41ea-a156-4aff6297a0bf",
+              "name": "=prompt",
+              "value": "={{ $json.prompt }}\n\n## Troubleshooting Mode\nSystematically diagnose and resolve ServiceNow issues using platform-native tools and methods.\n\n### Diagnostic Framework\n1. **Issue Classification**\n   - **Symptoms**: What's happening vs. expected behavior\n   - **Scope**: Single user/record vs. system-wide\n   - **Timing**: When it started (after upgrade? config change?)\n   - **Severity**: Production down vs. minor inconvenience\n\n2. **Root Cause Analysis**\nStep 1: Check System Logs (filter by time/user/transaction)\nStep 2: Review Debug Output (session debug, SQL logs)\nStep 3: Validate Configuration (compare to baseline/OOB)\nStep 4: Test in Isolation (impersonate user, test instance)\n\n3. **Solution Path**\n- **Immediate Fix**: Workaround to restore service\n- **Root Fix**: Permanent solution addressing cause\n- **Implementation**: Specific steps with rollback plan\n\n4. **Verification & Prevention**\n- **Test**: Specific scenarios to confirm resolution\n- **Monitor**: What to watch for next 24-48 hours\n- **Prevent**: Configuration/process changes to avoid recurrence\n\n### ServiceNow Diagnostic Tools\n- **System Diagnostics**: Debug modules, performance analytics\n- **Session Debugging**: Enable for specific user/transaction\n- **Flow Debugger**: For workflow/flow designer issues\n- **Script Debugger**: For business rule/script include problems\n- **Update Set Preview**: For deployment-related issues\n- **Instance Scan**: For best practice violations\n\n### Escalation Triggers\nIf these occur, recommend ServiceNow support:\n- Production data corruption\n- Platform-level errors (Java stack traces)\n- Upgrade rollback scenarios\n- Security breaches\n\nFocus: Methodical diagnosis before solution. Use ServiceNow's native tools. Document findings for knowledge base.",
+              "type": "string"
+            },
+            {
+              "id": "d2294647-4c10-4729-869a-040f627f5c86",
+              "name": "temperature",
+              "value": 0.3,
+              "type": "number"
+            },
+            {
+              "id": "03f86893-67c9-4fc7-b5a1-e37aad107aff",
+              "name": "enable_thinking",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1680,
+        820
+      ],
+      "id": "c2a548d9-0cc7-414d-a849-700643f5cadd",
+      "name": "Append Troubleshoot"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "snhelper-add-qa-pair",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2340,
+        1380
+      ],
+      "id": "596df78e-e6e8-43a3-9abd-8011d57bda17",
+      "name": "Add QA Pair Webhook",
+      "webhookId": "add-qa-pair-webhook-id",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "HEADER_AUTH_CREDENTIAL_ID",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "extract-data",
+              "name": "question",
+              "value": "={{ $json.body.question }}",
+              "type": "string"
+            },
+            {
+              "id": "extract-answer",
+              "name": "answer",
+              "value": "={{ $json.body.answer }}",
+              "type": "string"
+            },
+            {
+              "id": "extract-category",
+              "name": "category",
+              "value": "={{ $json.body.category || 'general' }}",
+              "type": "string"
+            },
+            {
+              "id": "extract-tags",
+              "name": "tags",
+              "value": "={{ $json.body.tags || [] }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2120,
+        1380
+      ],
+      "id": "d16a7151-2062-4770-84db-464cffab06fd",
+      "name": "Extract QA Data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/embeddings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "input",
+              "value": "={{ $json.question }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1900,
+        1380
+      ],
+      "id": "d9a1a556-04eb-4c36-b20e-8acdc9948281",
+      "name": "Generate Question Embedding",
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/embeddings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "input",
+              "value": "={{ $('Extract QA Data').item.json.answer }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1680,
+        1380
+      ],
+      "id": "b073252b-ad48-4d0e-b3dc-1420846efe05",
+      "name": "Generate Answer Embedding",
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "combine-embeddings",
+              "name": "question_embedding",
+              "value": "={{ $('Generate Question Embedding').item.json.data[0].embedding }}",
+              "type": "array"
+            },
+            {
+              "id": "combine-answer-embedding",
+              "name": "answer_embedding",
+              "value": "={{ $('Generate Answer Embedding').item.json.data[0].embedding }}",
+              "type": "array"
+            },
+            {
+              "id": "combine-question",
+              "name": "question",
+              "value": "={{ $('Extract QA Data').item.json.question }}",
+              "type": "string"
+            },
+            {
+              "id": "combine-answer",
+              "name": "answer",
+              "value": "={{ $('Extract QA Data').item.json.answer }}",
+              "type": "string"
+            },
+            {
+              "id": "combine-category",
+              "name": "category",
+              "value": "={{ $('Extract QA Data').item.json.category }}",
+              "type": "string"
+            },
+            {
+              "id": "combine-tags",
+              "name": "tags",
+              "value": "={{ $('Extract QA Data').item.json.tags }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1460,
+        1380
+      ],
+      "id": "662fb012-70f8-4866-b5f6-5eec99759321",
+      "name": "Combine Data"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "qa_knowledge_base",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "question": "={{ $json.question }}",
+            "answer": "={{ $json.answer }}",
+            "question_embedding": "={{ JSON.stringify($json.question_embedding) }}",
+            "answer_embedding": "={{ JSON.stringify($json.answer_embedding) }}",
+            "category": "={{ $json.category }}",
+            "tags": "={{ JSON.stringify($json.tags) }}"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "answer",
+              "displayName": "answer",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "question_embedding",
+              "displayName": "question_embedding",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "answer_embedding",
+              "displayName": "answer_embedding",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tags",
+              "displayName": "tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1240,
+        1380
+      ],
+      "id": "9b38c97d-2356-4bf9-baa0-172b1c27e89e",
+      "name": "Save to Database",
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Embeddings",
+        "height": 260,
+        "width": 1980,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2620,
+        1280
+      ],
+      "typeVersion": 1,
+      "id": "2b003844-b53f-4737-b23c-f2e9e7c3c72e",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"QA pair saved successfully\",\n  \"id\": {{ $json.id }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -1020,
+        1380
+      ],
+      "id": "1b8cf0d0-84f2-4e65-9438-e2d9e546d9c4",
+      "name": "Success embedding response"
+    },
+    {
+      "parameters": {
         "content": "## Async Processing",
-        "height": 1660,
-        "width": 2060,
+        "height": 1120,
+        "width": 2560,
         "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        2260,
-        -620
+        -180,
+        20
       ],
-      "id": "131bd71b-5db2-408e-a836-d0fafdeb647e",
+      "id": "bf0a89d6-438b-45ef-91cf-0b3fb6464ece",
       "name": "Sticky Note1"
     },
     {
@@ -688,10 +1155,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        4180,
-        175
+        2120,
+        400
       ],
-      "id": "b61197d2-48cf-4499-b2c7-dded7c8f0898",
+      "id": "cff809fa-8dcf-42e2-93df-4dd1cb1e4f01",
       "name": "Save response",
       "credentials": {
         "postgres": {
@@ -699,244 +1166,6 @@
           "name": "Postgres account"
         }
       }
-    },
-    {
-      "parameters": {
-        "content": "## Response",
-        "height": 440,
-        "width": 1440,
-        "color": 5
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -150,
-        1315
-      ],
-      "id": "f595d347-6faa-4914-bbf8-7b7e8e0ef09c",
-      "name": "Sticky Note2"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "688f7e3f-3a7c-44b5-a0bc-a792fb684ce6",
-              "leftValue": "=done",
-              "rightValue": "={{ $('Query workitem').item.json.state }}",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        740,
-        1495
-      ],
-      "id": "bcd91951-37b7-4f72-acdd-14fbfa484bdd",
-      "name": "If"
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "3d871efe-423d-422d-b431-33a1f8888e2c",
-        "authentication": "headerAuth",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        80,
-        1495
-      ],
-      "id": "4d1d8cb3-3bc7-4ef0-9c0b-8d92799611af",
-      "name": "Poll result",
-      "webhookId": "3d871efe-423d-422d-b431-33a1f8888e2b",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "HEADER_AUTH_CREDENTIAL_ID",
-          "name": "Header Auth account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "81566dfc-3c70-4c9c-98c7-5a415a63d940",
-              "name": "databaseKey",
-              "value": "={{ $json.body.key }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        300,
-        1495
-      ],
-      "id": "5c0475c0-524c-48a3-9be8-54f7fd3d1fb3",
-      "name": "Set database key"
-    },
-    {
-      "parameters": {
-        "operation": "select",
-        "schema": {
-          "__rl": true,
-          "mode": "list",
-          "value": "public"
-        },
-        "table": {
-          "__rl": true,
-          "value": "ServiceNowSupportTool",
-          "mode": "list",
-          "cachedResultName": "ServiceNowSupportTool"
-        },
-        "limit": 1,
-        "where": {
-          "values": [
-            {
-              "column": "key",
-              "value": "={{ $json.databaseKey }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        520,
-        1495
-      ],
-      "id": "9c117d56-62cf-4e6a-a6e4-94c7dff0201a",
-      "name": "Query workitem",
-      "alwaysOutputData": true,
-      "credentials": {
-        "postgres": {
-          "id": "POSTGRES_CREDENTIAL_ID",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={\n  \"state\": \"done\",\n  \"message\": {{ $json.response.toJsonString() }}\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.3,
-      "position": [
-        960,
-        1395
-      ],
-      "id": "358be37d-9f90-4f17-b8d5-1f8d71f25d2b",
-      "name": "Return result"
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "{\n  \"state\": \"processing\"\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.3,
-      "position": [
-        960,
-        1595
-      ],
-      "id": "a4d11597-2037-4933-996b-280dedb41d5c",
-      "name": "Return status"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "36e3620f-39bc-41ea-a156-4aff6297a0bf",
-              "name": "=prompt",
-              "value": "={{ $json.prompt }}\n\n## Troubleshooting Mode\nSystematically diagnose and resolve ServiceNow issues using platform-native tools and methods.\n\n### Diagnostic Framework\n1. **Issue Classification**\n   - **Symptoms**: What's happening vs. expected behavior\n   - **Scope**: Single user/record vs. system-wide\n   - **Timing**: When it started (after upgrade? config change?)\n   - **Severity**: Production down vs. minor inconvenience\n\n2. **Root Cause Analysis**\nStep 1: Check System Logs (filter by time/user/transaction)\nStep 2: Review Debug Output (session debug, SQL logs)\nStep 3: Validate Configuration (compare to baseline/OOB)\nStep 4: Test in Isolation (impersonate user, test instance)\n\n3. **Solution Path**\n- **Immediate Fix**: Workaround to restore service\n- **Root Fix**: Permanent solution addressing cause\n- **Implementation**: Specific steps with rollback plan\n\n4. **Verification & Prevention**\n- **Test**: Specific scenarios to confirm resolution\n- **Monitor**: What to watch for next 24-48 hours\n- **Prevent**: Configuration/process changes to avoid recurrence\n\n### ServiceNow Diagnostic Tools\n- **System Diagnostics**: Debug modules, performance analytics\n- **Session Debugging**: Enable for specific user/transaction\n- **Flow Debugger**: For workflow/flow designer issues\n- **Script Debugger**: For business rule/script include problems\n- **Update Set Preview**: For deployment-related issues\n- **Instance Scan**: For best practice violations\n\n### Escalation Triggers\nIf these occur, recommend ServiceNow support:\n- Production data corruption\n- Platform-level errors (Java stack traces)\n- Upgrade rollback scenarios\n- Security breaches\n\nFocus: Methodical diagnosis before solution. Use ServiceNow's native tools. Document findings for knowledge base.",
-              "type": "string"
-            },
-            {
-              "id": "d2294647-4c10-4729-869a-040f627f5c86",
-              "name": "temperature",
-              "value": 0.3,
-              "type": "number"
-            },
-            {
-              "id": "03f86893-67c9-4fc7-b5a1-e37aad107aff",
-              "name": "enable_thinking",
-              "value": true,
-              "type": "boolean"
-            }
-          ]
-        },
-        "includeOtherFields": true,
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        740,
-        575
-      ],
-      "id": "35388cea-62f0-4200-8b5d-e284ae4dcbe5",
-      "name": "Append Troubleshoot"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "69ed723c-3456-4b43-8162-b12916afbcca",
-              "leftValue": "={{ $('Initiate').item.json.body.searching }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        2060,
-        275
-      ],
-      "id": "049fc48d-f3f0-4b49-882b-5e836d44db81",
-      "name": "Searchmode"
     },
     {
       "parameters": {
@@ -979,10 +1208,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2280,
-        475
+        -20,
+        580
       ],
-      "id": "53bcad98-4920-44da-a82d-506f974f5253",
+      "id": "ba7983df-5245-4c22-aa10-cf641dfce44e",
       "name": "Search Query Optimizer",
       "credentials": {
         "openAiApi": {
@@ -1014,10 +1243,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        2500,
-        475
+        200,
+        580
       ],
-      "id": "a662e1d0-0700-4de8-9acd-1cf5a1b327b4",
+      "id": "48f43055-b759-4710-a185-b451452f5743",
       "name": "Search Query Prep"
     },
     {
@@ -1045,10 +1274,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2720,
-        275
+        420,
+        380
       ],
-      "id": "bff47c69-b40d-4e64-879e-810ff68069e2",
+      "id": "e571340c-f3a3-4092-bccf-2dc01791c1e2",
       "name": "ServiceNow KB Search"
     },
     {
@@ -1076,10 +1305,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2720,
-        475
+        420,
+        580
       ],
-      "id": "493b2c22-79ad-492a-8772-b079160fbdea",
+      "id": "5438623d-b833-42dd-9c41-6e55ba115954",
       "name": "Developer Portal Search"
     },
     {
@@ -1107,10 +1336,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2720,
-        675
+        420,
+        780
       ],
-      "id": "320c42c2-e971-4f06-8f22-5be8acea4fab",
+      "id": "b8df2317-8d55-4d63-83b9-827648ed7ed1",
       "name": "Community Search"
     },
     {
@@ -1138,10 +1367,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2720,
-        875
+        420,
+        980
       ],
-      "id": "ef28d992-e1d1-457e-bb9b-940fbf8c605e",
+      "id": "93adb4f3-b4f1-41de-9b81-f554aae738e8",
       "name": "ServiceNow Store Search"
     },
     {
@@ -1151,23 +1380,23 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        2940,
-        455
+        640,
+        560
       ],
-      "id": "619ce4e1-8c15-4bd5-ae1a-50f231575026",
+      "id": "5fd461ea-8eef-4a20-8dfc-5a9b89082b90",
       "name": "Search Results Collector"
     },
     {
       "parameters": {
-        "jsCode": "// Process and extract key information from all merged search results\nconst results = [];\nconst sourceNames = ['ServiceNow Knowledge Base', 'Developer Portal', 'Documentation', 'Community', 'ServiceNow Store', 'Now Learning'];\n\n// Process each search result item\nfor (let i = 0; i < $input.all().length; i++) {\n  const item = $input.all()[i];\n  if (item.json) {\n    const sourceName = sourceNames[i] || `Source ${i + 1}`;\n    \n    // Handle ServiceNow KB and Developer Portal API responses\n    if (item.json.search_content && item.json.search_content.result && item.json.search_content.result.searchResults) {\n      for(let j = 0; j < Math.min(item.json.search_content.result.count, 3); j++) {\n        const searchResult = item.json.search_content.result.searchResults[j];\n        results.push({\n          source: sourceName,\n          content: extractContent(searchResult.columns[1].value, sourceName.toLowerCase().replace(' ', '_')),\n          url: searchResult.columns[4].value\n        });\n      }\n    }\n    // Handle Documentation search responses\n    else if (sourceName === 'Documentation' && item.json.body) {\n      results.push({\n        source: sourceName,\n        content: extractDocumentationContent(item.json.body),\n        url: item.json.url || 'https://docs.servicenow.com'\n      });\n    }\n    // Handle Community search responses\n    else if (sourceName === 'Community' && item.json.search_content) {\n      results.push({\n        source: sourceName,\n        content: extractCommunityContent(item.json),\n        url: item.json.url || 'https://www.servicenow.com/community'\n      });\n    }\n    // Handle Store search responses\n    else if (sourceName === 'ServiceNow Store' && item.json) {\n      results.push({\n        source: sourceName,\n        content: extractStoreContent(item.json),\n        url: item.json.url || 'https://store.servicenow.com'\n      });\n    }\n    // Handle Now Learning search responses\n    else if (sourceName === 'Now Learning' && item.json) {\n      results.push({\n        source: sourceName,\n        content: extractLearningContent(item.json),\n        url: item.json.url || 'https://nowlearning.service-now.com'\n      });\n    }\n    // Fallback for any other response format\n    else {\n      results.push({\n        source: sourceName,\n        content: `Content from ${sourceName} - Response format: ${JSON.stringify(item.json).substring(0, 100)}...`,\n        url: extractUrl(item.json) || ''\n      });\n    }\n  }\n}\n\nfunction extractContent(data, source) {\n  if (typeof data === 'string') {\n    const cleanText = data.replace(/<[^>]*>/g, '').replace(/\\s+/g, ' ').trim();\n    return cleanText.substring(0, 200);\n  }\n  \n  if (data.results && Array.isArray(data.results)) {\n    return data.results.slice(0, 3).map(item => {\n      const title = item.title || item.name || '';\n      const desc = item.description || item.summary || item.content || '';\n      return `${title}: ${desc}`.substring(0, 150);\n    }).join('\\n');\n  }\n  \n  if (data.items && Array.isArray(data.items)) {\n    return data.items.slice(0, 3).map(item => {\n      const title = item.title || item.name || '';\n      const desc = item.snippet || item.description || '';\n      return `${title}: ${desc}`.substring(0, 150);\n    }).join('\\n');\n  }\n  \n  return `Content from ${source} - customize extraction based on actual API response format`;\n}\n\nfunction extractDocumentationContent(body) {\n  if (typeof body === 'string') {\n    return body.replace(/<[^>]*>/g, '').replace(/\\s+/g, ' ').trim().substring(0, 200);\n  }\n  return 'Documentation content available';\n}\n\nfunction extractCommunityContent(data) {\n  if (data.search_content && data.search_content.result && data.search_content.result.searchResults) {\n    return data.search_content.result.searchResults.slice(0, 2).map(item => {\n      const title = item.columns && item.columns[1] ? item.columns[1].value : 'Community Post';\n      return title.replace(/<[^>]*>/g, '').substring(0, 100);\n    }).join('\\n');\n  }\n  return 'Community discussions and articles available';\n}\n\nfunction extractStoreContent(data) {\n  if (data.results && Array.isArray(data.results)) {\n    return data.results.slice(0, 3).map(app => {\n      const name = app.name || app.title || 'ServiceNow App';\n      const desc = app.description || app.summary || '';\n      return `${name}: ${desc}`.substring(0, 120);\n    }).join('\\n');\n  }\n  return 'ServiceNow Store applications and integrations available';\n}\n\nfunction extractLearningContent(data) {\n  if (data.courses && Array.isArray(data.courses)) {\n    return data.courses.slice(0, 3).map(course => {\n      const title = course.title || course.name || 'Learning Content';\n      const desc = course.description || course.summary || '';\n      return `${title}: ${desc}`.substring(0, 120);\n    }).join('\\n');\n  }\n  return 'Now Learning courses and certifications available';\n}\n\nfunction extractUrl(data) {\n  if (data.url) return data.url;\n  if (data.link) return data.link;\n  if (data.results && data.results[0] && data.results[0].url) return data.results[0].url;\n  if (data.items && data.items[0] && data.items[0].link) return data.items[0].link;\n  return '';\n}\n\nreturn { searchResults: results };"
+        "jsCode": "// Process and extract key information from all merged search results\n  const results = [];\n  const sourceNames = ['ServiceNow Knowledge Base', 'Developer Portal', 'Documentation', 'Community', 'ServiceNow Store', 'Now Learning'];\n\n  // Process each search result item\n  for (let i = 0; i < $input.all().length; i++) {\n    const item = $input.all()[i];\n    if (item.json) {\n      const sourceName = sourceNames[i] || `Source ${i + 1}`;\n\n      // Handle ServiceNow KB and Developer Portal API responses\n      if (item.json.search_content && item.json.search_content.result && item.json.search_content.result.searchResults) {\n        for(let j = 0; j < Math.min(item.json.search_content.result.count, 3); j++) {\n          const searchResult = item.json.search_content.result.searchResults[j];\n          if (searchResult && searchResult.columns && searchResult.columns[1] && searchResult.columns[4]) {\n            results.push({\n              source: sourceName,\n              content: extractContent(searchResult.columns[1].value, sourceName.toLowerCase().replace(' ', '_')),\n              url: searchResult.columns[4].value\n            });\n          } else {\n            // Fallback if columns structure is different\n            results.push({\n              source: sourceName,\n              content: `Content from ${sourceName} - ${JSON.stringify(searchResult).substring(0, 100)}...`,\n              url: ''\n            });\n          }\n        }\n      }\n      // Handle Documentation search responses\n      else if (sourceName === 'Documentation' && item.json.body) {\n        results.push({\n          source: sourceName,\n          content: extractDocumentationContent(item.json.body),\n          url: item.json.url || 'https://docs.servicenow.com'\n        });\n      }\n      // Handle Community search responses\n      else if (sourceName === 'Community' && item.json.search_content) {\n        results.push({\n          source: sourceName,\n          content: extractCommunityContent(item.json),\n          url: item.json.url || 'https://www.servicenow.com/community'\n        });\n      }\n      // Handle Store search responses\n      else if (sourceName === 'ServiceNow Store' && item.json) {\n        results.push({\n          source: sourceName,\n          content: extractStoreContent(item.json),\n          url: item.json.url || 'https://store.servicenow.com'\n        });\n      }\n      // Handle Now Learning search responses\n      else if (sourceName === 'Now Learning' && item.json) {\n        results.push({\n          source: sourceName,\n          content: extractLearningContent(item.json),\n          url: item.json.url || 'https://nowlearning.service-now.com'\n        });\n      }\n      // Fallback for any other response format\n      else {\n        results.push({\n          source: sourceName,\n          content: `Content from ${sourceName} - Response format: ${JSON.stringify(item.json).substring(0, 100)}...`,\n          url: extractUrl(item.json) || ''\n        });\n      }\n    }\n  }\n\n  function extractContent(data, source) {\n    if (typeof data === 'string') {\n      const cleanText = data.replace(/<[^>]*>/g, '').replace(/\\s+/g, ' ').trim();\n      return cleanText.substring(0, 200);\n    }\n\n    if (data && data.results && Array.isArray(data.results)) {\n      return data.results.slice(0, 3).map(item => {\n        const title = item.title || item.name || '';\n        const desc = item.description || item.summary || item.content || '';\n        return `${title}: ${desc}`.substring(0, 150);\n      }).join('\\n');\n    }\n\n    if (data && data.items && Array.isArray(data.items)) {\n      return data.items.slice(0, 3).map(item => {\n        const title = item.title || item.name || '';\n        const desc = item.snippet || item.description || '';\n        return `${title}: ${desc}`.substring(0, 150);\n      }).join('\\n');\n    }\n\n    return `Content from ${source} - customize extraction based on actual API response format`;\n  }\n\n  function extractDocumentationContent(body) {\n    if (typeof body === 'string') {\n      return body.replace(/<[^>]*>/g, '').replace(/\\s+/g, ' ').trim().substring(0, 200);\n    }\n    return 'Documentation content available';\n  }\n\n  function extractCommunityContent(data) {\n    if (data.search_content && data.search_content.result && data.search_content.result.searchResults) {\n      return data.search_content.result.searchResults.slice(0, 2).map(item => {\n        if (item.columns && item.columns[1] && item.columns[1].value) {\n          const title = item.columns[1].value;\n          return title.replace(/<[^>]*>/g, '').substring(0, 100);\n        }\n        return 'Community content available';\n      }).join('\\n');\n    }\n    return 'Community discussions and articles available';\n  }\n\n  function extractStoreContent(data) {\n    if (data.results && Array.isArray(data.results)) {\n      return data.results.slice(0, 3).map(app => {\n        const name = app.name || app.title || 'ServiceNow App';\n        const desc = app.description || app.summary || '';\n        return `${name}: ${desc}`.substring(0, 120);\n      }).join('\\n');\n    }\n    return 'ServiceNow Store applications and integrations available';\n  }\n\n  function extractLearningContent(data) {\n    if (data.courses && Array.isArray(data.courses)) {\n      return data.courses.slice(0, 3).map(course => {\n        const title = course.title || course.name || 'Learning Content';\n        const desc = course.description || course.summary || '';\n        return `${title}: ${desc}`.substring(0, 120);\n      }).join('\\n');\n    }\n    return 'Now Learning courses and certifications available';\n  }\n\n  function extractUrl(data) {\n    if (data && data.url) return data.url;\n    if (data && data.link) return data.link;\n    if (data && data.results && data.results[0] && data.results[0].url) return data.results[0].url;\n    if (data && data.items && data.items[0] && data.items[0].link) return data.items[0].link;\n    return '';\n  }\n\n  return { searchResults: results };"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3160,
-        475
+        860,
+        580
       ],
-      "id": "d9974ca8-f7ae-4396-8cac-2bfb1e82cf1e",
+      "id": "8859d061-2218-4e68-a82e-1d4ca461d4b8",
       "name": "Content Processor"
     },
     {
@@ -1211,10 +1440,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3380,
-        475
+        1080,
+        580
       ],
-      "id": "7781b404-1bc1-4e39-8b2f-11b209913dd3",
+      "id": "548ad02d-a760-48a8-aec2-c597eab35393",
       "name": "Content Summarizer",
       "credentials": {
         "openAiApi": {
@@ -1229,8 +1458,8 @@
           "assignments": [
             {
               "id": "enhance-prompt-1",
-              "name": "searchContext",
-              "value": "=SEARCH CONTEXT FOR YOUR RESPONSE:\n\n{{ $('Content Summarizer').first().json.choices[0].message.content }}\n\nBased on this curated information, provide your ServiceNow guidance focusing on practical implementation.",
+              "name": "prompt",
+              "value": "={{ $('Generate Key').first().json.prompt }}\n\nSEARCH CONTEXT FOR YOUR RESPONSE:\n\n{{ $('Content Summarizer').first().json.choices[0].message.content }}\n\nBased on this curated information, provide your ServiceNow guidance focusing on practical implementation.\n\nRESPONSE GUIDELINES:\n- You have been provided with curated search results above (when available)\n- Focus on synthesizing and applying the provided information\n- Provide practical, actionable guidance based on the search context\n- Include URLs from the search results when referencing specific resources\n- If search context is not available, provide general ServiceNow best practices",
               "type": "string"
             }
           ]
@@ -1241,10 +1470,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        3600,
-        475
+        1300,
+        580
       ],
-      "id": "2b852a6f-31ae-4e22-becd-3cdf78e49813",
+      "id": "1f6eebbc-93f2-4a7a-b73a-ccf97157c6fc",
       "name": "Prompt Enhancer"
     },
     {
@@ -1252,48 +1481,31 @@
         "promptType": "define",
         "text": "=Question from the user: \"{{ $('Initiate').first().json.body.question }}\"",
         "options": {
-          "systemMessage": "={{ $('Prompt Enhancer').first().json.searchContext || '' }}\n\nRESPONSE GUIDELINES:\n- You have been provided with curated search results above (when available)\n- Focus on synthesizing and applying the provided information\n- Provide practical, actionable guidance based on the search context\n- Include URLs from the search results when referencing specific resources\n- If search context is not available, provide general ServiceNow best practices\n\nIMPORTANT:\n- If you are giving code examples with GlideRecord objects, never name the variables gr. Name the variable something with a relation to the table being used, for instance grIncident for incidents.\n- Always cite your sources when using information from the search context\n- Focus on practical implementation rather than theoretical explanations"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2,
-      "position": [
-        3820,
-        475
-      ],
-      "id": "a67ee64a-03fe-499d-b9ad-f61c5ce9141a",
-      "name": "AI Tool System"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=Question from the user: \"{{ $('Initiate').item.json.body.question }}\"",
-        "options": {
           "systemMessage": "={{ $json.prompt }}"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2,
       "position": [
-        3060,
-        -320
+        1560,
+        340
       ],
-      "id": "a5d17c54-0fee-4f11-a20a-7363c1dfb2aa",
+      "id": "be601dd3-7e17-4d56-9a4f-931b87e0c7b9",
       "name": "Claude AI system"
     },
     {
       "parameters": {
         "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Initiate').item.json.body.sessionkey }}",
+        "sessionKey": "={{ $('Initiate').first().json.body.sessionkey }}",
         "contextWindowLength": 10
       },
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.3,
       "position": [
-        3100,
-        -40
+        1640,
+        620
       ],
-      "id": "9d49a9a2-d142-44a3-850b-12e5e86fae4a",
+      "id": "4ef2e989-6840-494d-bbe0-0460cbe8cbb1",
       "name": "Chat Memory",
       "credentials": {
         "postgres": {
@@ -1306,37 +1518,7 @@
       "parameters": {
         "model": {
           "__rl": true,
-          "value": "={{ $json.model }}",
-          "mode": "id"
-        },
-        "options": {
-          "maxTokensToSample": "={{ $('Generate Key').item.json.max_tokens }}",
-          "temperature": "={{ $('Generate Key').item.json.temperature }}",
-          "topK": "={{ $('Generate Key').item.json.top_k }}",
-          "topP": "={{ $('Generate Key').item.json.top_p }}",
-          "thinking": "={{ $('Generate Key').item.json.enable_thinking }}"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.3,
-      "position": [
-        2900,
-        -20
-      ],
-      "id": "35642707-f816-4c3d-9c44-1eb73e053f27",
-      "name": "AI model",
-      "credentials": {
-        "anthropicApi": {
-          "id": "ANTHROPIC_CREDENTIAL_ID",
-          "name": "Anthropic account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "value": "={{ $('Searchmode').first().json.model }}",
+          "value": "={{ $('Generate Key').first().json.model }}",
           "mode": "id"
         },
         "options": {
@@ -1350,383 +1532,17 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.3,
       "position": [
-        3680,
-        700
+        2040,
+        840
       ],
-      "id": "cf4657c5-181b-4b33-8877-85d72fcac293",
-      "name": "AI Model",
+      "id": "95ce2251-6745-4d4c-b8a6-174bd6a30867",
+      "name": "AI model",
       "credentials": {
         "anthropicApi": {
           "id": "ANTHROPIC_CREDENTIAL_ID",
           "name": "Anthropic account"
         }
       }
-    },
-    {
-      "parameters": {
-        "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Initiate').item.json.body.sessionkey }}",
-        "contextWindowLength": 10
-      },
-      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
-      "typeVersion": 1.3,
-      "position": [
-        3860,
-        680
-      ],
-      "id": "d8ce39fe-a7ed-4239-a64a-db780c637f0e",
-      "name": "Tool Chat Memory",
-      "credentials": {
-        "postgres": {
-          "id": "POSTGRES_CREDENTIAL_ID",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "snhelper-add-qa-pair",
-        "authentication": "headerAuth",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        80,
-        1135
-      ],
-      "id": "345b57b6-445a-4075-b04e-5cdf45a90056",
-      "name": "Add QA Pair Webhook",
-      "webhookId": "add-qa-pair-webhook-id",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "HEADER_AUTH_CREDENTIAL_ID",
-          "name": "Header Auth account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "extract-data",
-              "name": "question",
-              "value": "={{ $json.body.question }}",
-              "type": "string"
-            },
-            {
-              "id": "extract-answer",
-              "name": "answer",
-              "value": "={{ $json.body.answer }}",
-              "type": "string"
-            },
-            {
-              "id": "extract-category",
-              "name": "category",
-              "value": "={{ $json.body.category || 'general' }}",
-              "type": "string"
-            },
-            {
-              "id": "extract-tags",
-              "name": "tags",
-              "value": "={{ $json.body.tags || [] }}",
-              "type": "array"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        300,
-        1135
-      ],
-      "id": "a729e1c4-73ca-46f5-97fd-1818d615aba0",
-      "name": "Extract QA Data"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.openai.com/v1/embeddings",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "openAiApi",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "model",
-              "value": "text-embedding-3-small"
-            },
-            {
-              "name": "input",
-              "value": "={{ $json.question }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        520,
-        1135
-      ],
-      "id": "225a13fe-30f1-4fab-85df-e139b8cc1918",
-      "name": "Generate Question Embedding",
-      "credentials": {
-        "openAiApi": {
-          "id": "OPENAI_CREDENTIAL_ID",
-          "name": "OpenAi account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.openai.com/v1/embeddings",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "openAiApi",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "model",
-              "value": "text-embedding-3-small"
-            },
-            {
-              "name": "input",
-              "value": "={{ $('Extract QA Data').item.json.answer }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        740,
-        1135
-      ],
-      "id": "e5a62101-98ad-44c0-a8b2-6d54fd9db86e",
-      "name": "Generate Answer Embedding",
-      "credentials": {
-        "openAiApi": {
-          "id": "OPENAI_CREDENTIAL_ID",
-          "name": "OpenAi account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "combine-embeddings",
-              "name": "question_embedding",
-              "value": "={{ $('Generate Question Embedding').item.json.data[0].embedding }}",
-              "type": "array"
-            },
-            {
-              "id": "combine-answer-embedding",
-              "name": "answer_embedding",
-              "value": "={{ $('Generate Answer Embedding').item.json.data[0].embedding }}",
-              "type": "array"
-            },
-            {
-              "id": "combine-question",
-              "name": "question",
-              "value": "={{ $('Extract QA Data').item.json.question }}",
-              "type": "string"
-            },
-            {
-              "id": "combine-answer",
-              "name": "answer",
-              "value": "={{ $('Extract QA Data').item.json.answer }}",
-              "type": "string"
-            },
-            {
-              "id": "combine-category",
-              "name": "category",
-              "value": "={{ $('Extract QA Data').item.json.category }}",
-              "type": "string"
-            },
-            {
-              "id": "combine-tags",
-              "name": "tags",
-              "value": "={{ $('Extract QA Data').item.json.tags }}",
-              "type": "array"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        960,
-        1135
-      ],
-      "id": "9f6e70a8-575c-4b8e-9968-21cfee7a7ada",
-      "name": "Combine Data"
-    },
-    {
-      "parameters": {
-        "schema": {
-          "__rl": true,
-          "mode": "list",
-          "value": "public"
-        },
-        "table": {
-          "__rl": true,
-          "value": "qa_knowledge_base",
-          "mode": "list"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "question": "={{ $json.question }}",
-            "answer": "={{ $json.answer }}",
-            "question_embedding": "={{ JSON.stringify($json.question_embedding) }}",
-            "answer_embedding": "={{ JSON.stringify($json.answer_embedding) }}",
-            "category": "={{ $json.category }}",
-            "tags": "={{ JSON.stringify($json.tags) }}"
-          },
-          "schema": [
-            {
-              "id": "id",
-              "displayName": "id",
-              "required": false,
-              "defaultMatch": true,
-              "display": true,
-              "type": "number",
-              "canBeUsedToMatch": true,
-              "removed": true
-            },
-            {
-              "id": "question",
-              "displayName": "question",
-              "required": true,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "answer",
-              "displayName": "answer",
-              "required": true,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "question_embedding",
-              "displayName": "question_embedding",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "answer_embedding",
-              "displayName": "answer_embedding",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "category",
-              "displayName": "category",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "tags",
-              "displayName": "tags",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        1180,
-        1135
-      ],
-      "id": "8c31799b-716e-4a12-abe0-acda91fcbee6",
-      "name": "Save to Database",
-      "credentials": {
-        "postgres": {
-          "id": "POSTGRES_CREDENTIAL_ID",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "content": "## Embeddings",
-        "height": 260,
-        "width": 1980,
-        "color": 6
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -200,
-        1035
-      ],
-      "typeVersion": 1,
-      "id": "57ed472a-2e7e-42e8-8332-aaff5832f73d",
-      "name": "Sticky Note3"
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={\n  \"success\": true,\n  \"message\": \"QA pair saved successfully\",\n  \"id\": {{ $json.id }}\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.4,
-      "position": [
-        1400,
-        1135
-      ],
-      "id": "e356eb1f-f1dd-4a17-a88e-9a625d25e924",
-      "name": "Success embedding response"
     },
     {
       "parameters": {
@@ -1745,10 +1561,10 @@
       "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
       "typeVersion": 1.3,
       "position": [
-        3340,
-        -100
+        1800,
+        600
       ],
-      "id": "3a898713-2de3-4d81-89e9-cba754c639ae",
+      "id": "3c440751-5d9d-4bda-9d21-2550ddd71385",
       "name": "Postgres PGVector Store",
       "credentials": {
         "postgres": {
@@ -1764,10 +1580,10 @@
       "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
       "typeVersion": 1.2,
       "position": [
-        3300,
-        120
+        1840,
+        820
       ],
-      "id": "fbaf6906-ab7c-4c97-b815-5ef6a770251b",
+      "id": "e6f09e5a-2f4c-42b7-b75c-f814ef9780eb",
       "name": "Embeddings OpenAI",
       "credentials": {
         "openAiApi": {
@@ -1778,49 +1594,59 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "69ed723c-3456-4b43-8162-b12916afbcca",
+              "leftValue": "={{ $('Initiate').item.json.body.searching }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
-      "typeVersion": 1.2,
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
       "position": [
-        4080,
-        880
+        -320,
+        500
       ],
-      "id": "4cda06a0-97f4-4030-975b-fb3acb0504ac",
-      "name": "Embeddings OpenAI1",
-      "credentials": {
-        "openAiApi": {
-          "id": "OPENAI_CREDENTIAL_ID",
-          "name": "OpenAi account"
-        }
-      }
+      "id": "64cd10fa-c348-4815-9e39-51a93ee25c2e",
+      "name": "Searchmode1"
     },
     {
       "parameters": {
-        "mode": "retrieve-as-tool",
-        "toolDescription": "Searches a knowledge base of previously saved question-and-answer pairs. This tool is designed to retrieve useful answers based on past user queries.\nUse this tool by inputting a question. If similar questions have been asked before, it will return the most relevant answers previously marked as helpful.\n\nInput:\nA natural language question from the user.\n\nOutput:\nOne or more relevant answers from the knowledge base, if any similar questions are found.\n\nExample usage:\nInput: \"How do I reset my database password?\"\nOutput: \"To reset your database password, go to the admin panel, select 'Security', then choose 'Reset Password'.\"",
-        "tableName": "qa_knowledge_base",
+        "model": "={{ $('Initiate').first().json.body.aiModel }}",
         "options": {
-          "columnNames": {
-            "values": {
-              "vectorColumnName": "question_embedding",
-              "contentColumnName": "answer"
-            }
-          }
+          "maxTokens": "={{ $('Generate Key').first().json.max_tokens }}",
+          "temperature": "={{ $('Generate Key').first().json.temperature }}",
+          "topP": "={{ $('Generate Key').first().json.top_p }}"
         }
       },
-      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
-      "typeVersion": 1.3,
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
       "position": [
-        4000,
-        700
+        1480,
+        660
       ],
-      "id": "3acb485e-498d-4d00-a792-099e451347ac",
-      "name": "Postgres PGVector Store1",
+      "id": "f24b85f0-86f2-4fd5-ae09-712db0fafe34",
+      "name": "OpenRouter",
       "credentials": {
-        "postgres": {
-          "id": "POSTGRES_CREDENTIAL_ID",
-          "name": "Postgres account"
+        "openRouterApi": {
+          "id": "OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter account"
         }
       }
     }
@@ -1832,6 +1658,17 @@
         [
           {
             "node": "Set Basic Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Searchmode1",
             "type": "main",
             "index": 0
           }
@@ -1881,7 +1718,7 @@
       "main": [
         [
           {
-            "node": "If Expert Mode",
+            "node": "Generate Key",
             "type": "main",
             "index": 0
           }
@@ -1892,28 +1729,6 @@
       "main": [
         [
           {
-            "node": "If Expert Mode",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Append Script": {
-      "main": [
-        [
-          {
-            "node": "If Expert Mode",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Set Opus Model": {
-      "main": [
-        [
-          {
             "node": "Generate Key",
             "type": "main",
             "index": 0
@@ -1921,25 +1736,7 @@
         ]
       ]
     },
-    "If Expert Mode": {
-      "main": [
-        [
-          {
-            "node": "Set Opus Model",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Set Sonnet Model",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Set Sonnet Model": {
+    "Append Script": {
       "main": [
         [
           {
@@ -1955,17 +1752,6 @@
         [
           {
             "node": "Create Work Record",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Respond to Webhook": {
-      "main": [
-        [
-          {
-            "node": "Searchmode",
             "type": "main",
             "index": 0
           }
@@ -2049,25 +1835,73 @@
       "main": [
         [
           {
-            "node": "If Expert Mode",
+            "node": "Generate Key",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Searchmode": {
+    "Add QA Pair Webhook": {
       "main": [
         [
           {
-            "node": "Search Query Optimizer",
+            "node": "Extract QA Data",
             "type": "main",
             "index": 0
           }
-        ],
+        ]
+      ]
+    },
+    "Extract QA Data": {
+      "main": [
         [
           {
-            "node": "Claude AI system",
+            "node": "Generate Question Embedding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Question Embedding": {
+      "main": [
+        [
+          {
+            "node": "Generate Answer Embedding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Answer Embedding": {
+      "main": [
+        [
+          {
+            "node": "Combine Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Data": {
+      "main": [
+        [
+          {
+            "node": "Save to Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Database": {
+      "main": [
+        [
+          {
+            "node": "Success embedding response",
             "type": "main",
             "index": 0
           }
@@ -2133,6 +1967,28 @@
         ]
       ]
     },
+    "Community Search": {
+      "main": [
+        [
+          {
+            "node": "Search Results Collector",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "ServiceNow Store Search": {
+      "main": [
+        [
+          {
+            "node": "Search Results Collector",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
     "Search Results Collector": {
       "main": [
         [
@@ -2170,18 +2026,7 @@
       "main": [
         [
           {
-            "node": "AI Tool System",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Tool System": {
-      "main": [
-        [
-          {
-            "node": "Save response",
+            "node": "Claude AI system",
             "type": "main",
             "index": 0
           }
@@ -2212,123 +2057,7 @@
     },
     "AI model": {
       "ai_languageModel": [
-        [
-          {
-            "node": "Claude AI system",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Tool System",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Tool Chat Memory": {
-      "ai_memory": [
-        [
-          {
-            "node": "AI Tool System",
-            "type": "ai_memory",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Community Search": {
-      "main": [
-        [
-          {
-            "node": "Search Results Collector",
-            "type": "main",
-            "index": 3
-          }
-        ]
-      ]
-    },
-    "ServiceNow Store Search": {
-      "main": [
-        [
-          {
-            "node": "Search Results Collector",
-            "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
-    "Add QA Pair Webhook": {
-      "main": [
-        [
-          {
-            "node": "Extract QA Data",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract QA Data": {
-      "main": [
-        [
-          {
-            "node": "Generate Question Embedding",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Generate Question Embedding": {
-      "main": [
-        [
-          {
-            "node": "Generate Answer Embedding",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Combine Data": {
-      "main": [
-        [
-          {
-            "node": "Save to Database",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Save to Database": {
-      "main": [
-        [
-          {
-            "node": "Success embedding response",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Generate Answer Embedding": {
-      "main": [
-        [
-          {
-            "node": "Combine Data",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Postgres PGVector Store": {
@@ -2353,23 +2082,30 @@
         ]
       ]
     },
-    "Postgres PGVector Store1": {
-      "ai_tool": [
+    "Searchmode1": {
+      "main": [
         [
           {
-            "node": "AI Tool System",
-            "type": "ai_tool",
+            "node": "Search Query Optimizer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Claude AI system",
+            "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Embeddings OpenAI1": {
-      "ai_embedding": [
+    "OpenRouter": {
+      "ai_languageModel": [
         [
           {
-            "node": "Postgres PGVector Store1",
-            "type": "ai_embedding",
+            "node": "Claude AI system",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
