@@ -1,5 +1,4 @@
-# ServiceNow AI Support Tool
-
+# ServiceNow Helper
 <img width="1774" height="1835" alt="ServiceNow Helper screenshot" src="https://github.com/user-attachments/assets/fbe95080-9045-4e17-95ef-227cba5e71fc" />
 
 
