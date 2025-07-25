@@ -1,5 +1,8 @@
 # ServiceNow AI Support Tool
 
+<img width="1774" height="1835" alt="ServiceNow Helper screenshot" src="https://github.com/user-attachments/assets/fbe95080-9045-4e17-95ef-227cba5e71fc" />
+
+
 An AI-powered ServiceNow assistance tool built with Next.js 15. This application provides intelligent support for ServiceNow-related questions through an intuitive web interface with JWT-based authentication and real-time AI responses via n8n workflow automation. The application uses OpenRouter to provide access to a wide variety of AI models, allowing users to choose the best model for their specific needs.
 
 ## Features
