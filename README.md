@@ -59,12 +59,13 @@ sequenceDiagram
     W->>A: Call AI API
     A-->>W: AI answer
     W->>D: Store response
-    W-->>N: Respond (answer ready)
-    N->>B: Polling: answer ready?
-    B->>N: GET /api/poll-response
-    N->>D: Query for response
-    D-->>N: Return answer if ready
-    N-->>B: Render answer in UI
+    W-->>N: Respond with status
+    loop Polling
+        B->>N: GET /api/poll-response
+        N->>D: Query for response
+        D-->>N: Return answer if ready
+        N-->>B: Render answer in UI
+    end
 ```
 
 ## Getting Started
