@@ -207,40 +207,6 @@ Access the settings via the hamburger menu to personalize your experience:
 3. **View Responses** with markdown formatting and syntax highlighting
 4. **Access History** through the conversation panel with advanced filtering
 
-## Performance & Best Practices
-
-### **Next.js 15 Optimizations**
-
-<details>
-<summary><strong>Performance Features</strong></summary>
-
-- **Dynamic Imports** - Lazy loading for optimal bundle size
-- **Code Splitting** - Automatic splitting with Suspense boundaries  
-- **React.memo** - Memoization for expensive components
-- **Bundle Optimization** - Selective imports and optimized loading
-
-</details>
-
-<details>
-<summary><strong>Security Enhancements</strong></summary>
-
-- **Security Headers** - Comprehensive protection suite
-- **XSS Protection** - Content type and frame options security
-- **API Protection** - Enhanced route security with cache control
-- **CSRF Prevention** - Request validation and token management
-
-</details>
-
-<details>
-<summary><strong>Accessibility Features</strong></summary>
-
-- **ARIA Attributes** - Screen reader compatibility
-- **Keyboard Navigation** - Full keyboard support
-- **Skip Links** - Navigation accessibility
-- **Focus Management** - Proper modal and dropdown handling
-
-</details>
-
 ## Testing Suite
 
 <div align="center">
