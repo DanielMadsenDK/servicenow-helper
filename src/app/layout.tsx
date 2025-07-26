@@ -20,6 +20,24 @@ export const metadata: Metadata = {
   title: "ServiceNow Helper",
   description: "Get instant help with ServiceNow implementations, documentation, and scripts",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/maskable_icon_x192.png", sizes: "192x192", type: "image/png" }
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+    ],
+    other: [
+      { rel: "mask-icon", url: "/maskable_icon_x192.png" }
+    ]
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "ServiceNow Helper"
+  }
 };
 
 export const viewport = {
@@ -38,17 +56,9 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="theme-color" content="#f6f6f6" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/maskable_icon_x48.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/maskable_icon_x48.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/maskable_icon_x192.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/maskable_icon_x192.png" />
-        <link rel="apple-touch-icon" sizes="144x144" href="/maskable_icon_x128.png" />
-        <link rel="apple-touch-icon" sizes="120x120" href="/maskable_icon_x128.png" />
-        <link rel="apple-touch-icon" sizes="114x114" href="/maskable_icon_x128.png" />
-        <link rel="apple-touch-icon" sizes="76x76" href="/maskable_icon_x96.png" />
-        <link rel="apple-touch-icon" sizes="72x72" href="/maskable_icon_x72.png" />
-        <link rel="apple-touch-icon" sizes="60x60" href="/maskable_icon_x72.png" />
-        <link rel="apple-touch-icon" sizes="57x57" href="/maskable_icon_x72.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="ServiceNow Helper" />
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body
