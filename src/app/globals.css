@@ -32,6 +32,20 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* Hide scrollbar only when running as PWA (standalone mode) */
+@media (display-mode: standalone) {
+  body {
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  /* Hide scrollbar for webkit browsers (Chrome, Safari, Edge) */
+  body::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Add smooth transitions for theme changes */
 *, *::before, *::after {
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
