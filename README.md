@@ -15,7 +15,7 @@
 
 ---
 
-*An intelligent ServiceNow assistance tool that provides real-time AI responses through an intuitive web interface with JWT-based authentication and n8n workflow automation.*
+*An intelligent ServiceNow assistance tool that provides real-time AI responses through an intuitive web interface and n8n workflow automation.*
 
 </div>
 
@@ -25,7 +25,7 @@
 Leverage cutting-edge artificial intelligence with access to multiple text-based AI models through OpenRouter integration. Get smart ServiceNow question categorization, real-time response generation, and context-aware assistance that understands your specific needs.
 
 ### **Robust Security**
-Built with security-first principles featuring server-side JWT authentication, httpOnly cookies protection, Next.js middleware security layers, and comprehensive security headers to protect your data and sessions.
+Built with security-first principles featuring server-side JWT authentication, Next.js middleware security layers, and comprehensive security headers to protect your data and sessions.
 
 ### **Conversation Management** 
 Complete conversation lifecycle management with full history tracking, advanced search and filtering capabilities, session continuity across interactions, and export functionality for documentation purposes.
@@ -160,13 +160,13 @@ docker compose up -d
 
 <div align="center">
 
-### Frontend Powerhouse
+### Frontend
 ![Next.js](https://img.shields.io/badge/Next.js-15.4.4-000000?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1.11-06B6D4?style=flat-square&logo=tailwindcss)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
 
-### Backend Infrastructure
+### Backend
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=flat-square&logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker)
 ![n8n](https://img.shields.io/badge/n8n-Workflows-FF6D5A?style=flat-square&logo=n8n)
