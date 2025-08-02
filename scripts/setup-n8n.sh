@@ -10,13 +10,13 @@ fi
 # Detect if we're running inside Docker
 if [ -f /.dockerenv ]; then
     N8N_HOST="n8n:5678"
-    POSTGRES_CONTAINER="servicenow-aisupporttool-postgres-1"
-    N8N_CONTAINER="servicenow-aisupporttool-n8n-1"
+    POSTGRES_CONTAINER="servicenow-helper-postgres-1"
+    N8N_CONTAINER="servicenow-helper-n8n-1"
     INIT_FLAG_CHECK="docker exec $N8N_CONTAINER test -f /home/node/.n8n/.initialized"
 else
     N8N_HOST="localhost:5678"
-    POSTGRES_CONTAINER="servicenow-aisupporttool-postgres-1"
-    N8N_CONTAINER="servicenow-aisupporttool-n8n-1"
+    POSTGRES_CONTAINER="servicenow-helper-postgres-1"
+    N8N_CONTAINER="servicenow-helper-n8n-1"
     INIT_FLAG_CHECK="docker exec $N8N_CONTAINER test -f /home/node/.n8n/.initialized"
 fi
 
