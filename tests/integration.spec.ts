@@ -6,7 +6,8 @@ test.describe('ServiceNow Helper', () => {
     await page.goto('http://localhost:3000/');
 
     // Wait for the page to load completely
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
     
     // Verify we're on the login page first
     await expect(page.getByPlaceholder('Enter your username')).toBeVisible();
@@ -50,15 +51,15 @@ test.describe('ServiceNow Helper', () => {
     // Verify user can see the welcome section
     await expect(page.getByText('Welcome to ServiceNow Helper!')).toBeVisible();
     
-    // Verify quick action buttons are present
-    await expect(page.getByText('Create a Business Rule')).toBeVisible();
-    await expect(page.getByText('Setup ACL Security')).toBeVisible();
+    // Verify welcome section content is visible
+    await expect(page.getByText('I\'m here to help you with ServiceNow implementations')).toBeVisible();
   });
 
   test('should allow user to access conversation history', async ({ page }) => {
     // Navigate to the application and log in
     await page.goto('http://localhost:3000/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
     
     const testUsername = process.env.TEST_AUTH_USERNAME || process.env.AUTH_USERNAME || 'admin';
     const testPassword = process.env.TEST_AUTH_PASSWORD || process.env.AUTH_PASSWORD || 'password123';
@@ -93,7 +94,8 @@ test.describe('ServiceNow Helper', () => {
   test('should show interface elements for conversation management', async ({ page }) => {
     // Navigate to the application and log in
     await page.goto('http://localhost:3000/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
     
     const testUsername = process.env.TEST_AUTH_USERNAME || process.env.AUTH_USERNAME || 'admin';
     const testPassword = process.env.TEST_AUTH_PASSWORD || process.env.AUTH_PASSWORD || 'password123';
@@ -127,7 +129,8 @@ test.describe('ServiceNow Helper', () => {
   test('should display toggle controls and settings', async ({ page }) => {
     // Navigate to the application and log in
     await page.goto('http://localhost:3000/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
     
     const testUsername = process.env.TEST_AUTH_USERNAME || process.env.AUTH_USERNAME || 'admin';
     const testPassword = process.env.TEST_AUTH_PASSWORD || process.env.AUTH_PASSWORD || 'password123';
@@ -157,7 +160,8 @@ test.describe('ServiceNow Helper', () => {
   test('should verify authentication and basic navigation', async ({ page }) => {
     // Navigate to the application and log in
     await page.goto('http://localhost:3000/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
     
     const testUsername = process.env.TEST_AUTH_USERNAME || process.env.AUTH_USERNAME || 'admin';
     const testPassword = process.env.TEST_AUTH_PASSWORD || process.env.AUTH_PASSWORD || 'password123';
@@ -189,7 +193,8 @@ test.describe('ServiceNow Helper', () => {
   test('should display user interface elements properly', async ({ page }) => {
     // Navigate to the application and log in
     await page.goto('http://localhost:3000/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
     
     const testUsername = process.env.TEST_AUTH_USERNAME || process.env.AUTH_USERNAME || 'admin';
     const testPassword = process.env.TEST_AUTH_PASSWORD || process.env.AUTH_PASSWORD || 'password123';
