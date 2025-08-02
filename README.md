@@ -1,52 +1,89 @@
-# ServiceNow AI Support Tool
+# ServiceNow Helper
 
-An AI-powered ServiceNow assistance tool built with Next.js 15. This application provides intelligent support for ServiceNow-related questions through an intuitive web interface with JWT-based authentication and real-time AI responses via n8n workflow automation. The application uses OpenRouter to provide access to a wide variety of AI models, allowing users to choose the best model for their specific needs.
+<div align="center">
+
+![ServiceNow Helper](https://github.com/user-attachments/assets/fbe95080-9045-4e17-95ef-227cba5e71fc)
+
+**AI-Powered ServiceNow Assistance Tool**
+
+*Built with Next.js 15 • AI-Powered by OpenRouter • Security-First Design*
+
+[![Next.js](https://img.shields.io/badge/Next.js-15.4.4-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
+
+---
+
+*An intelligent ServiceNow assistance tool that provides real-time AI responses through an intuitive web interface and n8n workflow automation.*
+
+</div>
 
 ## Features
 
-- **AI-Powered Assistance**: Get intelligent answers to ServiceNow questions across multiple categories using OpenRouter's extensive model selection.
-- **Secure Authentication**: Server-side JWT-based authentication with httpOnly cookies and Next.js middleware protection.
-- **Conversation History**: Full conversation tracking with search, filtering, and management capabilities.
-- **Multiple Question Types**: Support for documentation, recommendations, scripts, and troubleshooting.
-- **Real-time Responses**: Async webhook polling for AI service integration.
-- **Responsive Design**: Modern UI built with TailwindCSS.
-- **Session Management**: Unique session keys and continue session functionality.
-- **PWA Support**: Progressive Web App capabilities for mobile usage.
-- **Search Enhancement**: ServiceNow knowledge base and developer portal integration.
-- **User Settings**: Persistent user preferences with real-time synchronization.
-- **Customizable Interface**: Control welcome section visibility and default settings.
-- **Docker Support**: Complete containerized deployment with PostgreSQL and n8n.
-- **Next.js 15 Best Practices**: Implements modern React patterns with performance optimizations.
-- **Enhanced Security**: Comprehensive security headers and protection against common vulnerabilities.
-- **Accessibility**: ARIA attributes, keyboard navigation, and screen reader support.
-- **Error Handling**: Robust error boundaries and user-friendly error messages.
-- **Performance Optimization**: Lazy loading, code splitting, and React.memo for optimal performance.
+### **AI-Powered Intelligence**
+Leverage cutting-edge artificial intelligence with access to multiple text-based AI models through OpenRouter integration. Get smart ServiceNow question categorization, real-time response generation, and context-aware assistance that understands your specific needs.
 
-## Tech Stack
+### **Robust Security**
+Built with security-first principles featuring server-side JWT authentication, Next.js middleware security layers, and comprehensive security headers to protect your data and sessions.
 
-- **Frontend**: Next.js 15.3.5 with App Router, TypeScript, TailwindCSS 4.1.11
-- **Authentication**: Server-side JWT with httpOnly cookies and Next.js middleware
-- **Styling**: TailwindCSS 4.1.11 with Lucide React 0.525.0 icons
-- **HTTP Client**: Axios 1.10.0 for API requests
-- **Content Rendering**: ReactMarkdown 10.1.0 with syntax highlighting
-- **Workflow Engine**: n8n for AI processing and external integrations
-- **Database**: PostgreSQL 15-alpine for conversation history, user settings, session storage, and n8n data
-- **AI Models**: OpenRouter integration providing access to multiple AI models including Claude (Anthropic), GPT models (OpenAI), and many others
-- **Testing**: Jest 30.0.4 (unit tests) and Playwright 1.53.2 (integration tests)
-- **Deployment**: Docker and Docker Compose (Dockerfile and docker-compose.yml in root)
-- **Performance**: Dynamic imports, lazy loading, React.memo, and code splitting for optimal performance
-- **Security**: Comprehensive security headers, XSS protection, and CSRF prevention
-- **Accessibility**: ARIA attributes, keyboard navigation, and screen reader optimization
+### **Conversation Management** 
+Complete conversation lifecycle management with full history tracking, advanced search and filtering capabilities, session continuity across interactions, and export functionality for documentation purposes.
 
-## Visual Architecture
+### **Modern Experience**
+Enjoy a responsive design built with TailwindCSS, progressive web app support for mobile devices, dark/light theme toggle for user preference, and full accessibility optimization for inclusive usage.
 
-### 1. Request/Response Sequence Diagram
+### **Core Capabilities**
+
+| Feature | Description | Technology |
+|---------|-------------|------------|
+| **Multiple AI Models** | Access to Claude, GPT, and more | OpenRouter Integration |
+| **Question Types** | Documentation, Scripts, Troubleshooting | Intelligent Categorization |
+| **Real-time Responses** | Async webhook polling | n8n Workflow Engine |
+| **Session Management** | Unique keys & continuation | PostgreSQL Backend |
+| **Search Enhancement** | ServiceNow KB integration | API Connections |
+| **User Customization** | Persistent preferences | Settings Management |
+
+## Architecture
+
+### System Overview
+
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        A[Next.js 15 App] --> B[React Components]
+        B --> C[TailwindCSS]
+        B --> D[TypeScript]
+    end
+    
+    subgraph "Authentication Layer"
+        E[JWT Middleware] --> F[Session Management]
+    end
+    
+    subgraph "Backend Services"
+        H[API Routes] --> I[n8n Workflows]
+        I --> J[AI Processing]
+        H --> K[PostgreSQL]
+    end
+    
+    subgraph "AI Integration"
+        L[OpenRouter] --> M[Claude]
+        L --> N[GPT Models]
+        L --> O[Other LLMs]
+    end
+    
+    A --> E
+    H --> L
+    J --> K
+```
+
+### Request Flow Sequence
 
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant B as Web Browser
-    participant N as Nextjs App
+    participant B as Browser
+    participant N as Next.js App
     participant W as n8n Workflow
     participant D as PostgreSQL
     participant A as AI API
@@ -57,361 +94,235 @@ sequenceDiagram
     W->>A: Call AI API
     A-->>W: AI answer
     W->>D: Store response
-    W-->>N: Respond (answer ready)
-    N->>B: Polling: answer ready?
-    B->>N: GET /api/poll-response
-    N->>D: Query for response
-    D-->>N: Return answer if ready
-    N-->>B: Render answer in UI
+    W-->>N: Respond with status
+    
+    loop Polling
+        B->>N: GET /api/poll-response
+        N->>D: Query for response
+        D-->>N: Return answer if ready
+        N-->>B: Render answer in UI
+    end
 ```
 
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ (for local development, TypeScript 5.x)
-- Docker and Docker Compose (recommended)
-- Git
-
-### Quick Start with Docker (Recommended)
-
-1.  **Clone the repository**:
-    ```bash
-    git clone <repository-url>
-    cd servicenow-aisupporttool
-    ```
-
-2.  **Set up environment variables**:
-    ```bash
-    cp .env.example .env
-    # Edit .env file with your API keys and secrets
-    ```
-    Required environment variables:
-    - `OPENAI_API_KEY`: Your OpenAI API key
-    - `OPENROUTER_API_KEY`: Your OpenRouter API key (provides access to multiple AI models)
-    - `WEBHOOK_API_KEY`: A secure random string for webhook authentication
-    - `JWT_SECRET`: A secure random string for JWT token signing
-    - `N8N_ENCRYPTION_KEY`: A secure random string for n8n credential encryption.
-
-3.  **Start all services**:
-    
-    **First time installation**:
-    ```bash
-    docker compose --profile setup up -d
-    ```
-    
-    **Subsequent runs**:
-    ```bash
-    docker compose up -d
-    ```
-    
-    The first time setup command will:
-    - Start the Next.js app, n8n, and PostgreSQL database
-    - Automatically run the setup script to configure N8N
-    - Create admin user and API credentials 
-    - Import and activate the AI workflow
-    - Create the required database tables (conversation history and user settings)
-    - Register webhook endpoints
-    
-    After initial setup, the standard `docker compose up -d` command will start all services without running the setup again.
-
-4.  **Access the applications**:
-    -   **ServiceNow Helper**: `http://localhost:3000`
-    -   **N8N Workflow Manager**: `http://localhost:5678` (Login: `admin@servicenow-helper.local` / `Admin123`)
-
-### Detailed Setup Guide
-
-#### Manual Setup
-
-If the automatic setup (`docker compose --profile setup up -d`) fails or encounters networking issues, you can perform a manual setup:
-
-1.  **Stop and remove existing containers**:
-    ```bash
-    docker compose down
-    ```
-2.  **Run the setup script manually**:
-    ```bash
-    ./scripts/setup-n8n.sh
-    ```
-
-#### Re-initialization
-
-If you need to completely reset and re-initialize:
 ```bash
-# Remove initialization flag
-docker exec servicenow-aisupporttool-n8n-1 rm /home/node/.n8n/.initialized
-
-# Run setup again
-./scripts/setup-n8n.sh
+# Required software
+✅ Node.js 18+
+✅ Docker & Docker Compose
+✅ Git
 ```
 
-#### Access Information
+### One-Click Setup with Docker
 
-- **ServiceNow Helper**: http://localhost:3000
-  - Username: admin
-  - Password: password123
+> **Pro Tip:** Use Docker for the fastest setup experience!
 
-- **n8n Workflow Editor**: http://localhost:5678
-  - Email: admin@servicenow-helper.local
-  - Password: Admin123
-
-### Local Development Setup
-
-1.  Clone and install dependencies:
-    ```bash
-    git clone <repository-url>
-    cd servicenow-aisupporttool
-    npm install
-    ```
-
-2.  Set up environment variables by creating a `.env.local` file:
-    ```env
-    N8N_WEBHOOK_URL=your_n8n_webhook_url
-    N8N_WEBHOOK_URL_RESPONSE=your_n8n_response_polling_url
-    N8N_API_KEY=your_n8n_api_key
-    JWT_SECRET=your_jwt_secret_key
-    DATABASE_URL=postgresql://user:password@localhost:5432/dbname
-    ```
-
-3.  Run the development server:
-    ```bash
-    npm run dev
-    ```
-
-4.  Open `http://localhost:3000` in your browser.
-
-### Available Scripts
-
--   `npm run dev` - Start development server
--   `npm run build` - Build production application
--   `npm run start` - Start production server
--   `npm run lint` - Run ESLint checks
--   `npm test` - Run Jest unit tests
--   `npm run test:e2e` - Run Playwright integration tests
--   `npm run test:e2e:ui` - Run Playwright tests with interactive UI mode
--   `npm run test:e2e:headed` - Run Playwright tests in headed browser mode
--   `npm run test:e2e:debug` - Run Playwright tests in debug mode
-
-### Docker Commands
-
--   `docker compose --profile setup up -d` - First time setup (starts all services + runs setup)
--   `docker compose up -d` - Start all services in background (regular use)
--   `docker compose down` - Stop all services
--   `docker compose logs -f` - View logs from all services
--   `docker compose up -d --build` - Rebuild and start services
-
-**Note**: Use `--profile setup` only for first-time installation. The setup script will automatically skip initialization if already completed.
-
-## Usage
-
-1.  **Authentication**: Log in with your credentials to access the application.
-2.  **Configure Settings**: Access the settings page via the burger menu to customize your experience:
-    - **Welcome Section**: Toggle the visibility of the welcome info box on the main page
-    - **Default Search Mode**: Set your preferred search mode setting for new sessions  
-    - **Default Request Type**: Choose your preferred default between documentation/recommendation/script/troubleshoot
-3.  **Ask Questions**: Use the search interface to submit ServiceNow-related questions.
-4.  **Select Question Type**: Choose from documentation, recommendation, script, or troubleshoot.
-5.  **Toggle Features**: Enable continue session as needed.
-6.  **View Responses**: Receive AI-generated responses with markdown formatting and code highlighting.
-7.  **Conversation History**: Access your previous conversations through the history panel with search and filtering capabilities.
-
-## Settings System
-
-The application includes a comprehensive user settings management system that allows users to customize their experience:
-
-### Available Settings
-
-- **Welcome Section Visibility**: Control whether the welcome info box appears on the main page
-- **Default Search Mode**: Set the default state for search mode in new sessions
-- **Default Request Type**: Choose the default request type (documentation/recommendation/script/troubleshoot)
-
-### Technical Implementation
-
-- **Database Storage**: Settings are stored in the `user_settings` PostgreSQL table with user-specific persistence
-- **Real-time Sync**: Changes are immediately reflected across the application without requiring a page refresh
-- **Authentication-Aware**: Settings are tied to authenticated users and gracefully handle unauthenticated states
-- **API Endpoints**: RESTful API at `/api/settings` with GET and PUT methods for settings management
-- **React Context**: Settings are managed through a React context (`SettingsContext`) for global state management
-- **Type Safety**: Full TypeScript support with defined interfaces for all settings
-
-## Next.js 15 Best Practices Implementation
-
-This application implements comprehensive Next.js 15 best practices for optimal performance, security, and user experience:
-
-### Performance Optimizations
-
-- **Dynamic Imports**: Heavy components like `HistoryPanel` and `ReactMarkdown` are lazy-loaded to reduce initial bundle size
-- **Code Splitting**: Automatic code splitting with Suspense boundaries for better loading performance
-- **React.memo**: Expensive components (`HistoryItem`, `ThemeToggle`, `StepGuide`) are memoized to prevent unnecessary re-renders
-- **Bundle Optimization**: Selective imports for icon libraries and optimized component loading
-
-### Error Handling & User Experience
-
-- **Error Boundaries**: Route-level error handling with `src/app/error.tsx` for graceful error recovery
-- **Loading States**: Global loading UI with `src/app/loading.tsx` for better page transitions
-- **Fallback Components**: Suspense fallbacks for lazy-loaded components with loading indicators
-
-### Security Enhancements
-
-- **Security Headers**: Comprehensive security headers including:
-  - `X-Content-Type-Options: nosniff`
-  - `X-Frame-Options: DENY`
-  - `X-XSS-Protection: 1; mode=block`
-  - `Referrer-Policy: strict-origin-when-cross-origin`
-  - `Permissions-Policy` for privacy protection
-- **API Protection**: Enhanced API route security with cache-control headers
-
-### Accessibility Improvements
-
-- **ARIA Attributes**: Proper ARIA labels, roles, and states for screen reader compatibility
-- **Keyboard Navigation**: Full keyboard support with Escape, Enter, and Space key handlers
-- **Skip Links**: Skip-to-content links for better navigation accessibility
-- **Focus Management**: Proper focus handling for modals and dropdown menus
-- **Click Outside**: Intuitive UX with click-outside-to-close functionality
-
-### Architecture Benefits
-
-- **App Router**: Full utilization of Next.js 15 App Router features
-- **Server Components**: Optimal mix of server and client components
-- **Modern React**: Latest React 19 patterns with concurrent features
-- **Type Safety**: Enhanced TypeScript configuration with strict mode compliance
-
-### Performance Metrics
-
-The implemented optimizations result in:
-- Reduced initial JavaScript bundle size through code splitting
-- Faster page load times with lazy loading
-- Improved Core Web Vitals scores
-- Better user experience with proper loading states
-
-## Testing
-
-The project includes comprehensive testing with both unit tests (Jest) and integration tests (Playwright).
-
-### Unit Tests (Jest)
-
-Run unit tests for components, utilities, and API functions:
-
+**Step 1:** Clone the repository
 ```bash
-npm test              # Run tests in watch mode (development)
-npm run test:ci       # Run tests once (CI/CD)
+git clone https://github.com/your-username/servicenow-helper.git
+cd servicenow-helper
 ```
 
-### Integration Tests (Playwright)
-
-End-to-end testing that validates the complete user experience:
-
+**Step 2:** Configure environment
 ```bash
-npm run test:e2e            # Run all Playwright tests headlessly
-npm run test:e2e:ui         # Interactive UI mode with test runner interface
-npm run test:e2e:headed     # Run tests in visible browser windows
-npm run test:e2e:debug      # Debug mode with browser developer tools
+cp .env.example .env
+# Edit .env with your API keys
 ```
 
-#### Test Environment Setup
-
-Playwright tests use separate environment configuration:
-
-- **Environment Files**: `.env.test` and `.env.test.local` (for local overrides)
-- **Test Credentials**: Default test username/password in environment files
-- **Automatic Setup**: Tests automatically start the dev server via `playwright.config.ts`
-
-#### Playwright Test Coverage
-
-Current integration tests validate:
-
-1. **Authentication Flow**: Login functionality and session management
-2. **Interface Elements**: UI component visibility and accessibility
-3. **User Interactions**: Form inputs, button clicks, navigation
-4. **Feature Access**: History panel, settings, and conversation management
-5. **Responsive Design**: Cross-browser compatibility (Chromium, Firefox)
-
-#### Playwright Best Practices Applied
-
-The tests follow Playwright documentation best practices:
-
-- **Web-First Assertions**: Using `await expect().toBeVisible()` for automatic waiting
-- **User-Facing Selectors**: Prioritizing `getByRole()`, `getByText()` over CSS selectors
-- **Strict Mode Handling**: Specific selectors to avoid multiple element matches
-- **React Considerations**: Proper handling of state updates and component interactions
-
-#### Test Configuration
-
-- **Global Timeout**: 60 seconds for complex React application interactions
-- **WebServer Timeout**: 120 seconds for Next.js development server startup
-- **Browser Support**: Chromium and Firefox (WebKit disabled for WSL compatibility)
-- **Retry Logic**: Automatic retries on CI environments
-
-#### Running Tests in Different Modes
-
-```bash
-# Quick validation
-npm run test:e2e -- --project=chromium
-
-# Specific test pattern
-npm run test:e2e -- --grep="should allow user to log in"
-
-# Generate test report
-npm run test:e2e
-npx playwright show-report
-
-# Update snapshots
-npm run test:e2e -- --update-snapshots
+**Required Environment Variables:**
+```env
+OPENAI_API_KEY=your_openai_api_key
+OPENROUTER_API_KEY=your_openrouter_api_key
+WEBHOOK_API_KEY=secure_random_string
+JWT_SECRET=secure_jwt_secret
+N8N_ENCRYPTION_KEY=secure_n8n_key
 ```
 
-### Testing Strategy
+**Step 3:** Launch everything
+```bash
+# First time setup (includes configuration)
+docker compose --profile setup up -d
 
-The testing approach focuses on:
+# Subsequent runs
+docker compose up -d
+```
 
-- **User Behavior**: Testing what users see and do, not implementation details
-- **Core Workflows**: Authentication, question submission, history management
-- **Interface Reliability**: Ensuring UI elements are accessible and functional
-- **Cross-Browser Support**: Validating functionality across different browsers
+### Access Points
 
-For detailed testing guidelines and troubleshooting, see the [Testing Documentation](./docs/TESTING.md).
+| Service | URL | Credentials |
+|---------|-----|-------------|
+| **ServiceNow Helper** | `http://localhost:3000` | `admin` / `password123` |
+| **n8n Workflow Manager** | `http://localhost:5678` | `admin@servicenow-helper.local` / `Admin123` |
 
----
+## Tech Stack
+
+<div align="center">
+
+### Frontend
+![Next.js](https://img.shields.io/badge/Next.js-15.4.4-000000?style=flat-square&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1.11-06B6D4?style=flat-square&logo=tailwindcss)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
+
+### Backend
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=flat-square&logo=postgresql)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker)
+![n8n](https://img.shields.io/badge/n8n-Workflows-FF6D5A?style=flat-square&logo=n8n)
+
+### AI & Security
+![OpenRouter](https://img.shields.io/badge/OpenRouter-Multi--Model-FF4B4B?style=flat-square)
+![JWT](https://img.shields.io/badge/JWT-Authentication-000000?style=flat-square&logo=jsonwebtokens)
+![Axios](https://img.shields.io/badge/Axios-1.10.0-5A29E4?style=flat-square&logo=axios)
+
+</div>
+
+## Usage Guide
+
+### **Getting Started**
+1. **Login** with your credentials to access the secure dashboard
+2. **Configure** your preferences in the settings panel
+3. **Customize** default search modes and request types
+
+### **Settings Configuration**
+
+Access the settings via the hamburger menu to personalize your experience:
+
+| Setting | Description | Options |
+|---------|-------------|---------|
+| **Welcome Section** | Toggle info box visibility | Show/Hide |
+| **Default Search Mode** | Set preferred search behavior | On/Off |
+| **Default Request Type** | Choose default category | Documentation, Recommendation, Script, Troubleshoot |
+
+### **Asking Questions**
+
+1. **Select Question Type:**
+   - **Documentation** - Get comprehensive guides
+   - **Recommendation** - Receive best practice advice
+   - **Script** - Generate code solutions
+   - **Troubleshoot** - Debug and resolve issues
+
+2. **Submit Query** using the intuitive search interface
+3. **View Responses** with markdown formatting and syntax highlighting
+4. **Access History** through the conversation panel with advanced filtering
+
+## Testing Suite
+
+<div align="center">
+
+![Jest](https://img.shields.io/badge/Jest-30.0.4-C21325?style=flat-square&logo=jest)
+![Playwright](https://img.shields.io/badge/Playwright-1.53.2-2EAD33?style=flat-square&logo=playwright)
+
+</div>
+
+### **Unit Testing with Jest**
+```bash
+npm test              # Watch mode (development)
+npm run test:ci       # Single run (CI/CD)
+```
+
+### **Integration Testing with Playwright**
+```bash
+npm run test:e2e            # Headless execution
+npm run test:e2e:ui         # Interactive UI mode
+npm run test:e2e:headed     # Visible browser mode
+npm run test:e2e:debug      # Debug with dev tools
+```
+
+### **Test Coverage**
+- Authentication flows and session management
+- UI component visibility and interactions
+- Cross-browser compatibility (Chromium, Firefox)
+- Feature access and conversation management
+- Responsive design validation
 
 ## Project Structure
 
-The project follows an organized directory structure:
-
 ```
-/
-├── README.md, CLAUDE.md, GEMINI.md, LICENSE  # Core documentation
-├── package.json, package-lock.json           # Dependencies
-├── Configuration files                       # ESLint, Jest, Next.js, etc.
-├── Dockerfile                               # Application container
-├── docker-compose.yml                       # Multi-service orchestration
-├── docs/                                     # Detailed documentation
-├── n8n/                                      # N8N workflow templates
-├── public/                                   # Static assets and PWA files
-├── scripts/                                  # Utility scripts
-├── src/                                      # Application source code
-│   ├── app/                                 # Next.js App Router pages & API
-│   │   ├── api/settings/                   # Settings API endpoints
-│   │   └── settings/                       # Settings page
-│   ├── components/                          # React components
-│   │   ├── Settings.tsx                    # Settings page component
-│   │   └── SearchInterface.tsx             # Main interface (settings-aware)
-│   ├── contexts/                            # React contexts
-│   │   └── SettingsContext.tsx             # Settings state management
-│   ├── lib/                                 # Utility libraries
-│   │   └── database.ts                     # Database layer (includes UserSettingsManager)
-│   └── types/                               # TypeScript definitions
-│       └── index.ts                        # Settings interfaces and types
-└── tests/                                    # Test files and mocks
+servicenow-helper/
+├── README.md, CLAUDE.md, GEMINI.md      # Documentation
+├── package.json, package-lock.json      # Dependencies
+├── Configuration files                   # ESLint, Jest, Next.js
+├── Dockerfile, docker-compose.yml       # Containerization
+├── docs/                                # Detailed documentation
+├── n8n/                                 # Workflow templates
+├── public/                              # Static assets & PWA
+├── scripts/                             # Utility scripts
+├── src/                                 # Application source
+│   ├── app/                             # Next.js App Router
+│   │   ├── api/settings/               # Settings API
+│   │   └── settings/                   # Settings page
+│   ├── components/                      # React components
+│   │   ├── Settings.tsx                   # Settings component
+│   │   └── SearchInterface.tsx            # Main interface
+│   ├── contexts/                        # React contexts
+│   │   └── SettingsContext.tsx            # Settings state
+│   ├── lib/                             # Utilities
+│   │   └── database.ts                    # Database layer
+│   └── types/                           # TypeScript definitions
+└── tests/                               # Test files and mocks
 ```
 
-## Detailed Documentation
+## Available Commands
 
-*   [Getting Started & Setup](./docs/SETUP.md)
-*   [Progressive Web App (PWA)](./docs/PWA.md)
-*   [Environment Variables](./docs/ENVIRONMENT_VARIABLES.md)
-*   [Development Guide](./docs/DEVELOPMENT.md)
-*   [Testing](./docs/TESTING.md)
-*   [Contributing](./docs/CONTRIBUTING.md)
+<div align="center">
+
+| Command | Description | Usage |
+|---------|-------------|-------|
+| `npm run dev` | Development server | Local development |
+| `npm run build` | Production build | Deployment prep |
+| `npm run start` | Production server | Live deployment |
+| `npm run lint` | Code quality check | Code review |
+| `npm test` | Unit testing | Component testing |
+| `npm run test:e2e` | Integration testing | Full app testing |
+
+</div>
+
+### Docker Commands
+
+```bash
+# First time setup
+docker compose --profile setup up -d
+
+# Regular operations
+docker compose up -d                    # Start services
+docker compose down                     # Stop services
+docker compose logs -f                  # View logs
+docker compose up -d --build           # Rebuild & start
+```
+
+## Documentation
+
+<div align="center">
+
+| Guide | Focus | Link |
+|----------|----------|---------|
+| **Setup** | Installation & Configuration | [Getting Started](./docs/SETUP.md) |
+| **PWA** | Progressive Web App Features | [PWA Guide](./docs/PWA.md) |
+| **Environment** | Variable Configuration | [Environment](./docs/ENVIRONMENT_VARIABLES.md) |
+| **Development** | Contributing & Development | [Dev Guide](./docs/DEVELOPMENT.md) |
+| **Testing** | Testing Strategies | [Testing](./docs/TESTING.md) |
+| **Contributing** | Contribution Guidelines | [Contributing](./docs/CONTRIBUTING.md) |
+
+</div>
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](./docs/CONTRIBUTING.md) for details on:
+
+- Bug reports and feature requests
+- Code contributions and pull requests  
+- Documentation improvements
+- Testing and quality assurance
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+<div align="center">
+
+**MIT License**
+
+*This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.*
+
+---
+</div>

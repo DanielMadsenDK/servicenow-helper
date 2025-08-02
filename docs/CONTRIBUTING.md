@@ -145,7 +145,7 @@ chore: maintenance tasks
 ## Architecture Considerations
 
 ### Core Components
-- **Frontend**: Next.js 15.3.5 with App Router
+- **Frontend**: Next.js 15.4.4 with App Router
 - **Backend**: n8n workflows for AI processing  
 - **Database**: PostgreSQL for data persistence
 - **Authentication**: JWT-based auth system

@@ -20,6 +20,24 @@ export const metadata: Metadata = {
   title: "ServiceNow Helper",
   description: "Get instant help with ServiceNow implementations, documentation, and scripts",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/maskable_icon_x192.png", sizes: "192x192", type: "image/png" }
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+    ],
+    other: [
+      { rel: "mask-icon", url: "/maskable_icon_x192.png" }
+    ]
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "ServiceNow Helper"
+  }
 };
 
 export const viewport = {
@@ -38,7 +56,9 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="theme-color" content="#f6f6f6" />
-        <link rel="apple-touch-icon" href="icon512_rounded.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="ServiceNow Helper" />
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body
