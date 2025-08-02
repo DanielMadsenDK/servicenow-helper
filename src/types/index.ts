@@ -4,6 +4,7 @@ export interface ServiceNowRequest {
   sessionkey: string;
   searching: boolean;
   aiModel: string;
+  file?: string; // base64 encoded file data
 }
 
 export interface ServiceNowResponse {
@@ -81,6 +82,21 @@ export interface UserSettings {
   default_ai_model: string;
 }
 
+export interface Capability {
+  id: number;
+  name: string;
+  display_name: string;
+  description?: string;
+  created_at: Date;
+}
+
+export interface AIModelCapability {
+  id: number;
+  ai_model_id: number;
+  capability_id: number;
+  created_at: Date;
+}
+
 export interface AIModel {
   id: number;
   user_id: string;
@@ -90,6 +106,7 @@ export interface AIModel {
   is_default: boolean;
   created_at: Date;
   updated_at: Date;
+  capabilities?: Capability[];
 }
 
 export interface AIModelInput {
@@ -97,6 +114,7 @@ export interface AIModelInput {
   display_name?: string;
   is_free: boolean;
   is_default?: boolean;
+  capability_ids?: number[];
 }
 
 export interface AIModelsApiResponse {
@@ -108,6 +126,12 @@ export interface AIModelsApiResponse {
 export interface AIModelApiResponse {
   success: boolean;
   data?: AIModel;
+  error?: string;
+}
+
+export interface CapabilitiesApiResponse {
+  success: boolean;
+  data?: Capability[];
   error?: string;
 }
 

@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Save, AlertCircle, DollarSign, Gift } from 'lucide-react';
+import { X, Save, AlertCircle, DollarSign, Gift, FileText, Image, Headphones } from 'lucide-react';
 import { useAIModels } from '@/contexts/AIModelContext';
+import type { Capability } from '@/types/index';
 
 interface AIModelModalProps {
   isOpen: boolean;
@@ -15,18 +16,52 @@ export default function AIModelModal({ isOpen, onClose, onSuccess }: AIModelModa
   const [modelName, setModelName] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [isFree, setIsFree] = useState(false);
+  const [selectedCapabilities, setSelectedCapabilities] = useState<number[]>([]);
+  const [availableCapabilities, setAvailableCapabilities] = useState<Capability[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingCapabilities, setIsLoadingCapabilities] = useState(false);
   
   const modalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Focus input when modal opens
+  // Focus input when modal opens and fetch capabilities
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
+    if (isOpen) {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+      fetchCapabilities();
     }
   }, [isOpen]);
+
+  const fetchCapabilities = async () => {
+    setIsLoadingCapabilities(true);
+    setError(null);
+    
+    try {
+      const response = await fetch('/api/capabilities', {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch capabilities');
+      }
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        setAvailableCapabilities(data.data);
+      } else {
+        throw new Error(data.error || 'Invalid response format');
+      }
+    } catch (err) {
+      console.error('Failed to fetch capabilities:', err);
+      setError('Failed to load capabilities');
+    } finally {
+      setIsLoadingCapabilities(false);
+    }
+  };
 
   // Handle escape key
   useEffect(() => {
@@ -76,13 +111,15 @@ export default function AIModelModal({ isOpen, onClose, onSuccess }: AIModelModa
         model_name: modelName.trim(),
         display_name: displayName.trim() || undefined,
         is_free: isFree,
-        is_default: false
+        is_default: false,
+        capability_ids: selectedCapabilities
       });
       
       // Reset form
       setModelName('');
       setDisplayName('');
       setIsFree(false);
+      setSelectedCapabilities([]);
       setError(null);
       
       onSuccess();
@@ -99,8 +136,30 @@ export default function AIModelModal({ isOpen, onClose, onSuccess }: AIModelModa
     setModelName('');
     setDisplayName('');
     setIsFree(false);
+    setSelectedCapabilities([]);
     setError(null);
     onClose();
+  };
+
+  const toggleCapability = (capabilityId: number) => {
+    setSelectedCapabilities(prev => 
+      prev.includes(capabilityId)
+        ? prev.filter(id => id !== capabilityId)
+        : [...prev, capabilityId]
+    );
+  };
+
+  const getCapabilityIcon = (capabilityName: string) => {
+    switch (capabilityName) {
+      case 'text':
+        return FileText;
+      case 'images':
+        return Image;
+      case 'audio':
+        return Headphones;
+      default:
+        return FileText;
+    }
   };
 
   if (!isOpen) return null;
@@ -199,6 +258,59 @@ export default function AIModelModal({ isOpen, onClose, onSuccess }: AIModelModa
             </label>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-8">
               Check if this model is free to use, uncheck if it costs money
+            </p>
+          </div>
+
+          {/* Capabilities Section */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              Capabilities <span className="text-gray-400">(Optional)</span>
+            </label>
+            {isLoadingCapabilities ? (
+              <div className="flex items-center justify-center py-4">
+                <div className="animate-spin w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
+                <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">Loading capabilities...</span>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {availableCapabilities.map((capability) => {
+                  const IconComponent = getCapabilityIcon(capability.name);
+                  const isSelected = selectedCapabilities.includes(capability.id);
+                  
+                  return (
+                    <label
+                      key={capability.id}
+                      className="flex items-center space-x-3 cursor-pointer group"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleCapability(capability.id)}
+                        className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        disabled={isSubmitting}
+                      />
+                      <div className={`flex items-center space-x-2 transition-colors ${
+                        isSelected 
+                          ? 'text-blue-600 dark:text-blue-400' 
+                          : 'text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                      }`}>
+                        <IconComponent className="w-4 h-4" />
+                        <span className="text-sm font-medium">
+                          {capability.display_name}
+                        </span>
+                      </div>
+                    </label>
+                  );
+                })}
+                {availableCapabilities.length === 0 && !isLoadingCapabilities && (
+                  <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">
+                    No capabilities available
+                  </div>
+                )}
+              </div>
+            )}
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              Select the types of content this model can process (text, images, audio)
             </p>
           </div>
 

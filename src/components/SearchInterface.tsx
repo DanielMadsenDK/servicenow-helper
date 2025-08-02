@@ -15,16 +15,20 @@ import SubmitButton from './SubmitButton';
 import ResultsSection from './ResultsSection';
 import Footer from './Footer';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useAIModels } from '@/contexts/AIModelContext';
 import { usePlaceholderRotation } from '@/hooks/usePlaceholderRotation';
 import { useSessionManager } from '@/hooks/useSessionManager';
 import { RequestType } from '@/lib/constants';
+import FileUpload from './FileUpload';
 
 // Lazy load heavy components
 const HistoryPanel = lazy(() => import('./HistoryPanel'));
 
 export default function SearchInterface() {
   const { settings, updateSetting } = useSettings();
+  const { models } = useAIModels();
   const [question, setQuestion] = useState('');
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<RequestType>(settings.default_request_type);
   const [searchMode, setSearchMode] = useState(settings.default_search_mode);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +44,16 @@ export default function SearchInterface() {
   // Use custom hooks
   const { continueMode, setContinueMode, getSessionKey, currentSessionKey } = useSessionManager();
   const currentPlaceholder = usePlaceholderRotation({ textareaRef, question });
+
+  // Get current model and check if it's multimodal
+  const getCurrentModel = () => {
+    return models.find(m => m.model_name === settings.default_ai_model);
+  };
+
+  const isCurrentModelMultimodal = () => {
+    const currentModel = getCurrentModel();
+    return currentModel && currentModel.capabilities && currentModel.capabilities.length > 0;
+  };
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -88,6 +102,7 @@ export default function SearchInterface() {
       sessionkey: sessionKey,
       searching: searchMode,
       aiModel: settings.default_ai_model,
+      ...(selectedFile && { file: selectedFile }),
     };
 
     try {
@@ -179,6 +194,7 @@ export default function SearchInterface() {
     setIsLoading(false);
     setAbortController(null);
     setIsLoadedFromHistory(true);
+    setSelectedFile(null); // Clear any selected file when loading from history
     
     setIsHistoryOpen(false);
     if (textareaRef.current) {
@@ -198,6 +214,7 @@ export default function SearchInterface() {
 
   const handleClearHistory = () => {
     setIsLoadedFromHistory(false);
+    setSelectedFile(null); // Also clear any selected file
   };
 
   return (
@@ -305,6 +322,27 @@ export default function SearchInterface() {
                 onSearchModeChange={setSearchMode}
                 disabled={isLoading}
               />
+
+              {/* File Upload - Only show if current model is multimodal */}
+              {isCurrentModelMultimodal() && (
+                <>
+                  {/* Separator */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-3 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Attachment</span>
+                    </div>
+                  </div>
+
+                  <FileUpload
+                    onFileSelect={setSelectedFile}
+                    capabilities={getCurrentModel()?.capabilities || []}
+                    disabled={isLoading}
+                  />
+                </>
+              )}
             </div>
           </div>
 
