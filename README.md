@@ -207,6 +207,26 @@ Access the settings via the hamburger menu to personalize your experience:
 3. **View Responses** with markdown formatting and syntax highlighting
 4. **Access History** through the conversation panel with advanced filtering
 
+### **File Attachments (Multimodal Support)**
+
+Enhance your questions with file attachments when using multimodal AI models:
+
+| Feature | Description | Requirements |
+|---------|-------------|--------------|
+| **File Upload** | Attach images, documents, and other files | Multimodal model selected |
+| **Supported Types** | Images (PNG, JPG, GIF), PDFs, text files | Model with image/text capabilities |
+| **Audio Support** | Audio file analysis and transcription | Model with audio capabilities |
+
+**How to enable attachments:**
+1. Navigate to **Settings** → **AI Models**
+2. Define or select a model with multimodal capabilities:
+   - ✅ **Text** - Basic text processing
+   - ✅ **Image** - Visual content analysis  
+   - ✅ **Audio** - Audio file processing
+3. The attachment button will appear automatically in the search interface
+
+> **Note:** File attachment functionality is only visible when a multimodal AI model is selected. Models become multimodal when you configure them with image, text, or audio capabilities in the settings menu.
+
 ## Testing Suite
 
 <div align="center">
