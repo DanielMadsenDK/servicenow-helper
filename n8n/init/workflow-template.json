@@ -1040,15 +1040,15 @@
     {
       "parameters": {
         "content": "## Async Processing",
-        "height": 1120,
-        "width": 2560,
+        "height": 1280,
+        "width": 3580,
         "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -180,
-        20
+        -500,
+        -200
       ],
       "id": "bf0a89d6-438b-45ef-91cf-0b3fb6464ece",
       "name": "Sticky Note1"
@@ -1155,8 +1155,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2120,
-        400
+        2860,
+        100
       ],
       "id": "cff809fa-8dcf-42e2-93df-4dd1cb1e4f01",
       "name": "Save response",
@@ -1208,8 +1208,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -20,
-        580
+        160,
+        560
       ],
       "id": "ba7983df-5245-4c22-aa10-cf641dfce44e",
       "name": "Search Query Optimizer",
@@ -1243,8 +1243,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        200,
-        580
+        380,
+        560
       ],
       "id": "48f43055-b759-4710-a185-b451452f5743",
       "name": "Search Query Prep"
@@ -1274,8 +1274,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        420,
-        380
+        600,
+        360
       ],
       "id": "e571340c-f3a3-4092-bccf-2dc01791c1e2",
       "name": "ServiceNow KB Search"
@@ -1305,8 +1305,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        420,
-        580
+        600,
+        560
       ],
       "id": "5438623d-b833-42dd-9c41-6e55ba115954",
       "name": "Developer Portal Search"
@@ -1336,8 +1336,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        420,
-        780
+        600,
+        760
       ],
       "id": "b8df2317-8d55-4d63-83b9-827648ed7ed1",
       "name": "Community Search"
@@ -1367,8 +1367,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        420,
-        980
+        600,
+        960
       ],
       "id": "93adb4f3-b4f1-41de-9b81-f554aae738e8",
       "name": "ServiceNow Store Search"
@@ -1380,8 +1380,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        640,
-        560
+        820,
+        520
       ],
       "id": "5fd461ea-8eef-4a20-8dfc-5a9b89082b90",
       "name": "Search Results Collector"
@@ -1393,8 +1393,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        860,
-        580
+        1040,
+        540
       ],
       "id": "8859d061-2218-4e68-a82e-1d4ca461d4b8",
       "name": "Content Processor"
@@ -1440,8 +1440,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1080,
-        580
+        1260,
+        540
       ],
       "id": "548ad02d-a760-48a8-aec2-c597eab35393",
       "name": "Content Summarizer",
@@ -1470,25 +1470,99 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1300,
-        580
+        1480,
+        540
       ],
       "id": "1f6eebbc-93f2-4a7a-b73a-ccf97157c6fc",
       "name": "Prompt Enhancer"
     },
     {
       "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "=attachment",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2040,
+        -80
+      ],
+      "id": "c354b92e-f476-41f1-acec-e1b4425802e6",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9832117c-f5e4-4f8e-a2fb-96a0f05dbdb8",
+              "name": "attachment",
+              "value": "={{ $('Initiate').item.json.body.file }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1820,
+        -80
+      ],
+      "id": "4220ed20-1e46-43ac-9070-d1ba35d9df13",
+      "name": "Set attachment"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "87e4631e-8040-48d6-96e8-fb3a77444d3e",
+              "leftValue": "={{ $('Initiate').item.json.body.file }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1620,
+        40
+      ],
+      "id": "8b96a7ca-3032-4883-a540-086e865f0dd4",
+      "name": "File provided"
+    },
+    {
+      "parameters": {
         "promptType": "define",
         "text": "=Question from the user: \"{{ $('Initiate').first().json.body.question }}\"",
         "options": {
-          "systemMessage": "={{ $json.prompt }}"
+          "systemMessage": "={{ $('File provided').item.json.prompt }}",
+          "passthroughBinaryImages": true
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2,
       "position": [
-        1560,
-        340
+        2340,
+        60
       ],
       "id": "be601dd3-7e17-4d56-9a4f-931b87e0c7b9",
       "name": "Claude AI system"
@@ -1502,8 +1576,8 @@
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.3,
       "position": [
-        1640,
-        620
+        2400,
+        280
       ],
       "id": "4ef2e989-6840-494d-bbe0-0460cbe8cbb1",
       "name": "Chat Memory",
@@ -1511,36 +1585,6 @@
         "postgres": {
           "id": "POSTGRES_CREDENTIAL_ID",
           "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "value": "={{ $('Generate Key').first().json.model }}",
-          "mode": "id"
-        },
-        "options": {
-          "maxTokensToSample": "={{ $('Generate Key').first().json.max_tokens }}",
-          "temperature": "={{ $('Generate Key').first().json.temperature }}",
-          "topK": "={{ $('Generate Key').first().json.top_k }}",
-          "topP": "={{ $('Generate Key').first().json.top_p }}",
-          "thinking": "={{ $('Generate Key').first().json.enable_thinking }}"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.3,
-      "position": [
-        2040,
-        840
-      ],
-      "id": "95ce2251-6745-4d4c-b8a6-174bd6a30867",
-      "name": "AI model",
-      "credentials": {
-        "anthropicApi": {
-          "id": "ANTHROPIC_CREDENTIAL_ID",
-          "name": "Anthropic account"
         }
       }
     },
@@ -1561,8 +1605,8 @@
       "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
       "typeVersion": 1.3,
       "position": [
-        1800,
-        600
+        2500,
+        320
       ],
       "id": "3c440751-5d9d-4bda-9d21-2550ddd71385",
       "name": "Postgres PGVector Store",
@@ -1580,8 +1624,8 @@
       "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
       "typeVersion": 1.2,
       "position": [
-        1840,
-        820
+        2580,
+        520
       ],
       "id": "e6f09e5a-2f4c-42b7-b75c-f814ef9780eb",
       "name": "Embeddings OpenAI",
@@ -1620,8 +1664,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -320,
-        500
+        -260,
+        320
       ],
       "id": "64cd10fa-c348-4815-9e39-51a93ee25c2e",
       "name": "Searchmode1"
@@ -1638,8 +1682,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        1480,
-        660
+        2260,
+        320
       ],
       "id": "f24b85f0-86f2-4fd5-ae09-712db0fafe34",
       "name": "OpenRouter",
@@ -2026,7 +2070,7 @@
       "main": [
         [
           {
-            "node": "Claude AI system",
+            "node": "File provided",
             "type": "main",
             "index": 0
           }
@@ -2053,11 +2097,6 @@
             "index": 0
           }
         ]
-      ]
-    },
-    "AI model": {
-      "ai_languageModel": [
-        []
       ]
     },
     "Postgres PGVector Store": {
@@ -2093,7 +2132,7 @@
         ],
         [
           {
-            "node": "Claude AI system",
+            "node": "File provided",
             "type": "main",
             "index": 0
           }
@@ -2106,6 +2145,46 @@
           {
             "node": "Claude AI system",
             "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Claude AI system",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set attachment": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File provided": {
+      "main": [
+        [
+          {
+            "node": "Set attachment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Claude AI system",
+            "type": "main",
             "index": 0
           }
         ]
