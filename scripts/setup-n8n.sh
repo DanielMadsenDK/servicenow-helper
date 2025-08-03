@@ -277,6 +277,14 @@ if [ -f /.dockerenv ]; then
         echo "⚠️ AI models seeding script not found, skipping..."
     fi
     
+    # Run multimodal capabilities migration
+    echo "Adding multimodal capabilities support..."
+    if [ -f scripts/add-multimodal-capabilities.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/add-multimodal-capabilities.sql > /dev/null 2>&1 && echo "✅ Multimodal capabilities added" || echo "⚠️ Multimodal capabilities migration failed"
+    else
+        echo "⚠️ Multimodal capabilities migration script not found, skipping..."
+    fi
+    
     # Mark as initialized inside container
     docker exec $N8N_CONTAINER touch /home/node/.n8n/.initialized > /dev/null 2>&1
 else
@@ -364,6 +372,14 @@ else
         docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/seed-ai-models.sql > /dev/null 2>&1 && echo "✅ AI models seeded" || echo "⚠️ AI models seeding failed (may be expected if no users exist yet)"
     else
         echo "⚠️ AI models seeding script not found, skipping..."
+    fi
+    
+    # Run multimodal capabilities migration
+    echo "Adding multimodal capabilities support..."
+    if [ -f scripts/add-multimodal-capabilities.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/add-multimodal-capabilities.sql > /dev/null 2>&1 && echo "✅ Multimodal capabilities added" || echo "⚠️ Multimodal capabilities migration failed"
+    else
+        echo "⚠️ Multimodal capabilities migration script not found, skipping..."
     fi
     
     # Mark as initialized inside container

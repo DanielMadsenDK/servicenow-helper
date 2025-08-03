@@ -82,7 +82,7 @@ describe('TypeSelector', () => {
       // Selected button should have selected styling
       expect(recommendationButton).toHaveClass('border-blue-500');
       expect(recommendationButton).toHaveClass('text-blue-700');
-      expect(recommendationButton).toHaveClass('scale-105');
+      expect(recommendationButton).toHaveClass('scale-102');
 
       // Non-selected buttons should have default styling
       expect(documentationButton).toHaveClass('border-gray-200');
@@ -191,7 +191,7 @@ describe('TypeSelector', () => {
       const buttons = screen.getAllByRole('button');
       buttons.forEach(button => {
         expect(button).toHaveClass('hover:shadow-md');
-        expect(button).toHaveClass('hover:scale-105');
+        expect(button).toHaveClass('hover:scale-102');
         expect(button).toHaveClass('hover:-translate-y-0.5');
       });
     });
@@ -202,7 +202,7 @@ describe('TypeSelector', () => {
       const buttons = screen.getAllByRole('button');
       buttons.forEach(button => {
         expect(button).not.toHaveClass('hover:shadow-md');
-        expect(button).not.toHaveClass('hover:scale-105');
+        expect(button).not.toHaveClass('hover:scale-102');
         expect(button).not.toHaveClass('hover:-translate-y-0.5');
       });
     });

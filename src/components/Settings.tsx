@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Trash2 } from 'lucide-react';
+import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Trash2, Image, Headphones } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAIModels } from '@/contexts/AIModelContext';
@@ -166,6 +166,23 @@ export default function Settings() {
     { value: 'script' as const, label: 'Script', icon: Code2 },
     { value: 'troubleshoot' as const, label: 'Troubleshoot', icon: Wrench },
   ];
+
+  const isModelMultimodal = (model: typeof models[0]) => {
+    return model.capabilities && model.capabilities.length > 0;
+  };
+
+  const getCapabilityIcon = (capabilityName: string) => {
+    switch (capabilityName) {
+      case 'text':
+        return FileText;
+      case 'images':
+        return Image;
+      case 'audio':
+        return Headphones;
+      default:
+        return FileText;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 relative">
@@ -434,12 +451,36 @@ export default function Settings() {
                             ) : (
                               <DollarSign className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
                             )}
-                            <span className="truncate">
+                            <div className="flex items-center space-x-2 min-w-0">
+                              <span className="truncate">
+                                {(() => {
+                                  const selectedModel = models.find(m => m.model_name === settings.default_ai_model);
+                                  return selectedModel ? (selectedModel.display_name || selectedModel.model_name) : (settings.default_ai_model || 'Select a model...');
+                                })()}
+                              </span>
                               {(() => {
                                 const selectedModel = models.find(m => m.model_name === settings.default_ai_model);
-                                return selectedModel ? (selectedModel.display_name || selectedModel.model_name) : (settings.default_ai_model || 'Select a model...');
+                                if (selectedModel && isModelMultimodal(selectedModel)) {
+                                  return (
+                                    <div className="flex items-center space-x-1">
+                                      <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">MultiModal</span>
+                                      <div className="flex space-x-1">
+                                        {selectedModel.capabilities?.map((cap) => {
+                                          const IconComponent = getCapabilityIcon(cap.name);
+                                          return (
+                                            <IconComponent 
+                                              key={cap.id} 
+                                              className="w-3 h-3 text-blue-600 dark:text-blue-400" 
+                                            />
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                                return null;
                               })()}
-                            </span>
+                            </div>
                           </>
                         )}
                       </div>
@@ -459,7 +500,25 @@ export default function Settings() {
                               ) : (
                                 <DollarSign className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
                               )}
-                              <span className="truncate">{model.display_name || model.model_name}</span>
+                              <div className="flex items-center space-x-2 min-w-0 flex-1">
+                                <span className="truncate">{model.display_name || model.model_name}</span>
+                                {isModelMultimodal(model) && (
+                                  <div className="flex items-center space-x-1">
+                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">MultiModal</span>
+                                    <div className="flex space-x-1">
+                                      {model.capabilities?.map((cap) => {
+                                        const IconComponent = getCapabilityIcon(cap.name);
+                                        return (
+                                          <IconComponent 
+                                            key={cap.id} 
+                                            className="w-3 h-3 text-blue-600 dark:text-blue-400" 
+                                          />
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                               {settings.default_ai_model === model.model_name && (
                                 <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 ml-auto" />
                               )}

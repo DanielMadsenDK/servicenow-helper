@@ -56,7 +56,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<AIModelAp
       model_name: body.model_name,
       display_name: body.display_name,
       is_free: body.is_free,
-      is_default: body.is_default || false
+      is_default: body.is_default || false,
+      capability_ids: body.capability_ids || []
     };
 
     // Validate input
@@ -91,6 +92,20 @@ export async function POST(request: NextRequest): Promise<NextResponse<AIModelAp
     if (modelInput.display_name && modelInput.display_name.length > 500) {
       return NextResponse.json(
         { success: false, error: 'Display name is too long (max 500 characters)' },
+        { status: 400 }
+      );
+    }
+
+    if (modelInput.capability_ids && !Array.isArray(modelInput.capability_ids)) {
+      return NextResponse.json(
+        { success: false, error: 'capability_ids must be an array' },
+        { status: 400 }
+      );
+    }
+
+    if (modelInput.capability_ids && modelInput.capability_ids.some(id => typeof id !== 'number' || id <= 0)) {
+      return NextResponse.json(
+        { success: false, error: 'All capability IDs must be positive numbers' },
         { status: 400 }
       );
     }

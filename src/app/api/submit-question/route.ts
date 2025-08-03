@@ -113,6 +113,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate file if provided
+    if (body.file && typeof body.file !== 'string') {
+      return NextResponse.json(
+        { success: false, error: 'File must be a base64 encoded string' },
+        { status: 400 }
+      );
+    }
+
+    // Basic file size validation (base64 encoded, roughly 1.33x larger than original)
+    if (body.file && body.file.length > 10 * 1024 * 1024 * 1.33) { // ~10MB limit
+      return NextResponse.json(
+        { success: false, error: 'File too large (max 10MB)' },
+        { status: 400 }
+      );
+    }
+
     // Validate environment variables
     if (!API_BASE_URL || !API_RESPONSE_URL || !API_KEY) {
       console.error('Missing environment variables:', {

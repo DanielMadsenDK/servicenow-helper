@@ -1,5 +1,5 @@
 import { Pool, PoolClient } from 'pg';
-import type { AIModel, AIModelInput } from '@/types/index';
+import type { AIModel, AIModelInput, Capability } from '@/types/index';
 
 interface DatabaseConfig {
   connectionString: string;
@@ -68,10 +68,28 @@ export class AIModelManager {
 
   async getUserModels(userId: string): Promise<AIModel[]> {
     const query = `
-      SELECT id, user_id, model_name, display_name, is_free, is_default, created_at, updated_at
-      FROM "ai_models"
-      WHERE user_id = $1
-      ORDER BY is_default DESC, created_at ASC
+      SELECT 
+        am.id, am.user_id, am.model_name, am.display_name, am.is_free, am.is_default, 
+        am.created_at, am.updated_at,
+        COALESCE(
+          JSON_AGG(
+            CASE WHEN c.id IS NOT NULL THEN
+              JSON_BUILD_OBJECT(
+                'id', c.id,
+                'name', c.name,
+                'display_name', c.display_name,
+                'description', c.description,
+                'created_at', c.created_at
+              )
+            END
+          ) FILTER (WHERE c.id IS NOT NULL), '[]'
+        ) as capabilities
+      FROM "ai_models" am
+      LEFT JOIN "ai_model_capabilities" amc ON am.id = amc.ai_model_id
+      LEFT JOIN "capabilities" c ON amc.capability_id = c.id
+      WHERE am.user_id = $1
+      GROUP BY am.id, am.user_id, am.model_name, am.display_name, am.is_free, am.is_default, am.created_at, am.updated_at
+      ORDER BY am.is_default DESC, am.created_at ASC
     `;
     
     const result = await this.db.query(query, [userId]);
@@ -86,7 +104,23 @@ export class AIModelManager {
         is_default: boolean;
         created_at: string;
         updated_at: string;
+        capabilities: Capability[] | string;
       };
+      
+      let capabilities: Capability[] = [];
+      if (typeof r.capabilities === 'string') {
+        try {
+          capabilities = JSON.parse(r.capabilities);
+        } catch {
+          capabilities = [];
+        }
+      } else if (Array.isArray(r.capabilities)) {
+        capabilities = r.capabilities.map(cap => ({
+          ...cap,
+          created_at: new Date(cap.created_at)
+        }));
+      }
+      
       return {
         id: r.id,
         user_id: r.user_id,
@@ -96,6 +130,7 @@ export class AIModelManager {
         is_default: r.is_default,
         created_at: new Date(r.created_at),
         updated_at: new Date(r.updated_at),
+        capabilities: capabilities,
       };
     });
   }
@@ -128,8 +163,6 @@ export class AIModelManager {
         modelInput.is_default || false
       ]);
       
-      await client.query('COMMIT');
-      
       const row = result.rows[0] as {
         id: number;
         user_id: string;
@@ -141,7 +174,21 @@ export class AIModelManager {
         updated_at: string;
       };
       
-      return {
+      // Add capabilities if provided
+      if (modelInput.capability_ids && modelInput.capability_ids.length > 0) {
+        for (const capabilityId of modelInput.capability_ids) {
+          await client.query(
+            'INSERT INTO "ai_model_capabilities" (ai_model_id, capability_id, created_at) VALUES ($1, $2, CURRENT_TIMESTAMP)',
+            [row.id, capabilityId]
+          );
+        }
+      }
+      
+      await client.query('COMMIT');
+      
+      // Fetch the model with capabilities
+      const modelWithCapabilities = await this.getModelById(userId, row.id);
+      return modelWithCapabilities || {
         id: row.id,
         user_id: row.user_id,
         model_name: row.model_name,
@@ -150,6 +197,7 @@ export class AIModelManager {
         is_default: row.is_default,
         created_at: new Date(row.created_at),
         updated_at: new Date(row.updated_at),
+        capabilities: [],
       };
     } catch (error) {
       await client.query('ROLLBACK');
@@ -229,6 +277,173 @@ export class AIModelManager {
       created_at: new Date(row.created_at),
       updated_at: new Date(row.updated_at),
     };
+  }
+
+  async getAllCapabilities(): Promise<Capability[]> {
+    const query = `
+      SELECT id, name, display_name, description, created_at
+      FROM "capabilities"
+      ORDER BY name ASC
+    `;
+    
+    const result = await this.db.query(query);
+    
+    return result.rows.map((row: unknown) => {
+      const r = row as {
+        id: number;
+        name: string;
+        display_name: string;
+        description?: string;
+        created_at: string;
+      };
+      return {
+        id: r.id,
+        name: r.name,
+        display_name: r.display_name,
+        description: r.description,
+        created_at: new Date(r.created_at),
+      };
+    });
+  }
+
+  async getModelById(userId: string, modelId: number): Promise<AIModel | null> {
+    const query = `
+      SELECT 
+        am.id, am.user_id, am.model_name, am.display_name, am.is_free, am.is_default, 
+        am.created_at, am.updated_at,
+        COALESCE(
+          JSON_AGG(
+            CASE WHEN c.id IS NOT NULL THEN
+              JSON_BUILD_OBJECT(
+                'id', c.id,
+                'name', c.name,
+                'display_name', c.display_name,
+                'description', c.description,
+                'created_at', c.created_at
+              )
+            END
+          ) FILTER (WHERE c.id IS NOT NULL), '[]'
+        ) as capabilities
+      FROM "ai_models" am
+      LEFT JOIN "ai_model_capabilities" amc ON am.id = amc.ai_model_id
+      LEFT JOIN "capabilities" c ON amc.capability_id = c.id
+      WHERE am.user_id = $1 AND am.id = $2
+      GROUP BY am.id, am.user_id, am.model_name, am.display_name, am.is_free, am.is_default, am.created_at, am.updated_at
+    `;
+    
+    const result = await this.db.query(query, [userId, modelId]);
+    
+    if (result.rows.length === 0) {
+      return null;
+    }
+    
+    const r = result.rows[0] as {
+      id: number;
+      user_id: string;
+      model_name: string;
+      display_name?: string;
+      is_free: boolean;
+      is_default: boolean;
+      created_at: string;
+      updated_at: string;
+      capabilities: Capability[] | string;
+    };
+    
+    let capabilities: Capability[] = [];
+    if (typeof r.capabilities === 'string') {
+      try {
+        capabilities = JSON.parse(r.capabilities);
+      } catch {
+        capabilities = [];
+      }
+    } else if (Array.isArray(r.capabilities)) {
+      capabilities = r.capabilities.map(cap => ({
+        ...cap,
+        created_at: new Date(cap.created_at)
+      }));
+    }
+    
+    return {
+      id: r.id,
+      user_id: r.user_id,
+      model_name: r.model_name,
+      display_name: r.display_name,
+      is_free: r.is_free,
+      is_default: r.is_default,
+      created_at: new Date(r.created_at),
+      updated_at: new Date(r.updated_at),
+      capabilities: capabilities,
+    };
+  }
+
+  async setModelCapabilities(userId: string, modelId: number, capabilityIds: number[]): Promise<boolean> {
+    const client = await this.db.getClient();
+    
+    try {
+      await client.query('BEGIN');
+      
+      // First, verify the model belongs to the user
+      const modelCheck = await client.query(
+        'SELECT id FROM "ai_models" WHERE id = $1 AND user_id = $2',
+        [modelId, userId]
+      );
+      
+      if (modelCheck.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return false;
+      }
+      
+      // Remove existing capabilities
+      await client.query(
+        'DELETE FROM "ai_model_capabilities" WHERE ai_model_id = $1',
+        [modelId]
+      );
+      
+      // Add new capabilities
+      for (const capabilityId of capabilityIds) {
+        await client.query(
+          'INSERT INTO "ai_model_capabilities" (ai_model_id, capability_id, created_at) VALUES ($1, $2, CURRENT_TIMESTAMP)',
+          [modelId, capabilityId]
+        );
+      }
+      
+      await client.query('COMMIT');
+      return true;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  async getModelCapabilities(modelId: number): Promise<Capability[]> {
+    const query = `
+      SELECT c.id, c.name, c.display_name, c.description, c.created_at
+      FROM "capabilities" c
+      JOIN "ai_model_capabilities" amc ON c.id = amc.capability_id
+      WHERE amc.ai_model_id = $1
+      ORDER BY c.name ASC
+    `;
+    
+    const result = await this.db.query(query, [modelId]);
+    
+    return result.rows.map((row: unknown) => {
+      const r = row as {
+        id: number;
+        name: string;
+        display_name: string;
+        description?: string;
+        created_at: string;
+      };
+      return {
+        id: r.id,
+        name: r.name,
+        display_name: r.display_name,
+        description: r.description,
+        created_at: new Date(r.created_at),
+      };
+    });
   }
 
 }
