@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Upload, X, FileText, Image, Headphones, Paperclip, AlertCircle } from 'lucide-react';
+import { Paperclip, X, FileText, Image, Headphones, AlertCircle } from 'lucide-react';
 import type { Capability } from '@/types/index';
 
 interface FileUploadProps {
@@ -191,18 +191,13 @@ export default function FileUpload({ onFileSelect, capabilities, disabled }: Fil
 
   return (
     <div className="space-y-3">
-      {/* File Upload Area */}
+      {/* File Upload Button - Styled to match ToggleControls */}
       {!fileInfo && (
         <div
-          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-            isDragging
-              ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20'
-              : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          className={`grid grid-cols-1 sm:grid-cols-1 gap-3 sm:gap-4 ${disabled ? 'pointer-events-none' : ''}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => !disabled && fileInputRef.current?.click()}
         >
           <input
             ref={fileInputRef}
@@ -213,78 +208,70 @@ export default function FileUpload({ onFileSelect, capabilities, disabled }: Fil
             disabled={disabled}
           />
           
-          <div className="flex flex-col items-center space-y-2">
-            <Upload className={`w-8 h-8 ${
-              isDragging ? 'text-blue-500' : 'text-gray-400 dark:text-gray-500'
-            }`} />
-            <div>
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                Drop a file here or click to select
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Supports: {getSupportedTypesDisplay()} (max 10MB)
-              </p>
+          <button
+            type="button"
+            onClick={() => !disabled && fileInputRef.current?.click()}
+            disabled={disabled}
+            className={`flex items-center px-4 py-2 sm:px-6 sm:py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 transition-all duration-200 shadow-sm w-full transform ${
+              disabled 
+                ? 'opacity-60 cursor-not-allowed scale-95' 
+                : isDragging
+                ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-md'
+                : 'hover:border-blue-300 dark:hover:border-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:shadow-md hover:scale-102 hover:-translate-y-0.5'
+            }`}
+          >
+            <div className="flex items-center space-x-2 sm:space-x-3 w-full">
+              <Paperclip className={`w-5 h-5 ${
+                isDragging ? 'text-blue-500' : 'text-gray-600 dark:text-gray-400'
+              }`} />
+              <div className="flex-1 text-left">
+                <span className={`font-medium text-sm sm:text-base ${
+                  isDragging ? 'text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'
+                }`}>
+                  {isDragging ? 'Drop file here' : 'Attach File'}
+                </span>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {getSupportedTypesDisplay()} • Max 10MB
+                </div>
+              </div>
             </div>
-          </div>
+          </button>
         </div>
       )}
 
-      {/* Selected File Display */}
+      {/* Selected File Chip */}
       {fileInfo && (
-        <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="flex-shrink-0">
-                {React.createElement(getFileIcon(fileInfo.type), {
-                  className: "w-5 h-5 text-blue-600 dark:text-blue-400"
-                })}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                  {fileInfo.name}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {formatFileSize(fileInfo.size)} • {getFileTypeFromMime(fileInfo.type)}
-                </p>
-              </div>
+        <div className="inline-flex items-center max-w-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl px-3 py-2 shadow-sm">
+          <div className="flex items-center space-x-2 min-w-0 flex-1">
+            <div className="flex-shrink-0">
+              {React.createElement(getFileIcon(fileInfo.type), {
+                className: "w-4 h-4 text-blue-600 dark:text-blue-400"
+              })}
             </div>
-            <button
-              onClick={handleRemoveFile}
-              className="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded transition-colors"
-              title="Remove file"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
+                {fileInfo.name}
+              </p>
+              <p className="text-xs text-blue-600 dark:text-blue-400">
+                {formatFileSize(fileInfo.size)}
+              </p>
+            </div>
           </div>
+          <button
+            onClick={handleRemoveFile}
+            className="flex-shrink-0 ml-2 p-1 text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors"
+            title="Remove file"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
       {/* Error Display */}
       {error && (
-        <div className="flex items-center space-x-2 text-red-600 dark:text-red-400 text-sm">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Capability Icons Legend */}
-      {capabilities.length > 0 && (
-        <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
-          <div className="flex items-center space-x-1">
-            <Paperclip className="w-3 h-3" />
-            <span>Supported:</span>
-          </div>
-          {capabilities.map((cap) => {
-            const IconComponent = cap.name === 'text' ? FileText : 
-                                 cap.name === 'images' ? Image : 
-                                 cap.name === 'audio' ? Headphones : FileText;
-            return (
-              <div key={cap.id} className="flex items-center space-x-1">
-                <IconComponent className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                <span>{cap.display_name}</span>
-              </div>
-            );
-          })}
+        <div className="flex items-start space-x-2 text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <span className="flex-1">{error}</span>
         </div>
       )}
     </div>

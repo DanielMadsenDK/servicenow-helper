@@ -20,10 +20,10 @@ export default function TypeSelector({ selectedType, onTypeChange, disabled }: T
           className={`p-2 sm:p-4 rounded-xl border-2 transition-all duration-200 flex items-center justify-center space-x-2 sm:space-x-3 shadow-sm transform ${
             disabled 
               ? 'opacity-60 cursor-not-allowed scale-95' 
-              : 'hover:shadow-md hover:scale-105 hover:-translate-y-0.5'
+              : 'hover:shadow-md hover:scale-102 hover:-translate-y-0.5'
           } ${
             selectedType === value
-              ? 'border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-700 dark:text-blue-300 shadow-md scale-105'
+              ? 'border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-700 dark:text-blue-300 shadow-md scale-102'
               : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
           }`}
           disabled={disabled}
