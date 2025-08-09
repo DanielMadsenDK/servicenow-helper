@@ -106,6 +106,30 @@
   75% { transform: translateX(2px); }
 }
 
+/* Simple Streaming Markdown Renderer Styles */
+.streaming-raw-content {
+  opacity: 0.95;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.streaming-enhanced-content {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+  animation: enhancementFadeIn 0.4s ease-out;
+}
+
+/* Fade-in animation when switching from raw to enhanced */
+@keyframes enhancementFadeIn {
+  0% {
+    opacity: 0.8;
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Responsive animations */
 @media (prefers-reduced-motion: reduce) {
   .streaming-indicator,
@@ -113,11 +137,19 @@
   .streaming-dots,
   .streaming-slide,
   .streaming-cursor,
-  .connection-status {
+  .connection-status,
+  .streaming-enhanced-content {
     animation: none;
   }
   
-  .streaming-content {
+  .streaming-content,
+  .streaming-raw-content,
+  .streaming-enhanced-content {
     transition: none;
+  }
+  
+  .streaming-enhanced-content {
+    opacity: 1;
+    transform: none;
   }
 }

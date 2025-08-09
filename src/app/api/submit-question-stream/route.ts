@@ -108,22 +108,27 @@ export async function POST(request: NextRequest) {
             timeout: 330000, // 5.5 minutes
           });
 
-          // Handle streaming response from n8n
+          // Handle streaming response from n8n - SIMPLIFIED APPROACH
           response.data.on('data', (chunk: Buffer) => {
             try {
               const chunkStr = chunk.toString();
+              console.log('[STREAMING DEBUG] Raw chunk from N8N:', chunkStr);
               
-              // N8N sends direct JSON chunks, not SSE format
-              // Split by newlines to handle multiple chunks in one buffer
-              const lines = chunkStr.split('\n').filter(line => line.trim());
+              // Split by newlines to handle multiple JSON objects in one buffer
+              const lines = chunkStr.split('\n');
               
               for (const line of lines) {
+                if (!line.trim()) {
+                  continue; // Skip empty lines
+                }
+                
                 try {
                   const n8nChunk = JSON.parse(line);
+                  console.log('[STREAMING DEBUG] Parsed N8N chunk:', JSON.stringify(n8nChunk, null, 2));
                   
-                  // Transform n8n chunk format to client-expected format
+                  // Simple processing based on N8N's actual format
                   if (n8nChunk.type === 'begin') {
-                    // N8N streaming started
+                    console.log('[STREAMING DEBUG] Stream beginning');
                     controller.enqueue(
                       `data: ${JSON.stringify({
                         content: '',
@@ -131,21 +136,8 @@ export async function POST(request: NextRequest) {
                         timestamp: new Date().toISOString()
                       })}\n\n`
                     );
-                  } else if (n8nChunk.type === 'item' || n8nChunk.type === 'progress') {
-                    // N8N sent content chunk - extract only the actual content
-                    const content = n8nChunk.output || n8nChunk.content || n8nChunk.message || '';
-                    // Only send non-empty content to avoid empty chunks
-                    if (content && content.trim()) {
-                      controller.enqueue(
-                        `data: ${JSON.stringify({
-                          content,
-                          type: 'chunk',
-                          timestamp: new Date().toISOString()
-                        })}\n\n`
-                      );
-                    }
                   } else if (n8nChunk.type === 'end') {
-                    // N8N streaming completed
+                    console.log('[STREAMING DEBUG] Stream ending');
                     controller.enqueue(
                       `data: ${JSON.stringify({
                         content: '',
@@ -155,31 +147,51 @@ export async function POST(request: NextRequest) {
                     );
                     controller.close();
                     return;
-                  } else {
-                    // For unknown chunk types, only extract content if it exists and is not metadata
-                    const content = n8nChunk.output || n8nChunk.content || n8nChunk.message || '';
-                    if (content && content.trim() && typeof content === 'string') {
-                      controller.enqueue(
-                        `data: ${JSON.stringify({
-                          content,
-                          type: 'chunk',
-                          timestamp: new Date().toISOString()
-                        })}\n\n`
-                      );
+                  } else if (n8nChunk.content !== undefined) {
+                    // SIMPLE: Just extract the content property directly
+                    console.log('[STREAMING DEBUG] Extracted content:', JSON.stringify(n8nChunk.content));
+                    
+                    // Validate content type and handle appropriately
+                    let contentToSend: string;
+                    
+                    if (typeof n8nChunk.content === 'string') {
+                      contentToSend = n8nChunk.content;
+                    } else if (n8nChunk.content === null) {
+                      console.log('[STREAMING DEBUG] Content is null, skipping chunk');
+                      continue;
+                    } else if (typeof n8nChunk.content === 'object') {
+                      // If content is an object, serialize it properly
+                      contentToSend = JSON.stringify(n8nChunk.content);
+                      console.log('[STREAMING DEBUG] Content was object, serialized to JSON');
+                    } else {
+                      // For numbers, booleans, etc., convert safely
+                      contentToSend = String(n8nChunk.content);
+                      console.log('[STREAMING DEBUG] Content was', typeof n8nChunk.content, 'converted to string');
                     }
-                    // Ignore chunks without valid content (don't fallback to JSON.stringify)
+                    
+                    // Send the validated content
+                    controller.enqueue(
+                      `data: ${JSON.stringify({
+                        content: contentToSend,
+                        type: 'chunk',
+                        timestamp: new Date().toISOString()
+                      })}\n\n`
+                    );
+                  } else {
+                    console.log('[STREAMING DEBUG] Chunk has no content property, skipping');
                   }
-                } catch {
-                  // Don't send anything if JSON parsing fails
-                  // This completely prevents any malformed JSON from reaching the UI
+                } catch (parseError) {
+                  console.error('[STREAMING DEBUG] JSON parsing failed for line:', line);
+                  console.error('[STREAMING DEBUG] Parse error:', parseError);
                 }
               }
             } catch (error) {
-              console.error('Error processing chunk:', error);
+              console.error('[STREAMING DEBUG] Error processing chunk buffer:', error);
             }
           });
 
           response.data.on('end', () => {
+            console.log('[STREAMING DEBUG] N8N stream ended');
             controller.enqueue(
               `data: ${JSON.stringify({
                 content: '',
