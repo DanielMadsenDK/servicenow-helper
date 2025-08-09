@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
+import { generateSessionId } from '@/lib/session-utils';
 
 export function useSessionManager() {
   const [currentSessionKey, setCurrentSessionKey] = useState<string | null>(null);
   const [continueMode, setContinueMode] = useState(false);
 
   const generateSessionKey = useCallback(() => {
-    return `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+    return generateSessionId();
   }, []);
 
   const handleContinueModeChange = useCallback((newContinueMode: boolean) => {

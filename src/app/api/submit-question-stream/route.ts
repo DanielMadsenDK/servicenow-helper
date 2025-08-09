@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import axios from 'axios';
 import { StreamingRequest } from '@/types';
 import { getServerAuthState } from '@/lib/server-auth';
+import { generateSessionId } from '@/lib/session-utils';
 
 const API_BASE_URL = process.env.N8N_WEBHOOK_URL!;
 const API_KEY = process.env.N8N_API_KEY!;
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
           // Transform request to n8n's expected streaming format
           const n8nStreamingRequest = {
             action: 'sendMessage',
-            sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            sessionId: generateSessionId(),
             chatInput: body.question,
             metadata: {
               type: body.type,
