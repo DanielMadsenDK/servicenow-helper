@@ -15,14 +15,14 @@
 
 ---
 
-*An intelligent ServiceNow assistance tool that provides real-time AI responses through an intuitive web interface and n8n workflow automation.*
+*An intelligent ServiceNow assistance tool that provides real-time streaming AI responses through an intuitive web interface and n8n workflow automation.*
 
 </div>
 
 ## Features
 
 ### **AI-Powered Intelligence**
-Leverage cutting-edge artificial intelligence with access to multiple text-based AI models through OpenRouter integration. Get smart ServiceNow question categorization, real-time response generation, and context-aware assistance that understands your specific needs.
+Leverage cutting-edge artificial intelligence with access to multiple text-based AI models through OpenRouter integration. Get smart ServiceNow question categorization, real-time streaming response generation, and context-aware assistance that understands your specific needs.
 
 ### **Robust Security**
 Built with security-first principles featuring server-side JWT authentication, Next.js middleware security layers, and comprehensive security headers to protect your data and sessions.
@@ -31,7 +31,7 @@ Built with security-first principles featuring server-side JWT authentication, N
 Complete conversation lifecycle management with full history tracking, advanced search and filtering capabilities, session continuity across interactions, and export functionality for documentation purposes.
 
 ### **Modern Experience**
-Enjoy a responsive design built with TailwindCSS, progressive web app support for mobile devices, dark/light theme toggle for user preference, and full accessibility optimization for inclusive usage.
+Enjoy a responsive design built with TailwindCSS, progressive web app support for mobile devices, dark/light theme toggle for user preference, real-time streaming responses with automatic scrolling, and full accessibility optimization for inclusive usage.
 
 ### **Core Capabilities**
 
@@ -39,7 +39,7 @@ Enjoy a responsive design built with TailwindCSS, progressive web app support fo
 |---------|-------------|------------|
 | **Multiple AI Models** | Access to Claude, GPT, and more | OpenRouter Integration |
 | **Question Types** | Documentation, Scripts, Troubleshooting | Intelligent Categorization |
-| **Real-time Responses** | Async webhook polling | n8n Workflow Engine |
+| **Real-time Streaming** | Live AI response streaming | n8n Workflow Engine + SSE |
 | **Session Management** | Unique keys & continuation | PostgreSQL Backend |
 | **Search Enhancement** | ServiceNow KB integration | API Connections |
 | **User Customization** | Persistent preferences | Settings Management |
@@ -62,7 +62,9 @@ graph TB
     
     subgraph "Backend Services"
         H[API Routes] --> I[n8n Workflows]
+        H --> G[Streaming SSE]
         I --> J[AI Processing]
+        G --> I
         H --> K[PostgreSQL]
     end
     
@@ -89,19 +91,22 @@ sequenceDiagram
     participant A as AI API
 
     U->>B: Enter question
-    B->>N: POST /api/submit-question (JWT)
-    N->>W: Trigger webhook
-    W->>A: Call AI API
-    A-->>W: AI answer
-    W->>D: Store response
-    W-->>N: Respond with status
+    B->>N: POST /api/submit-question-stream (JWT)
+    N->>W: Trigger streaming webhook
     
-    loop Polling
-        B->>N: GET /api/poll-response
-        N->>D: Query for response
-        D-->>N: Return answer if ready
-        N-->>B: Render answer in UI
+    W->>A: Call AI API (streaming)
+    
+    loop Real-time Streaming
+        A-->>W: AI response chunk
+        W-->>N: Stream chunk (SSE)
+        N-->>B: Display incremental response
+        B-->>U: Live UI updates
     end
+    
+    A-->>W: Final response
+    W->>D: Store complete response
+    W-->>N: Stream complete
+    N-->>B: Final UI state
 ```
 
 ## Quick Start
@@ -156,6 +161,8 @@ docker compose up -d
 | **ServiceNow Helper** | `http://localhost:3000` | `admin` / `password123` |
 | **n8n Workflow Manager** | `http://localhost:5678` | `admin@servicenow-helper.local` / `Admin123` |
 
+> **New:** Real-time streaming responses are now enabled by default, providing ChatGPT-like live response generation!
+
 ## Tech Stack
 
 <div align="center">
@@ -204,8 +211,9 @@ Access the settings via the hamburger menu to personalize your experience:
    - **Troubleshoot** - Debug and resolve issues
 
 2. **Submit Query** using the intuitive search interface
-3. **View Responses** with markdown formatting and syntax highlighting
-4. **Access History** through the conversation panel with advanced filtering
+3. **Watch Live Responses** stream in real-time as the AI generates answers
+4. **Enjoy Enhanced UX** with automatic scrolling to responses when streaming starts
+5. **Access History** through the conversation panel with advanced filtering
 
 ### **File Attachments (Multimodal Support)**
 
@@ -272,15 +280,17 @@ servicenow-helper/
 ├── src/                                 # Application source
 │   ├── app/                             # Next.js App Router
 │   │   ├── api/settings/               # Settings API
+│   │   ├── api/submit-question-stream/ # Streaming API
 │   │   └── settings/                   # Settings page
 │   ├── components/                      # React components
 │   │   ├── Settings.tsx                   # Settings component
-│   │   └── SearchInterface.tsx            # Main interface
+│   │   └── SearchInterface.tsx            # Main interface (streaming)
 │   ├── contexts/                        # React contexts
 │   │   └── SettingsContext.tsx            # Settings state
 │   ├── lib/                             # Utilities
+│   │   ├── streaming-client.ts            # Streaming client
 │   │   └── database.ts                    # Database layer
-│   └── types/                           # TypeScript definitions
+│   └── types/                           # TypeScript definitions (streaming)
 └── tests/                               # Test files and mocks
 ```
 

@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import SearchInterface from '@/components/SearchInterface';
-import { submitQuestion, cancelRequest } from '@/lib/api';
+import { submitQuestionStreaming, cancelRequest } from '@/lib/api';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AIModelProvider } from '@/contexts/AIModelContext';
 
 // Mock the API functions
 jest.mock('@/lib/api', () => ({
-  submitQuestion: jest.fn(),
+  submitQuestionStreaming: jest.fn(),
   cancelRequest: jest.fn(),
 }));
 
