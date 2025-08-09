@@ -151,10 +151,28 @@ export async function POST(request: NextRequest) {
                     // SIMPLE: Just extract the content property directly
                     console.log('[STREAMING DEBUG] Extracted content:', JSON.stringify(n8nChunk.content));
                     
-                    // Send the content as-is (including empty strings and whitespace)
+                    // Validate content type and handle appropriately
+                    let contentToSend: string;
+                    
+                    if (typeof n8nChunk.content === 'string') {
+                      contentToSend = n8nChunk.content;
+                    } else if (n8nChunk.content === null) {
+                      console.log('[STREAMING DEBUG] Content is null, skipping chunk');
+                      continue;
+                    } else if (typeof n8nChunk.content === 'object') {
+                      // If content is an object, serialize it properly
+                      contentToSend = JSON.stringify(n8nChunk.content);
+                      console.log('[STREAMING DEBUG] Content was object, serialized to JSON');
+                    } else {
+                      // For numbers, booleans, etc., convert safely
+                      contentToSend = String(n8nChunk.content);
+                      console.log('[STREAMING DEBUG] Content was', typeof n8nChunk.content, 'converted to string');
+                    }
+                    
+                    // Send the validated content
                     controller.enqueue(
                       `data: ${JSON.stringify({
-                        content: String(n8nChunk.content),
+                        content: contentToSend,
                         type: 'chunk',
                         timestamp: new Date().toISOString()
                       })}\n\n`
