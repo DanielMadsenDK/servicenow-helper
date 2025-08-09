@@ -111,7 +111,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock EventSource for streaming tests
-global.EventSource = jest.fn().mockImplementation((url) => ({
+const MockEventSource = jest.fn().mockImplementation((url) => ({
   url,
   readyState: 1, // OPEN
   onopen: null,
@@ -120,10 +120,14 @@ global.EventSource = jest.fn().mockImplementation((url) => ({
   addEventListener: jest.fn(),
   removeEventListener: jest.fn(),
   close: jest.fn(),
-  CONNECTING: 0,
-  OPEN: 1,
-  CLOSED: 2,
-}));
+})) as any;
+
+// Add static properties to the constructor
+MockEventSource.CONNECTING = 0;
+MockEventSource.OPEN = 1;
+MockEventSource.CLOSED = 2;
+
+global.EventSource = MockEventSource;
 
 // Mock AbortController for streaming cancellation tests
 global.AbortController = jest.fn().mockImplementation(() => ({
@@ -150,18 +154,18 @@ global.ReadableStream = jest.fn().mockImplementation(() => ({
 // Mock TextEncoder/TextDecoder for streaming chunk processing tests
 if (typeof global.TextEncoder === 'undefined') {
   global.TextEncoder = class TextEncoder {
-    encode(str) {
+    encode(str: string) {
       return new Uint8Array(Buffer.from(str, 'utf8'));
     }
-  };
+  } as any;
 }
 
 if (typeof global.TextDecoder === 'undefined') {
   global.TextDecoder = class TextDecoder {
-    decode(bytes) {
+    decode(bytes: any) {
       return Buffer.from(bytes).toString('utf8');
     }
-  };
+  } as any;
 }
 
 // Enhanced fetch mock for streaming endpoints
