@@ -3,45 +3,6 @@
   "nodes": [
     {
       "parameters": {
-        "httpMethod": "POST",
-        "path": "d8f43068-431e-405b-bdbb-e7dba6862299",
-        "authentication": "headerAuth",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        -2340,
-        620
-      ],
-      "id": "556ccaef-8a6d-4697-af40-61dcb16bb8c5",
-      "name": "Initiate",
-      "webhookId": "d8f43068-431e-405b-bdbb-e7dba6862298",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "HEADER_AUTH_CREDENTIAL_ID",
-          "name": "Header Auth account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={\n  \"key\": \"{{ $json.key }}\"\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.3,
-      "position": [
-        -580,
-        520
-      ],
-      "id": "732a0523-870f-4460-9bc4-9c6cddc46fb8",
-      "name": "Respond to Webhook"
-    },
-    {
-      "parameters": {
         "rules": {
           "values": [
             {
@@ -153,29 +114,12 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -1900,
-        580
+        -1904,
+        464
       ],
       "id": "d9171477-5865-41ac-9a74-57437b81a2a9",
       "name": "Switch",
       "alwaysOutputData": false
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "{\n  \"message\": \"unsupported type\"\n}",
-        "options": {
-          "responseCode": 400
-        }
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.3,
-      "position": [
-        -1680,
-        1020
-      ],
-      "id": "2163b6bf-549d-4db5-9b00-efb533f9d6b6",
-      "name": "Error Resposne"
     },
     {
       "parameters": {
@@ -202,7 +146,7 @@
       "typeVersion": 3.4,
       "position": [
         -1680,
-        220
+        112
       ],
       "id": "27750666-7706-4d45-ba8b-f5be2e865973",
       "name": "Append Recommendation"
@@ -232,7 +176,7 @@
       "typeVersion": 3.4,
       "position": [
         -1680,
-        420
+        304
       ],
       "id": "4f8bf7c4-abd8-4348-9c7e-de52041765ed",
       "name": "Append Documentation"
@@ -262,7 +206,7 @@
       "typeVersion": 3.4,
       "position": [
         -1680,
-        620
+        512
       ],
       "id": "d2a0ef23-4c93-4d0a-859a-d91d90afc4d0",
       "name": "Append Script"
@@ -275,8 +219,8 @@
       "type": "n8n-nodes-base.crypto",
       "typeVersion": 1,
       "position": [
-        -1020,
-        520
+        -1328,
+        400
       ],
       "id": "fd631256-d97c-4bec-83eb-65f35630a7da",
       "name": "Generate Key"
@@ -306,13 +250,13 @@
             {
               "id": "71a817a0-5151-45d6-8431-70aa2022bee6",
               "name": "type",
-              "value": "={{ $json.body.type }}",
+              "value": "={{ $json.body.metadata.type }}",
               "type": "string"
             },
             {
               "id": "fce1ff07-c2a3-46b2-b36d-81193926bc68",
               "name": "expert",
-              "value": "={{ $json.body.expert }}",
+              "value": "={{ $json.body.metadata.expert }}",
               "type": "boolean"
             },
             {
@@ -354,8 +298,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -2120,
-        620
+        -2128,
+        512
       ],
       "id": "3cd32122-4a86-4194-8552-49cb3f221245",
       "name": "Set Basic Variables"
@@ -369,8 +313,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -2460,
-        60
+        -2688,
+        -64
       ],
       "id": "a61af2e4-0298-4e0c-b705-8cac8fc36459",
       "name": "Sticky Note"
@@ -391,11 +335,10 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "key": "={{ $json.key }}",
+            "key": "={{  $('Generate Key').item.json.key }}",
             "state": "processing",
             "prompt": "={{ $json.prompt }}",
-            "model": "={{ $json.model }}",
-            "question": "={{ $('Initiate').item.json.body.question }}"
+            "model": "={{ $json.model }}"
           },
           "matchingColumns": [
             "id"
@@ -476,185 +419,17 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -800,
-        520
+        -1040,
+        400
       ],
       "id": "140685ec-821e-42f8-ae3a-5ffd761de685",
       "name": "Create Work Record",
       "credentials": {
         "postgres": {
-          "id": "POSTGRES_CREDENTIAL_ID",
+          "id": "jyKnFpTCK43HBCFx",
           "name": "Postgres account"
         }
       }
-    },
-    {
-      "parameters": {
-        "content": "## Response",
-        "height": 440,
-        "width": 1440,
-        "color": 5
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -2580,
-        1560
-      ],
-      "id": "6955f142-903a-4f92-93c7-7b32f7f4de0f",
-      "name": "Sticky Note2"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "688f7e3f-3a7c-44b5-a0bc-a792fb684ce6",
-              "leftValue": "=done",
-              "rightValue": "={{ $('Query workitem').item.json.state }}",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        -1680,
-        1740
-      ],
-      "id": "01b4f7ff-8f67-4744-a08a-ff5580b78d95",
-      "name": "If"
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "3d871efe-423d-422d-b431-33a1f8888e2c",
-        "authentication": "headerAuth",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        -2340,
-        1740
-      ],
-      "id": "bb6bf75e-8f2e-48e6-8504-38213382dfae",
-      "name": "Poll result",
-      "webhookId": "3d871efe-423d-422d-b431-33a1f8888e2b",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "HEADER_AUTH_CREDENTIAL_ID",
-          "name": "Header Auth account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "81566dfc-3c70-4c9c-98c7-5a415a63d940",
-              "name": "databaseKey",
-              "value": "={{ $json.body.key }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -2120,
-        1740
-      ],
-      "id": "f5c482f2-cb60-43e5-b5d6-a68ac5b2e90c",
-      "name": "Set database key"
-    },
-    {
-      "parameters": {
-        "operation": "select",
-        "schema": {
-          "__rl": true,
-          "mode": "list",
-          "value": "public"
-        },
-        "table": {
-          "__rl": true,
-          "value": "ServiceNowSupportTool",
-          "mode": "list",
-          "cachedResultName": "ServiceNowSupportTool"
-        },
-        "limit": 1,
-        "where": {
-          "values": [
-            {
-              "column": "key",
-              "value": "={{ $json.databaseKey }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        -1900,
-        1740
-      ],
-      "id": "16a4a558-4004-4ada-868c-b6313adba25a",
-      "name": "Query workitem",
-      "alwaysOutputData": true,
-      "credentials": {
-        "postgres": {
-          "id": "POSTGRES_CREDENTIAL_ID",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={\n  \"state\": \"done\",\n  \"message\": {{ $json.response.toJsonString() }}\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.3,
-      "position": [
-        -1460,
-        1640
-      ],
-      "id": "7e2b6bb5-ff3a-4f8c-961f-10108a8d7be1",
-      "name": "Return result"
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "{\n  \"state\": \"processing\"\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.3,
-      "position": [
-        -1460,
-        1840
-      ],
-      "id": "ee35662c-5df7-41e6-97af-0cde62ddaf57",
-      "name": "Return status"
     },
     {
       "parameters": {
@@ -687,7 +462,7 @@
       "typeVersion": 3.4,
       "position": [
         -1680,
-        820
+        704
       ],
       "id": "c2a548d9-0cc7-414d-a849-700643f5cadd",
       "name": "Append Troubleshoot"
@@ -703,15 +478,15 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -2340,
-        1380
+        -2304,
+        1216
       ],
       "id": "596df78e-e6e8-43a3-9abd-8011d57bda17",
       "name": "Add QA Pair Webhook",
       "webhookId": "add-qa-pair-webhook-id",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "HEADER_AUTH_CREDENTIAL_ID",
+          "id": "XyoDcrWrlzkAf9eT",
           "name": "Header Auth account"
         }
       }
@@ -751,8 +526,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -2120,
-        1380
+        -2096,
+        1216
       ],
       "id": "d16a7151-2062-4770-84db-464cffab06fd",
       "name": "Extract QA Data"
@@ -790,14 +565,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1900,
-        1380
+        -1872,
+        1216
       ],
       "id": "d9a1a556-04eb-4c36-b20e-8acdc9948281",
       "name": "Generate Question Embedding",
       "credentials": {
         "openAiApi": {
-          "id": "OPENAI_CREDENTIAL_ID",
+          "id": "wfvDxN9cSERQkWdf",
           "name": "OpenAi account"
         }
       }
@@ -835,14 +610,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1680,
-        1380
+        -1648,
+        1216
       ],
       "id": "b073252b-ad48-4d0e-b3dc-1420846efe05",
       "name": "Generate Answer Embedding",
       "credentials": {
         "openAiApi": {
-          "id": "OPENAI_CREDENTIAL_ID",
+          "id": "wfvDxN9cSERQkWdf",
           "name": "OpenAi account"
         }
       }
@@ -894,8 +669,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1460,
-        1380
+        -1424,
+        1216
       ],
       "id": "662fb012-70f8-4866-b5f6-5eec99759321",
       "name": "Combine Data"
@@ -994,14 +769,14 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -1240,
-        1380
+        -1216,
+        1216
       ],
       "id": "9b38c97d-2356-4bf9-baa0-172b1c27e89e",
       "name": "Save to Database",
       "credentials": {
         "postgres": {
-          "id": "POSTGRES_CREDENTIAL_ID",
+          "id": "jyKnFpTCK43HBCFx",
           "name": "Postgres account"
         }
       }
@@ -1015,8 +790,8 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -2620,
-        1280
+        -2592,
+        1120
       ],
       "typeVersion": 1,
       "id": "2b003844-b53f-4737-b23c-f2e9e7c3c72e",
@@ -1031,8 +806,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        -1020,
-        1380
+        -992,
+        1216
       ],
       "id": "1b8cf0d0-84f2-4e65-9438-e2d9e546d9c4",
       "name": "Success embedding response"
@@ -1047,8 +822,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -500,
-        -200
+        -464,
+        -192
       ],
       "id": "bf0a89d6-438b-45ef-91cf-0b3fb6464ece",
       "name": "Sticky Note1"
@@ -1070,7 +845,7 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "key": "={{ $('Respond to Webhook').first().json.key }}",
+            "key": "={{  $('Generate Key').item.json.key }}",
             "response": "={{ $json.output }}",
             "state": "done"
           },
@@ -1155,14 +930,14 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2860,
-        100
+        2864,
+        112
       ],
       "id": "cff809fa-8dcf-42e2-93df-4dd1cb1e4f01",
       "name": "Save response",
       "credentials": {
         "postgres": {
-          "id": "POSTGRES_CREDENTIAL_ID",
+          "id": "jyKnFpTCK43HBCFx",
           "name": "Postgres account"
         }
       }
@@ -1191,7 +966,7 @@
             },
             {
               "name": "messages",
-              "value": "={{ [\n  {\n    \"role\": \"system\",\n    \"content\": \"You are a ServiceNow search query optimizer. Transform user questions into effective ServiceNow search terms by:\\n\\n1. Extract key ServiceNow concepts, features, modules, and terminology\\n2. Add relevant ServiceNow-specific keywords\\n3. Include common synonyms and technical terms\\n4. Focus on searchable terms that would appear in documentation\\n5. Remove conversational words and focus on technical content\\n\\nExamples:\\n- 'How do I create a user?' → 'ServiceNow create user account sys_user table administration'\\n- 'Business rule vs workflow' → 'ServiceNow business rule workflow comparison scripting automation'\\n- 'ACL vs query business rule' → 'ServiceNow ACL access control list query business rule security permissions'\\n\\nReturn ONLY the optimized search query, nothing else. Keep it to 3 to 4 words or terms maximum. Do not include the word ServiceNow.\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Question type: \" + $('Initiate').first().json.body.type + \"\\nUser question: \" + $('Initiate').first().json.body.question\n  }\n] }}"
+              "value": "={{ [\n  {\n    \"role\": \"system\",\n    \"content\": \"You are a ServiceNow search query optimizer. Transform user questions into effective ServiceNow search terms by:\\n\\n1. Extract key ServiceNow concepts, features, modules, and terminology\\n2. Add relevant ServiceNow-specific keywords\\n3. Include common synonyms and technical terms\\n4. Focus on searchable terms that would appear in documentation\\n5. Remove conversational words and focus on technical content\\n\\nExamples:\\n- 'How do I create a user?' → 'ServiceNow create user account sys_user table administration'\\n- 'Business rule vs workflow' → 'ServiceNow business rule workflow comparison scripting automation'\\n- 'ACL vs query business rule' → 'ServiceNow ACL access control list query business rule security permissions'\\n\\nReturn ONLY the optimized search query, nothing else. Keep it to 3 to 4 words or terms maximum. Do not include the word ServiceNow.\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Question type: \" + $('InitiateOld').first().json.body.type + \"\\nUser question: \" + $('InitiateOld').first().json.body.question\n  }\n] }}"
             },
             {
               "name": "max_tokens",
@@ -1215,7 +990,7 @@
       "name": "Search Query Optimizer",
       "credentials": {
         "openAiApi": {
-          "id": "OPENAI_CREDENTIAL_ID",
+          "id": "wfvDxN9cSERQkWdf",
           "name": "OpenAi account"
         }
       }
@@ -1233,7 +1008,7 @@
             {
               "id": "search-query-2",
               "name": "questionType",
-              "value": "={{ $('Initiate').item.json.body.type }}",
+              "value": "={{ $('InitiateOld').item.json.body.type }}",
               "type": "string"
             }
           ]
@@ -1243,7 +1018,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        380,
+        384,
         560
       ],
       "id": "48f43055-b759-4710-a185-b451452f5743",
@@ -1274,8 +1049,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        600,
-        360
+        608,
+        368
       ],
       "id": "e571340c-f3a3-4092-bccf-2dc01791c1e2",
       "name": "ServiceNow KB Search"
@@ -1305,7 +1080,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        600,
+        608,
         560
       ],
       "id": "5438623d-b833-42dd-9c41-6e55ba115954",
@@ -1336,8 +1111,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        600,
-        760
+        608,
+        768
       ],
       "id": "b8df2317-8d55-4d63-83b9-827648ed7ed1",
       "name": "Community Search"
@@ -1367,7 +1142,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        600,
+        608,
         960
       ],
       "id": "93adb4f3-b4f1-41de-9b81-f554aae738e8",
@@ -1380,8 +1155,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        820,
-        520
+        832,
+        528
       ],
       "id": "5fd461ea-8eef-4a20-8dfc-5a9b89082b90",
       "name": "Search Results Collector"
@@ -1394,7 +1169,7 @@
       "typeVersion": 2,
       "position": [
         1040,
-        540
+        544
       ],
       "id": "8859d061-2218-4e68-a82e-1d4ca461d4b8",
       "name": "Content Processor"
@@ -1423,7 +1198,7 @@
             },
             {
               "name": "messages",
-              "value": "={{ [\n  {\n    \"role\": \"system\",\n    \"content\": \"You are a ServiceNow content summarizer. Create concise, actionable summaries of search results. Focus on key information, links, and practical guidance. Keep each source summary under 100 tokens. If you find any links / URL in the input given, they MUST be added together with the summery. The links are important.\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Summarize these ServiceNow search results for the question: \\\"\" + $('Initiate').first().json.body.question + \"\\\"\\n\\nSearch Results:\\n\" + JSON.stringify($('Content Processor').first().json.searchResults, null, 2)\n  }\n] }}"
+              "value": "={{ [\n  {\n    \"role\": \"system\",\n    \"content\": \"You are a ServiceNow content summarizer. Create concise, actionable summaries of search results. Focus on key information, links, and practical guidance. Keep each source summary under 100 tokens. If you find any links / URL in the input given, they MUST be added together with the summery. The links are important.\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Summarize these ServiceNow search results for the question: \\\"\" + $('InitiateOld').first().json.body.question + \"\\\"\\n\\nSearch Results:\\n\" + JSON.stringify($('Content Processor').first().json.searchResults, null, 2)\n  }\n] }}"
             },
             {
               "name": "max_tokens",
@@ -1440,14 +1215,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1260,
-        540
+        1264,
+        544
       ],
       "id": "548ad02d-a760-48a8-aec2-c597eab35393",
       "name": "Content Summarizer",
       "credentials": {
         "openAiApi": {
-          "id": "OPENAI_CREDENTIAL_ID",
+          "id": "wfvDxN9cSERQkWdf",
           "name": "OpenAi account"
         }
       }
@@ -1470,11 +1245,138 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1480,
-        540
+        1488,
+        544
       ],
       "id": "1f6eebbc-93f2-4a7a-b73a-ccf97157c6fc",
       "name": "Prompt Enhancer"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Initiate').first().json.body.sessionId }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        2416,
+        272
+      ],
+      "id": "4ef2e989-6840-494d-bbe0-0460cbe8cbb1",
+      "name": "Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "jyKnFpTCK43HBCFx",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Searches a knowledge base of previously saved question-and-answer pairs. This tool is designed to retrieve useful answers based on past user queries.\nUse this tool by inputting a question. If similar questions have been asked before, it will return the most relevant answers previously marked as helpful.\n\nInput:\nA natural language question from the user.\n\nOutput:\nOne or more relevant answers from the knowledge base, if any similar questions are found.\n\nExample usage:\nInput: \"How do I reset my database password?\"\nOutput: \"To reset your database password, go to the admin panel, select 'Security', then choose 'Reset Password'.\"",
+        "tableName": "qa_knowledge_base",
+        "options": {
+          "columnNames": {
+            "values": {
+              "vectorColumnName": "question_embedding",
+              "contentColumnName": "answer"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        2560,
+        304
+      ],
+      "id": "3c440751-5d9d-4bda-9d21-2550ddd71385",
+      "name": "Postgres PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "jyKnFpTCK43HBCFx",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2496,
+        512
+      ],
+      "id": "e6f09e5a-2f4c-42b7-b75c-f814ef9780eb",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "wfvDxN9cSERQkWdf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "69ed723c-3456-4b43-8162-b12916afbcca",
+              "leftValue": "={{ $('Initiate').item.json.body.searching }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -256,
+        320
+      ],
+      "id": "64cd10fa-c348-4815-9e39-51a93ee25c2e",
+      "name": "Searchmode1"
+    },
+    {
+      "parameters": {
+        "model": "={{ $('Initiate').first().json.body.aiModel }}",
+        "options": {
+          "maxTokens": "={{ $('Generate Key').first().json.max_tokens }}",
+          "temperature": "={{ $('Generate Key').first().json.temperature }}",
+          "topP": "={{ $('Generate Key').first().json.top_p }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        272
+      ],
+      "id": "f24b85f0-86f2-4fd5-ae09-712db0fafe34",
+      "name": "OpenRouter",
+      "credentials": {
+        "openRouterApi": {
+          "id": "MnbdZeqzq7snHPKl",
+          "name": "OpenRouter account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1485,7 +1387,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        2040,
+        2048,
         -80
       ],
       "id": "c354b92e-f476-41f1-acec-e1b4425802e6",
@@ -1498,7 +1400,7 @@
             {
               "id": "9832117c-f5e4-4f8e-a2fb-96a0f05dbdb8",
               "name": "attachment",
-              "value": "={{ $('Initiate').item.json.body.file }}",
+              "value": "={{ $('InitiateOld').item.json.body.file }}",
               "type": "string"
             }
           ]
@@ -1509,7 +1411,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1820,
+        1824,
         -80
       ],
       "id": "4220ed20-1e46-43ac-9070-d1ba35d9df13",
@@ -1543,182 +1445,74 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1620,
-        40
+        1632,
+        48
       ],
       "id": "8b96a7ca-3032-4883-a540-086e865f0dd4",
       "name": "File provided"
     },
     {
       "parameters": {
+        "httpMethod": "POST",
+        "path": "d8f43068-431e-405b-bdbb-e7dba6862299",
+        "authentication": "headerAuth",
+        "responseMode": "streaming",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2384,
+        512
+      ],
+      "id": "9596b35c-0087-4fa2-93c9-1bc436d12211",
+      "name": "Initiate",
+      "webhookId": "e7ff8ec4-501c-498c-8e18-b6b0fcb3786f",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "XyoDcrWrlzkAf9eT",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"message\": \"unsupported type\"\n}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -1680,
+        864
+      ],
+      "id": "e1695e25-c266-45bc-86d1-eef745fd16c3",
+      "name": "Error Response"
+    },
+    {
+      "parameters": {
         "promptType": "define",
-        "text": "=Question from the user: \"{{ $('Initiate').first().json.body.question }}\"",
+        "text": "=Question from the user: \"{{ $('Initiate').first().json.body.chatInput }}\"",
         "options": {
           "systemMessage": "={{ $('File provided').item.json.prompt }}",
-          "passthroughBinaryImages": true
+          "enableStreaming": true
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2,
-      "position": [
-        2340,
-        60
-      ],
-      "id": "be601dd3-7e17-4d56-9a4f-931b87e0c7b9",
-      "name": "Claude AI system"
-    },
-    {
-      "parameters": {
-        "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Initiate').first().json.body.sessionkey }}",
-        "contextWindowLength": 10
-      },
-      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
-      "typeVersion": 1.3,
-      "position": [
-        2400,
-        280
-      ],
-      "id": "4ef2e989-6840-494d-bbe0-0460cbe8cbb1",
-      "name": "Chat Memory",
-      "credentials": {
-        "postgres": {
-          "id": "POSTGRES_CREDENTIAL_ID",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "mode": "retrieve-as-tool",
-        "toolDescription": "Searches a knowledge base of previously saved question-and-answer pairs. This tool is designed to retrieve useful answers based on past user queries.\nUse this tool by inputting a question. If similar questions have been asked before, it will return the most relevant answers previously marked as helpful.\n\nInput:\nA natural language question from the user.\n\nOutput:\nOne or more relevant answers from the knowledge base, if any similar questions are found.\n\nExample usage:\nInput: \"How do I reset my database password?\"\nOutput: \"To reset your database password, go to the admin panel, select 'Security', then choose 'Reset Password'.\"",
-        "tableName": "qa_knowledge_base",
-        "options": {
-          "columnNames": {
-            "values": {
-              "vectorColumnName": "question_embedding",
-              "contentColumnName": "answer"
-            }
-          }
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
-      "typeVersion": 1.3,
-      "position": [
-        2500,
-        320
-      ],
-      "id": "3c440751-5d9d-4bda-9d21-2550ddd71385",
-      "name": "Postgres PGVector Store",
-      "credentials": {
-        "postgres": {
-          "id": "POSTGRES_CREDENTIAL_ID",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
-      "typeVersion": 1.2,
-      "position": [
-        2580,
-        520
-      ],
-      "id": "e6f09e5a-2f4c-42b7-b75c-f814ef9780eb",
-      "name": "Embeddings OpenAI",
-      "credentials": {
-        "openAiApi": {
-          "id": "OPENAI_CREDENTIAL_ID",
-          "name": "OpenAi account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "69ed723c-3456-4b43-8162-b12916afbcca",
-              "leftValue": "={{ $('Initiate').item.json.body.searching }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -260,
-        320
+        2384,
+        32
       ],
-      "id": "64cd10fa-c348-4815-9e39-51a93ee25c2e",
-      "name": "Searchmode1"
-    },
-    {
-      "parameters": {
-        "model": "={{ $('Initiate').first().json.body.aiModel }}",
-        "options": {
-          "maxTokens": "={{ $('Generate Key').first().json.max_tokens }}",
-          "temperature": "={{ $('Generate Key').first().json.temperature }}",
-          "topP": "={{ $('Generate Key').first().json.top_p }}"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
-      "typeVersion": 1,
-      "position": [
-        2260,
-        320
-      ],
-      "id": "f24b85f0-86f2-4fd5-ae09-712db0fafe34",
-      "name": "OpenRouter",
-      "credentials": {
-        "openRouterApi": {
-          "id": "OPENROUTER_CREDENTIAL_ID",
-          "name": "OpenRouter account"
-        }
-      }
+      "id": "9c567bf6-0336-48c6-a264-0e8a40d02342",
+      "name": "AI Agent"
     }
   ],
   "pinData": {},
   "connections": {
-    "Initiate": {
-      "main": [
-        [
-          {
-            "node": "Set Basic Variables",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Respond to Webhook": {
-      "main": [
-        [
-          {
-            "node": "Searchmode1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Switch": {
       "main": [
         [
@@ -1751,7 +1545,7 @@
         ],
         [
           {
-            "node": "Error Resposne",
+            "node": "Error Response",
             "type": "main",
             "index": 0
           }
@@ -1817,58 +1611,7 @@
       "main": [
         [
           {
-            "node": "Respond to Webhook",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If": {
-      "main": [
-        [
-          {
-            "node": "Return result",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Return status",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Poll result": {
-      "main": [
-        [
-          {
-            "node": "Set database key",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Set database key": {
-      "main": [
-        [
-          {
-            "node": "Query workitem",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Query workitem": {
-      "main": [
-        [
-          {
-            "node": "If",
+            "node": "Searchmode1",
             "type": "main",
             "index": 0
           }
@@ -2077,22 +1820,11 @@
         ]
       ]
     },
-    "Claude AI system": {
-      "main": [
-        [
-          {
-            "node": "Save response",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Chat Memory": {
       "ai_memory": [
         [
           {
-            "node": "Claude AI system",
+            "node": "AI Agent",
             "type": "ai_memory",
             "index": 0
           }
@@ -2103,7 +1835,7 @@
       "ai_tool": [
         [
           {
-            "node": "Claude AI system",
+            "node": "AI Agent",
             "type": "ai_tool",
             "index": 0
           }
@@ -2143,7 +1875,7 @@
       "ai_languageModel": [
         [
           {
-            "node": "Claude AI system",
+            "node": "AI Agent",
             "type": "ai_languageModel",
             "index": 0
           }
@@ -2154,7 +1886,7 @@
       "main": [
         [
           {
-            "node": "Claude AI system",
+            "node": "AI Agent",
             "type": "main",
             "index": 0
           }
@@ -2183,7 +1915,29 @@
         ],
         [
           {
-            "node": "Claude AI system",
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initiate": {
+      "main": [
+        [
+          {
+            "node": "Set Basic Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Save response",
             "type": "main",
             "index": 0
           }
@@ -2195,11 +1949,11 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "TEMPLATE_VERSION_ID",
+  "versionId": "ad7d8d42-db29-40c8-ae2e-bd1d91b4c736",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "TEMPLATE_INSTANCE_ID"
+    "instanceId": "6eb59f1f7b97bea1de3f88e3f172bf50ef88215762a7e9a6e31617381ad7f932"
   },
-  "id": "TEMPLATE_WORKFLOW_ID",
+  "id": "kBIKZ2x0LqjmCEZ5",
   "tags": []
 }
