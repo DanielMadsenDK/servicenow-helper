@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { History } from 'lucide-react';
-import { ServiceNowRequest, ServiceNowResponse, ConversationHistoryItem } from '@/types';
-import { submitQuestion, cancelRequest } from '@/lib/api';
+import { ServiceNowResponse, ConversationHistoryItem, StreamingRequest, StreamingChunk, StreamingStatus } from '@/types';
+import { cancelRequest, submitQuestionStreaming } from '@/lib/api';
+import { StreamingClient } from '@/lib/streaming-client';
+import { streamingCancellation } from '@/lib/streaming-cancellation';
 import BurgerMenu from './BurgerMenu';
 import ThemeToggle from './ThemeToggle';
 import WelcomeSection from './WelcomeSection';
@@ -35,6 +37,11 @@ export default function SearchInterface() {
   const [response, setResponse] = useState<ServiceNowResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
+  const [streamingClient, setStreamingClient] = useState<StreamingClient | null>(null);
+  const [streamingContent, setStreamingContent] = useState<string>('');
+  const [streamingStatus, setStreamingStatus] = useState<StreamingStatus>(StreamingStatus.CONNECTING);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [hasScrolledToResults, setHasScrolledToResults] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isLoadedFromHistory, setIsLoadedFromHistory] = useState(false);
   const [isWelcomeSectionVisible, setIsWelcomeSectionVisible] = useState(settings.welcome_section_visible);
@@ -44,6 +51,19 @@ export default function SearchInterface() {
   // Use custom hooks
   const { continueMode, setContinueMode, getSessionKey, currentSessionKey } = useSessionManager();
   const currentPlaceholder = usePlaceholderRotation({ textareaRef, question });
+
+  // Optimized smooth scroll function
+  const smoothScrollToResults = () => {
+    const targetElement = resultsRef.current;
+    if (targetElement) {
+      // Use optimized scroll with shorter duration for better performance
+      const targetTop = targetElement.offsetTop - 32; // Account for padding
+      window.scrollTo({
+        top: targetTop,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // Get current model and check if it's multimodal
   const getCurrentModel = () => {
@@ -74,29 +94,30 @@ export default function SearchInterface() {
       // Different delays: shorter for history (no API wait), longer for new responses (lazy-loaded ReactMarkdown)
       const delay = isLoadedFromHistory ? 100 : 500;
       setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
+        smoothScrollToResults();
       }, delay);
     }
   }, [response, isLoadedFromHistory]);
+
+  // Scroll to results when streaming starts is now handled in onChunk callback
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     
     if (!question.trim()) return;
 
-    const controller = new AbortController();
-    setAbortController(controller);
+    // Reset states for new submission
     setIsLoading(true);
     setError(null);
     setResponse(null);
     setIsLoadedFromHistory(false);
+    setStreamingContent('');
+    setIsStreaming(true);
+    setHasScrolledToResults(false);
 
     const sessionKey = getSessionKey();
 
-    const request: ServiceNowRequest = {
+    const request: StreamingRequest = {
       question: question.trim(),
       type: selectedType,
       sessionkey: sessionKey,
@@ -106,51 +127,108 @@ export default function SearchInterface() {
     };
 
     try {
-      const result = await submitQuestion(request, controller.signal);
-
-      // Check if request was aborted before processing result
-      if (controller.signal.aborted) {
-        return;
-      }
-
-      if (result.success && result.data) {
-        setResponse(result.data);
-      } else {
-        // Don't show cancellation as an error to the user
-        if (result.error !== 'Request was cancelled') {
-          setError(result.error || 'An error occurred');
+      const client = await submitQuestionStreaming(request, {
+        onChunk: (chunk: StreamingChunk) => {
+          setStreamingContent(prev => {
+            const newContent = prev + chunk.content;
+            // Scroll to results on first chunk (when content starts appearing)
+            if (!hasScrolledToResults && newContent.length > 0 && resultsRef.current) {
+              setTimeout(() => {
+                smoothScrollToResults();
+              }, 100);
+              setHasScrolledToResults(true);
+            }
+            return newContent;
+          });
+        },
+        
+        onComplete: (totalContent: string) => {
+          setIsStreaming(false);
+          setIsLoading(false);
+          setStreamingClient(null);
+          setHasScrolledToResults(false);
+          
+          // Cleanup cancellation manager
+          streamingCancellation.cleanupSession(sessionKey);
+          
+          // Create a ServiceNowResponse for compatibility with existing components
+          const finalResponse: ServiceNowResponse = {
+            message: totalContent,
+            type: selectedType,
+            timestamp: new Date().toISOString(),
+            sessionkey: sessionKey,
+            status: 'done'
+          };
+          
+          setResponse(finalResponse);
+          setStreamingContent('');
+        },
+        
+        onError: (errorMessage: string) => {
+          setIsStreaming(false);
+          setIsLoading(false);
+          setStreamingClient(null);
+          setHasScrolledToResults(false);
+          
+          // Cleanup cancellation manager
+          streamingCancellation.cleanupSession(sessionKey);
+          
+          setError(errorMessage);
+          setStreamingContent('');
+        },
+        
+        onStatusChange: (status: StreamingStatus) => {
+          setStreamingStatus(status);
+          if (status === StreamingStatus.STREAMING) {
+            setIsLoading(false);
+          }
         }
-      }
+      });
+      
+      setStreamingClient(client);
+      
+      // Register with cancellation manager
+      streamingCancellation.registerSession(sessionKey, client);
+      
     } catch (error) {
-      console.error('Submit question error:', error);
-      if (error instanceof Error && error.name === 'AbortError') {
-        // Don't show abort errors to user - this is expected when they click stop
-        return;
-      } else {
-        setError('An unexpected error occurred');
-      }
-    } finally {
-      // Only reset state if the request wasn't aborted
-      if (!controller.signal.aborted) {
-        setIsLoading(false);
-        setAbortController(null);
-      }
+      console.error('Submit question streaming error:', error);
+      setIsStreaming(false);
+      setIsLoading(false);
+      setStreamingClient(null);
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+      setStreamingContent('');
     }
   };
 
   const handleStop = async () => {
     // Reset UI state immediately
     setIsLoading(false);
+    setIsStreaming(false);
     setAbortController(null);
     setError(null);
+    setStreamingContent('');
     
     try {
+      // Use enhanced cancellation manager
+      if (currentSessionKey) {
+        const cancelled = streamingCancellation.cancelSession(currentSessionKey);
+        if (cancelled) {
+          setStreamingClient(null);
+        }
+      }
+      
+      // Fallback: Cancel streaming client directly if still active
+      if (streamingClient) {
+        streamingClient.cancel();
+        setStreamingClient(null);
+      }
+      
       // Abort the client-side request
       if (abortController) {
         abortController.abort();
       }
       
-      // Cancel the server-side polling
+      // Cancel the server-side polling (fallback compatibility)
       if (currentSessionKey) {
         await cancelRequest(currentSessionKey);
       }
@@ -278,10 +356,14 @@ export default function SearchInterface() {
         {/* Search Form */}
         <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-4 sm:p-8 md:p-10 mb-4 sm:mb-8 relative overflow-hidden animate-in slide-in-from-bottom-4 fade-in-0 duration-500">
           {/* Enhanced Processing Overlay */}
-          <ProcessingOverlay isVisible={isLoading} />
+          <ProcessingOverlay 
+            isVisible={isLoading} 
+            isStreaming={isStreaming}
+            streamingStatus={streamingStatus} 
+          />
           
           <div className={`space-y-6 transition-all duration-500 ease-in-out ${
-            isLoading ? 'filter blur-[2px] pointer-events-none opacity-50' : 'filter blur-0 opacity-100'
+            isLoading && !isStreaming ? 'filter blur-[2px] pointer-events-none opacity-50' : 'filter blur-0 opacity-100'
           }`}>
             {/* Question Input */}
             <QuestionInput
@@ -350,7 +432,7 @@ export default function SearchInterface() {
           <form onSubmit={handleSubmit}>
             <div className="mt-4 sm:mt-6">
               <SubmitButton
-                isLoading={isLoading}
+                isLoading={isLoading || isStreaming}
                 hasQuestion={!!question.trim()}
                 onSubmit={() => handleSubmit()}
                 onStop={handleStop}
@@ -367,6 +449,9 @@ export default function SearchInterface() {
             isLoadedFromHistory={isLoadedFromHistory}
             selectedType={selectedType}
             question={question}
+            streamingContent={streamingContent}
+            isStreaming={isStreaming}
+            streamingStatus={streamingStatus}
           />
         </div>
 

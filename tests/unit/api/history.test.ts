@@ -81,5 +81,55 @@ describe('History API - Basic Functionality', () => {
       expect(mockErrorResponse.success).toBe(false);
       expect(mockErrorResponse.error).toBe('Test error');
     });
+
+    it('should handle streaming conversation format', () => {
+      const mockStreamingConversation = {
+        id: 1,
+        created_at: new Date(),
+        prompt: 'How to create an incident?',
+        response: 'To create an incident...',
+        model: 'claude-3',
+        state: 'complete',
+        key: 'test-session-key',
+        question: 'How to create an incident?',
+        type: 'documentation',
+        sessionkey: 'test-session-key',
+        streaming_chunks: JSON.stringify([
+          { content: 'To create', type: 'chunk', timestamp: '2024-01-01T00:00:00Z' },
+          { content: ' an incident...', type: 'chunk', timestamp: '2024-01-01T00:00:01Z' }
+        ])
+      };
+
+      expect(mockStreamingConversation).toHaveProperty('streaming_chunks');
+      expect(mockStreamingConversation.state).toBe('complete');
+      expect(mockStreamingConversation.type).toBe('documentation');
+    });
+  });
+
+  describe('Streaming conversation handling', () => {
+    it('should parse streaming chunks from conversation data', () => {
+      const streamingChunksJson = JSON.stringify([
+        { content: 'Hello', type: 'chunk', timestamp: '2024-01-01T00:00:00Z' },
+        { content: ' world', type: 'chunk', timestamp: '2024-01-01T00:00:01Z' },
+        { content: '!', type: 'complete', timestamp: '2024-01-01T00:00:02Z' }
+      ]);
+
+      const parsedChunks = JSON.parse(streamingChunksJson);
+      expect(parsedChunks).toHaveLength(3);
+      expect(parsedChunks[0]).toHaveProperty('content', 'Hello');
+      expect(parsedChunks[0]).toHaveProperty('type', 'chunk');
+      expect(parsedChunks[2]).toHaveProperty('type', 'complete');
+    });
+
+    it('should reconstruct full response from streaming chunks', () => {
+      const chunks = [
+        { content: 'To create an incident ', type: 'chunk', timestamp: '2024-01-01T00:00:00Z' },
+        { content: 'in ServiceNow, ', type: 'chunk', timestamp: '2024-01-01T00:00:01Z' },
+        { content: 'navigate to the Incidents module.', type: 'chunk', timestamp: '2024-01-01T00:00:02Z' }
+      ];
+
+      const fullResponse = chunks.map(chunk => chunk.content).join('');
+      expect(fullResponse).toBe('To create an incident in ServiceNow, navigate to the Incidents module.');
+    });
   });
 });

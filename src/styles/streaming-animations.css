@@ -1,0 +1,123 @@
+/* Streaming-specific animations */
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes streamingPulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.6; 
+    transform: scale(1.05);
+  }
+}
+
+@keyframes streamingGlow {
+  0%, 100% { 
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+  }
+}
+
+@keyframes streamingDots {
+  0%, 20% { 
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% { 
+    transform: translateY(-10px);
+    opacity: 0.7;
+  }
+  80%, 100% { 
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes streamingSlide {
+  0% { 
+    transform: translateX(-100%);
+  }
+  100% { 
+    transform: translateX(100%);
+  }
+}
+
+/* Custom classes for streaming */
+.streaming-indicator {
+  animation: streamingPulse 2s ease-in-out infinite;
+}
+
+.streaming-glow {
+  animation: streamingGlow 2s ease-in-out infinite;
+}
+
+.streaming-dots {
+  animation: streamingDots 1.4s ease-in-out infinite;
+}
+
+.streaming-slide {
+  animation: streamingSlide 2s linear infinite;
+}
+
+/* Smooth content updates */
+.streaming-content {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.streaming-content.updating {
+  opacity: 0.9;
+}
+
+/* Typewriter cursor effect */
+.streaming-cursor {
+  animation: streamingPulse 1s ease-in-out infinite;
+}
+
+/* Connection status animations */
+.connection-status {
+  transition: all 0.3s ease-in-out;
+}
+
+.connection-status.connecting {
+  color: #f59e0b;
+  animation: streamingPulse 1.5s ease-in-out infinite;
+}
+
+.connection-status.streaming {
+  color: #10b981;
+  animation: streamingGlow 2s ease-in-out infinite;
+}
+
+.connection-status.error {
+  color: #ef4444;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+/* Responsive animations */
+@media (prefers-reduced-motion: reduce) {
+  .streaming-indicator,
+  .streaming-glow,
+  .streaming-dots,
+  .streaming-slide,
+  .streaming-cursor,
+  .connection-status {
+    animation: none;
+  }
+  
+  .streaming-content {
+    transition: none;
+  }
+}

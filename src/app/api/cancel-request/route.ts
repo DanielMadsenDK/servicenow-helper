@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerAuthState } from '@/lib/server-auth';
-import { cancelPollingOperation } from '@/lib/polling-manager';
-import { markSessionCancelled } from '@/lib/polling-store';
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,11 +28,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Mark session as cancelled in filesystem (works across module instances)
-    markSessionCancelled(sessionkey);
-    
-    // Also try to cancel via polling manager (if in same instance)
-    cancelPollingOperation(sessionkey);
+    // Note: Streaming cancellation is now handled client-side via StreamingCancellationManager
+    // This endpoint is kept for backwards compatibility and potential server-side cleanup
     
     return NextResponse.json({
       success: true,

@@ -2,7 +2,7 @@
 
 import React, { lazy, Suspense, useState } from 'react';
 import { History, BookmarkPlus, Check } from 'lucide-react';
-import { ServiceNowResponse } from '@/types';
+import { ServiceNowResponse, StreamingStatus } from '@/types';
 import { markdownComponents } from '@/lib/markdown-components';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
@@ -17,9 +17,21 @@ interface ResultsSectionProps {
   isLoadedFromHistory: boolean;
   selectedType: string;
   question?: string;
+  streamingContent?: string;
+  isStreaming?: boolean;
+  streamingStatus?: StreamingStatus;
 }
 
-export default function ResultsSection({ response, error, isLoadedFromHistory, selectedType, question }: ResultsSectionProps) {
+export default function ResultsSection({ 
+  response, 
+  error, 
+  isLoadedFromHistory, 
+  selectedType, 
+  question,
+  streamingContent = '',
+  isStreaming = false,
+  streamingStatus = StreamingStatus.CONNECTING
+}: ResultsSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -58,7 +70,13 @@ export default function ResultsSection({ response, error, isLoadedFromHistory, s
     }
   };
 
-  if (!response && !error) return null;
+  // Show streaming content or regular response
+  const hasContent = response || error || (isStreaming && streamingContent);
+  if (!hasContent) return null;
+
+  // Determine what content to show
+  const displayContent = isStreaming ? streamingContent : response?.message;
+  const showStreamingIndicators = isStreaming && streamingStatus !== StreamingStatus.COMPLETE;
 
   return (
     <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-4 sm:p-8 md:p-10 animate-in slide-in-from-bottom-4 duration-300">
@@ -79,11 +97,32 @@ export default function ResultsSection({ response, error, isLoadedFromHistory, s
         </div>
       )}
 
-      {response && (
+      {(response || (isStreaming && displayContent)) && (
         <div className="space-y-3 sm:space-y-4">
-          <div className="flex items-center space-x-2 text-green-700 dark:text-green-400">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="font-medium capitalize">{response.type || selectedType} Response</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 text-green-700 dark:text-green-400">
+              <div className={`w-2 h-2 rounded-full ${
+                isStreaming ? 'bg-blue-500 streaming-indicator' : 'bg-green-500'
+              }`}></div>
+              <span className="font-medium capitalize">
+                {isStreaming ? 'Streaming' : (response?.type || selectedType)} Response
+              </span>
+            </div>
+            
+            {/* Streaming status indicator */}
+            {showStreamingIndicators && (
+              <div className="flex items-center space-x-2 text-sm text-blue-600 dark:text-blue-400">
+                <div className="flex space-x-1">
+                  <div className="w-1 h-1 bg-blue-500 rounded-full streaming-dots" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-1 h-1 bg-blue-500 rounded-full streaming-dots" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-1 h-1 bg-blue-500 rounded-full streaming-dots" style={{ animationDelay: '300ms' }}></div>
+                </div>
+                <span className="font-medium">
+                  {streamingStatus === StreamingStatus.CONNECTING && 'Connecting...'}
+                  {streamingStatus === StreamingStatus.STREAMING && 'AI is responding...'}
+                </span>
+              </div>
+            )}
           </div>
           <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 sm:p-8 shadow-inner border border-gray-100 dark:border-gray-600">
             <div className="prose prose-slate prose-base sm:prose-lg max-w-none 
@@ -117,8 +156,13 @@ export default function ResultsSection({ response, error, isLoadedFromHistory, s
                   rehypePlugins={[rehypeHighlight]}
                   components={markdownComponents}
                 >
-                  {response.message}
+                  {displayContent || ''}
                 </ReactMarkdown>
+                
+                {/* Streaming cursor */}
+                {isStreaming && displayContent && showStreamingIndicators && (
+                  <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
+                )}
               </Suspense>
             </div>
           </div>

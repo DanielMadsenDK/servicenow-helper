@@ -140,3 +140,35 @@ export interface SettingsApiResponse {
   data?: UserSettings;
   error?: string;
 }
+
+// Streaming interfaces
+export interface StreamingChunk {
+  content: string;
+  type: 'connecting' | 'chunk' | 'complete' | 'error';
+  timestamp: string;
+}
+
+export interface StreamingResponse {
+  chunks: StreamingChunk[];
+  status: StreamingStatus;
+  error?: string;
+  totalContent: string;
+}
+
+export enum StreamingStatus {
+  CONNECTING = 'connecting',
+  STREAMING = 'streaming',
+  COMPLETE = 'complete',
+  ERROR = 'error',
+  CANCELLED = 'cancelled'
+}
+
+export interface StreamingApiResponse {
+  success: boolean;
+  error?: string;
+  streamUrl?: string;
+}
+
+export interface StreamingRequest extends Omit<ServiceNowRequest, 'sessionkey'> {
+  sessionkey: string;
+}

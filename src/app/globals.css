@@ -3,6 +3,19 @@
 /* Configure dark mode for TailwindCSS 4.x */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Optimize smooth scroll behavior for better performance */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 2rem;
+}
+
+/* Override scroll timing for linear, faster animation */
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    scroll-behavior: smooth;
+  }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #000000;
@@ -282,3 +295,6 @@ body {
     margin-bottom: 0.25rem;
   }
 }
+
+/* Import streaming-specific animations */
+@import '../styles/streaming-animations.css';
