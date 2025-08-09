@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import ProcessingOverlay from '@/components/ProcessingOverlay';
+import { StreamingStatus } from '@/types';
 
 // Mock lucide-react icons
 jest.mock('lucide-react', () => ({
@@ -35,6 +36,26 @@ describe('ProcessingOverlay', () => {
 
       expect(screen.queryByText('Processing Request')).not.toBeInTheDocument();
       expect(screen.queryByText('Working on your question')).not.toBeInTheDocument();
+    });
+
+    it('should show streaming status text when streaming', () => {
+      render(<ProcessingOverlay isVisible={true} isStreaming={true} streamingStatus={StreamingStatus.CONNECTING} />);
+
+      expect(screen.getByText('Establishing Connection')).toBeInTheDocument();
+      expect(screen.getByText('Connecting to AI service')).toBeInTheDocument();
+    });
+
+    it('should show correct status for streaming', () => {
+      render(<ProcessingOverlay isVisible={true} isStreaming={true} streamingStatus={StreamingStatus.STREAMING} />);
+
+      expect(screen.getByText('Streaming Response')).toBeInTheDocument();
+      expect(screen.getByText('AI is responding')).toBeInTheDocument();
+    });
+
+    it('should show default processing message when not streaming', () => {
+      render(<ProcessingOverlay isVisible={true} isStreaming={false} />);
+
+      expect(screen.getByText('Working on your question')).toBeInTheDocument();
     });
   });
 
@@ -283,6 +304,45 @@ describe('ProcessingOverlay', () => {
     it('should return null when not visible', () => {
       const { container } = render(<ProcessingOverlay isVisible={false} />);
       expect(container.firstChild).toBeNull();
+    });
+  });
+
+  describe('Streaming Status Integration', () => {
+    it('should handle all streaming statuses correctly', () => {
+      const { rerender } = render(<ProcessingOverlay isVisible={true} isStreaming={true} streamingStatus={StreamingStatus.CONNECTING} />);
+      expect(screen.getByText('Establishing Connection')).toBeInTheDocument();
+      expect(screen.getByText('Connecting to AI service')).toBeInTheDocument();
+
+      rerender(<ProcessingOverlay isVisible={true} isStreaming={true} streamingStatus={StreamingStatus.STREAMING} />);
+      expect(screen.getByText('Streaming Response')).toBeInTheDocument();
+      expect(screen.getByText('AI is responding')).toBeInTheDocument();
+
+      rerender(<ProcessingOverlay isVisible={true} isStreaming={true} streamingStatus={StreamingStatus.COMPLETE} />);
+      expect(screen.getByText('Processing Request')).toBeInTheDocument();
+      expect(screen.getByText('Processing your request')).toBeInTheDocument();
+    });
+
+    it('should handle streaming prop changes', () => {
+      const { rerender } = render(<ProcessingOverlay isVisible={true} isStreaming={false} />);
+      expect(screen.getByText('Processing Request')).toBeInTheDocument();
+      expect(screen.getByText('Working on your question')).toBeInTheDocument();
+
+      rerender(<ProcessingOverlay isVisible={true} isStreaming={true} streamingStatus={StreamingStatus.STREAMING} />);
+      expect(screen.getByText('Streaming Response')).toBeInTheDocument();
+      expect(screen.getByText('AI is responding')).toBeInTheDocument();
+    });
+
+    it('should default to connecting status when streaming', () => {
+      render(<ProcessingOverlay isVisible={true} isStreaming={true} />);
+      expect(screen.getByText('Establishing Connection')).toBeInTheDocument();
+      expect(screen.getByText('Connecting to AI service')).toBeInTheDocument();
+    });
+
+    it('should ignore streaming status when not streaming', () => {
+      render(<ProcessingOverlay isVisible={true} isStreaming={false} streamingStatus={StreamingStatus.STREAMING} />);
+      expect(screen.getByText('Processing Request')).toBeInTheDocument();
+      expect(screen.getByText('Working on your question')).toBeInTheDocument();
+      expect(screen.queryByText('AI is responding')).not.toBeInTheDocument();
     });
   });
 });

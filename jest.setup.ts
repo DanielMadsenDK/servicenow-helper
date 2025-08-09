@@ -109,3 +109,96 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: jest.fn(),
   })),
 });
+
+// Mock EventSource for streaming tests
+global.EventSource = jest.fn().mockImplementation((url) => ({
+  url,
+  readyState: 1, // OPEN
+  onopen: null,
+  onmessage: null,
+  onerror: null,
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+  close: jest.fn(),
+  CONNECTING: 0,
+  OPEN: 1,
+  CLOSED: 2,
+}));
+
+// Mock AbortController for streaming cancellation tests
+global.AbortController = jest.fn().mockImplementation(() => ({
+  signal: {
+    aborted: false,
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  },
+  abort: jest.fn(),
+}));
+
+// Mock ReadableStream for streaming response tests
+global.ReadableStream = jest.fn().mockImplementation(() => ({
+  getReader: jest.fn(() => ({
+    read: jest.fn(() => Promise.resolve({ done: true })),
+    releaseLock: jest.fn(),
+  })),
+  pipeTo: jest.fn(),
+  pipeThrough: jest.fn(),
+  tee: jest.fn(),
+}));
+
+// Mock TextEncoder/TextDecoder for streaming chunk processing tests
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = class TextEncoder {
+    encode(str) {
+      return new Uint8Array(Buffer.from(str, 'utf8'));
+    }
+  };
+}
+
+if (typeof global.TextDecoder === 'undefined') {
+  global.TextDecoder = class TextDecoder {
+    decode(bytes) {
+      return Buffer.from(bytes).toString('utf8');
+    }
+  };
+}
+
+// Enhanced fetch mock for streaming endpoints
+const originalFetch = global.fetch;
+global.fetch = jest.fn((url, options) => {
+  // Handle streaming endpoints
+  if (typeof url === 'string' && url.includes('/api/submit-question-stream')) {
+    const mockReadableStream = new ReadableStream();
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      headers: new Map([['content-type', 'text/event-stream']]),
+      body: mockReadableStream,
+      json: () => Promise.resolve({}),
+      text: () => Promise.resolve(''),
+    } as unknown as Response);
+  }
+  
+  // Handle cancel endpoints
+  if (typeof url === 'string' && url.includes('/api/cancel-request')) {
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ success: true }),
+    } as unknown as Response);
+  }
+  
+  // Fall back to original implementation for other URLs
+  if (originalFetch) {
+    return originalFetch(url, options);
+  }
+  
+  return Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({}),
+    text: () => Promise.resolve(''),
+  } as unknown as Response);
+});

@@ -28,6 +28,10 @@ const config: Config = {
     '^remark-gfm$': '<rootDir>/tests/__mocks__/remark-gfm.js',
     '^rehype-highlight$': '<rootDir>/tests/__mocks__/rehype-highlight.js',
     '^pg$': '<rootDir>/tests/__mocks__/pg.js',
+    // Mock streaming modules
+    '^@/lib/streaming-client$': '<rootDir>/tests/__mocks__/streaming-client.js',
+    '^@/lib/streaming-cancellation$': '<rootDir>/tests/__mocks__/streaming-cancellation.js',
+    '^@/hooks/useNetworkStatus$': '<rootDir>/tests/__mocks__/useNetworkStatus.js',
   },
   clearMocks: true,
   collectCoverageFrom: [
