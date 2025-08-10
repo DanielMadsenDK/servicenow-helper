@@ -27,7 +27,7 @@ export default function StreamingMarkdownRenderer({
     // During streaming: Show raw content with good typography
     return (
       <div className={className}>
-        <div className="streaming-raw-content">
+        <div className="streaming-raw-content" data-testid="markdown-content">
           <pre className="whitespace-pre-wrap text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base">
             {content}
             {showStreamingCursor && (
@@ -41,7 +41,7 @@ export default function StreamingMarkdownRenderer({
 
   // When streaming is complete: Full ReactMarkdown rendering (identical to history)
   return (
-    <div className={className}>
+    <div className={className} data-testid="markdown-content">
       <Suspense fallback={
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>

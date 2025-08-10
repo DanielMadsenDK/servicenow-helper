@@ -10,7 +10,7 @@ const mockAxios = axios as jest.Mocked<typeof axios>;
 // Mock ReactMarkdown and related modules
 jest.mock('react-markdown', () => {
   return function MockReactMarkdown({ children }: { children: string }) {
-    return <div data-testid="markdown-content">{children}</div>;
+    return <div>{children}</div>;
   };
 });
 

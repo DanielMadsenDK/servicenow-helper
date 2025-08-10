@@ -108,109 +108,154 @@ export async function POST(request: NextRequest) {
             timeout: 330000, // 5.5 minutes
           });
 
-          // Handle streaming response from n8n - SIMPLIFIED APPROACH
-          response.data.on('data', (chunk: Buffer) => {
+          // Handle streaming response from n8n with proper buffer accumulation
+          const textDecoder = new TextDecoder('utf-8');
+          let partialJsonBuffer = '';
+          
+          const processJsonLine = (jsonLine: string) => {
             try {
-              const chunkStr = chunk.toString();
-              console.log('[STREAMING DEBUG] Raw chunk from N8N:', chunkStr);
+              const n8nChunk = JSON.parse(jsonLine);
               
-              // Split by newlines to handle multiple JSON objects in one buffer
-              const lines = chunkStr.split('\n');
-              
-              for (const line of lines) {
-                if (!line.trim()) {
-                  continue; // Skip empty lines
+              // Simple processing based on N8N's actual format
+              if (n8nChunk.type === 'begin') {
+                controller.enqueue(
+                  `data: ${JSON.stringify({
+                    content: '',
+                    type: 'connecting',
+                    timestamp: new Date().toISOString()
+                  })}\n\n`
+                );
+              } else if (n8nChunk.type === 'end') {
+                controller.enqueue(
+                  `data: ${JSON.stringify({
+                    content: '',
+                    type: 'complete',
+                    timestamp: new Date().toISOString()
+                  })}\n\n`
+                );
+                controller.close();
+                return;
+              } else if (n8nChunk.content !== undefined) {
+                // SIMPLE: Just extract the content property directly
+                
+                // Validate content type and handle appropriately
+                let contentToSend: string;
+                
+                if (typeof n8nChunk.content === 'string') {
+                  contentToSend = n8nChunk.content;
+                } else if (n8nChunk.content === null) {
+                  return;
+                } else if (typeof n8nChunk.content === 'object') {
+                  // If content is an object, serialize it properly
+                  contentToSend = JSON.stringify(n8nChunk.content);
+                } else {
+                  // For numbers, booleans, etc., convert safely
+                  contentToSend = String(n8nChunk.content);
                 }
                 
-                try {
-                  const n8nChunk = JSON.parse(line);
-                  console.log('[STREAMING DEBUG] Parsed N8N chunk:', JSON.stringify(n8nChunk, null, 2));
-                  
-                  // Simple processing based on N8N's actual format
-                  if (n8nChunk.type === 'begin') {
-                    console.log('[STREAMING DEBUG] Stream beginning');
-                    controller.enqueue(
-                      `data: ${JSON.stringify({
-                        content: '',
-                        type: 'connecting',
-                        timestamp: new Date().toISOString()
-                      })}\n\n`
-                    );
-                  } else if (n8nChunk.type === 'end') {
-                    console.log('[STREAMING DEBUG] Stream ending');
-                    controller.enqueue(
-                      `data: ${JSON.stringify({
-                        content: '',
-                        type: 'complete',
-                        timestamp: new Date().toISOString()
-                      })}\n\n`
-                    );
-                    controller.close();
-                    return;
-                  } else if (n8nChunk.content !== undefined) {
-                    // SIMPLE: Just extract the content property directly
-                    console.log('[STREAMING DEBUG] Extracted content:', JSON.stringify(n8nChunk.content));
-                    
-                    // Validate content type and handle appropriately
-                    let contentToSend: string;
-                    
-                    if (typeof n8nChunk.content === 'string') {
-                      contentToSend = n8nChunk.content;
-                    } else if (n8nChunk.content === null) {
-                      console.log('[STREAMING DEBUG] Content is null, skipping chunk');
-                      continue;
-                    } else if (typeof n8nChunk.content === 'object') {
-                      // If content is an object, serialize it properly
-                      contentToSend = JSON.stringify(n8nChunk.content);
-                      console.log('[STREAMING DEBUG] Content was object, serialized to JSON');
-                    } else {
-                      // For numbers, booleans, etc., convert safely
-                      contentToSend = String(n8nChunk.content);
-                      console.log('[STREAMING DEBUG] Content was', typeof n8nChunk.content, 'converted to string');
-                    }
-                    
-                    // Send the validated content
-                    controller.enqueue(
-                      `data: ${JSON.stringify({
-                        content: contentToSend,
-                        type: 'chunk',
-                        timestamp: new Date().toISOString()
-                      })}\n\n`
-                    );
-                  } else {
-                    console.log('[STREAMING DEBUG] Chunk has no content property, skipping');
-                  }
-                } catch (parseError) {
-                  console.error('[STREAMING DEBUG] JSON parsing failed for line:', line);
-                  console.error('[STREAMING DEBUG] Parse error:', parseError);
+                // Send the validated content
+                controller.enqueue(
+                  `data: ${JSON.stringify({
+                    content: contentToSend,
+                    type: 'chunk',
+                    timestamp: new Date().toISOString()
+                  })}\n\n`
+                );
+              } else {
+              }
+            } catch (parseError) {
+              console.error('JSON parsing error for streaming line:', {
+                line: jsonLine,
+                error: parseError instanceof Error ? parseError.message : String(parseError),
+                stack: parseError instanceof Error ? parseError.stack : undefined
+              });
+              // Continue processing other lines instead of failing completely
+            }
+          };
+
+          response.data.on('data', (chunk: Buffer) => {
+            try {
+              // Properly decode the buffer to UTF-8 text
+              const chunkText = textDecoder.decode(chunk, { stream: true });
+              
+              // Add to our partial buffer
+              partialJsonBuffer += chunkText;
+              
+              // Extract complete JSON lines from buffer
+              const lines = partialJsonBuffer.split('\n');
+              
+              // Keep the last line in buffer (it might be partial)
+              partialJsonBuffer = lines[lines.length - 1] || '';
+              
+              // Process all complete lines
+              for (const line of lines.slice(0, -1)) {
+                const trimmedLine = line.trim();
+                if (trimmedLine) {
+                  processJsonLine(trimmedLine);
                 }
               }
-            } catch (error) {
-              console.error('[STREAMING DEBUG] Error processing chunk buffer:', error);
+              
+            } catch (bufferError) {
+              console.error('Buffer processing error in streaming:', {
+                error: bufferError instanceof Error ? bufferError.message : String(bufferError),
+                stack: bufferError instanceof Error ? bufferError.stack : undefined,
+                bufferLength: partialJsonBuffer.length
+              });
+              // Continue processing instead of crashing
             }
           });
 
           response.data.on('end', () => {
-            console.log('[STREAMING DEBUG] N8N stream ended');
-            controller.enqueue(
-              `data: ${JSON.stringify({
-                content: '',
-                type: 'complete',
-                timestamp: new Date().toISOString()
-              })}\n\n`
-            );
-            controller.close();
+            
+            // Process any remaining partial JSON in buffer
+            if (partialJsonBuffer.trim()) {
+              try {
+                processJsonLine(partialJsonBuffer.trim());
+              } catch (finalBufferError) {
+                console.error('Error processing final buffer on stream end:', {
+                  error: finalBufferError instanceof Error ? finalBufferError.message : String(finalBufferError),
+                  stack: finalBufferError instanceof Error ? finalBufferError.stack : undefined,
+                  remainingBuffer: partialJsonBuffer.trim()
+                });
+                // Continue to completion instead of crashing
+              }
+            }
+            
+            // Send completion if controller is still open
+            try {
+              controller.enqueue(
+                `data: ${JSON.stringify({
+                  content: '',
+                  type: 'complete',
+                  timestamp: new Date().toISOString()
+                })}\n\n`
+              );
+              controller.close();
+            } catch (closeError) {
+              console.error('Error closing stream controller on completion:', {
+                error: closeError instanceof Error ? closeError.message : String(closeError),
+                stack: closeError instanceof Error ? closeError.stack : undefined
+              });
+            }
           });
 
           response.data.on('error', (error: Error) => {
-            controller.enqueue(
-              `data: ${JSON.stringify({
-                content: error.message,
-                type: 'error',
-                timestamp: new Date().toISOString()
-              })}\n\n`
-            );
-            controller.close();
+            try {
+              controller.enqueue(
+                `data: ${JSON.stringify({
+                  content: error.message,
+                  type: 'error',
+                  timestamp: new Date().toISOString()
+                })}\n\n`
+              );
+              controller.close();
+            } catch (errorCloseError) {
+              console.error('Error closing stream controller on error:', {
+                error: errorCloseError instanceof Error ? errorCloseError.message : String(errorCloseError),
+                stack: errorCloseError instanceof Error ? errorCloseError.stack : undefined,
+                originalError: error.message
+              });
+            }
           });
 
         } catch (error) {
@@ -228,7 +273,6 @@ export async function POST(request: NextRequest) {
 
       cancel() {
         // Handle client disconnect
-        console.log('Stream cancelled by client');
       }
     });
 
