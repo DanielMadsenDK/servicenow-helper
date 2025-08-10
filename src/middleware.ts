@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const JWT_SECRET = process.env.JWT_SECRET || '';
-
 // Public routes that don't require authentication
 const PUBLIC_ROUTES = [
   '/api/auth/login',
@@ -19,44 +17,14 @@ function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTES.some(route => pathname.startsWith(route));
 }
 
-// Simple JWT verification for Edge Runtime
-async function verifyAuthToken(request: NextRequest): Promise<boolean> {
+// Simple cookie presence check for Edge Runtime
+// JWT signature validation is handled by API routes using getServerAuthState()
+function hasAuthCookie(request: NextRequest): boolean {
   try {
     const token = request.cookies.get('auth-token')?.value;
     
-    if (!token) {
-      return false;
-    }
-
-    if (!JWT_SECRET) {
-      return false;
-    }
-
-    // Basic JWT structure check
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-      return false;
-    }
-
-    try {
-      // Decode payload (no verification for now, just check structure and expiration)
-      const payload = JSON.parse(atob(parts[1]));
-      const now = Math.floor(Date.now() / 1000);
-      
-      // Check if token has expired
-      if (payload.exp && payload.exp < now) {
-        return false;
-      }
-      
-      // Check if token has required fields
-      if (!payload.username) {
-        return false;
-      }
-      
-      return true;
-    } catch {
-      return false;
-    }
+    // Only check for cookie presence - API routes handle proper JWT validation
+    return !!token;
   } catch {
     return false;
   }
@@ -70,8 +38,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check authentication for protected routes
-  const isAuthenticated = await verifyAuthToken(request);
+  // Check for auth cookie presence - API routes handle JWT validation
+  const isAuthenticated = hasAuthCookie(request);
 
   if (!isAuthenticated) {
     // For API routes, return 401
