@@ -19,7 +19,7 @@ function isPublicRoute(pathname: string): boolean {
 
 // Simple cookie presence check for Edge Runtime
 // JWT signature validation is handled by API routes using getServerAuthState()
-async function hasAuthCookie(request: NextRequest): Promise<boolean> {
+function hasAuthCookie(request: NextRequest): boolean {
   try {
     const token = request.cookies.get('auth-token')?.value;
     
@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check for auth cookie presence - API routes handle JWT validation
-  const isAuthenticated = await hasAuthCookie(request);
+  const isAuthenticated = hasAuthCookie(request);
 
   if (!isAuthenticated) {
     // For API routes, return 401
