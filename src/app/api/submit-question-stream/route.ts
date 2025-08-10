@@ -185,10 +185,10 @@ export async function POST(request: NextRequest) {
               const lines = partialJsonBuffer.split('\n');
               
               // Keep the last line in buffer (it might be partial)
-              partialJsonBuffer = lines.pop() || '';
+              partialJsonBuffer = lines[lines.length - 1] || '';
               
               // Process all complete lines
-              for (const line of lines) {
+              for (const line of lines.slice(0, -1)) {
                 const trimmedLine = line.trim();
                 if (trimmedLine) {
                   processJsonLine(trimmedLine);
@@ -209,7 +209,16 @@ export async function POST(request: NextRequest) {
             
             // Process any remaining partial JSON in buffer
             if (partialJsonBuffer.trim()) {
-              processJsonLine(partialJsonBuffer.trim());
+              try {
+                processJsonLine(partialJsonBuffer.trim());
+              } catch (finalBufferError) {
+                console.error('Error processing final buffer on stream end:', {
+                  error: finalBufferError instanceof Error ? finalBufferError.message : String(finalBufferError),
+                  stack: finalBufferError instanceof Error ? finalBufferError.stack : undefined,
+                  remainingBuffer: partialJsonBuffer.trim()
+                });
+                // Continue to completion instead of crashing
+              }
             }
             
             // Send completion if controller is still open
