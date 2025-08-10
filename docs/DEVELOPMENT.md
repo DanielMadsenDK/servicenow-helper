@@ -46,11 +46,11 @@ The application follows a containerized, multi-service architecture orchestrated
 
 ## Technical Stack
 
-- **Frontend**: Next.js 15.4.4 (App Router), React 19.0.0, TypeScript 5.x, TailwindCSS 4.1.11
+- **Frontend**: Next.js 15.4.4 (App Router), React 19.0.0, TypeScript 5.9.2, TailwindCSS 4.1.11
 - **Backend/Workflow**: n8n
 - **Database**: PostgreSQL (with tables: `ServiceNowSupportTool` for conversations, `user_settings` for user preferences)
 - **Containerization**: Docker, Docker Compose (Dockerfile and docker-compose.yml in root)
-- **Libraries**: Axios 1.10.0, ReactMarkdown 10.1.0, Lucide React 0.526.0, JWT 9.0.2
+- **Libraries**: Axios 1.11.0, ReactMarkdown 10.1.0, Lucide React 0.539.0, JWT 9.0.2
 - **Performance**: Dynamic imports, lazy loading, React.memo, and code splitting
 - **Security**: Comprehensive security headers, XSS protection, and CSRF prevention
 - **Accessibility**: ARIA attributes, keyboard navigation, and screen reader support
