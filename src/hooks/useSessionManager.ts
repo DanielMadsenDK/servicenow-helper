@@ -18,10 +18,18 @@ export function useSessionManager() {
     }
   }, [currentSessionKey, generateSessionKey]);
 
-  const getSessionKey = useCallback((isNewRequest: boolean = false) => {
-    if (continueMode && currentSessionKey && !isNewRequest) {
-      return currentSessionKey;
+  const getSessionKey = useCallback(() => {
+    if (continueMode) {
+      // Continue mode is ON: reuse existing session key or create one if none exists
+      if (currentSessionKey) {
+        return currentSessionKey;
+      } else {
+        const newKey = generateSessionKey();
+        setCurrentSessionKey(newKey);
+        return newKey;
+      }
     } else {
+      // Continue mode is OFF: always generate a new session key
       const newKey = generateSessionKey();
       setCurrentSessionKey(newKey);
       return newKey;
