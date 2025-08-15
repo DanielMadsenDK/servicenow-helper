@@ -1,5 +1,5 @@
 {
-  "name": "ServiceNow AI Helper V3",
+  "name": "ServiceNow AI Helper",
   "nodes": [
     {
       "parameters": {
@@ -114,10 +114,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -1904,
-        464
+        -1296,
+        224
       ],
-      "id": "d9171477-5865-41ac-9a74-57437b81a2a9",
+      "id": "09ec8fd2-e319-47c3-a7f4-1fc79e4b425f",
       "name": "Switch",
       "alwaysOutputData": false
     },
@@ -145,10 +145,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1680,
-        112
+        -1072,
+        -112
       ],
-      "id": "27750666-7706-4d45-ba8b-f5be2e865973",
+      "id": "27932454-26e6-4410-b106-2a98232e5d72",
       "name": "Append Recommendation"
     },
     {
@@ -175,10 +175,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1680,
-        304
+        -1072,
+        80
       ],
-      "id": "4f8bf7c4-abd8-4348-9c7e-de52041765ed",
+      "id": "83ab5e71-f070-4f55-a126-958b849d7051",
       "name": "Append Documentation"
     },
     {
@@ -188,7 +188,7 @@
             {
               "id": "36e3620f-39bc-41ea-a156-4aff6297a0bf",
               "name": "=prompt",
-              "value": "={{ $json.prompt }}\n\n## Script Mode\nProvide a single, complete ServiceNow script solution focused on solving the specific problem.\n\n### Response Framework\n1. **Solution Summary** (2-3 sentences)\n   - What the script accomplishes\n   - Why this approach is best\n\n2. **The Script** (ONE primary solution)\n   ```javascript\n   // Complete, production-ready code\n   // Only essential comments for complex logic\n\nImplementation Guide\n\nWhere: Exact location (e.g., Business Rule on incident table)\nWhen: Trigger conditions (e.g., before insert, async)\nSetup: Required properties, roles, or dependencies\n\n\nCritical Considerations\n\nPerformance impact (if significant)\nError handling approach\nTesting checklist (2-3 key tests)\n\n\n\nScript Selection Rules\n\nONE Script First: Solve with a single script whenever possible\nSecond Script Only If: Client + Server required, or truly separate concerns\nNever: Multiple variations of the same solution\nAlways: The simplest approach that meets requirements\n\nCode Quality Standards\n\nServiceNow APIs only (no direct DB queries)\nGlide best practices (use GlideRecord, GlideAggregate appropriately)\nScope-aware (respect application boundaries)\nUpgrade-safe (no deprecated methods)\nPerformance-conscious (bulk operations, efficient queries)\n\nFocus: One excellent solution, not multiple options. Quality over quantity.",
+              "value": "={{ $json.prompt }}\n\n\n# ServiceNow Script Mode\n\nProvide a single, complete ServiceNow script solution that follows official ServiceNow technical best practices and solves the specific problem efficiently.\n\n## Response Framework\n\n### 1. Solution Summary (2-3 sentences)\n- What the script accomplishes and why this approach is optimal\n- Brief justification based on ServiceNow best practices\n\n### 2. The Script (ONE primary solution)\n```javascript\n// Production-ready code following ServiceNow standards\n// Meaningful comments only for complex business logic\n// Descriptive variable names and proper function structure\n```\n\n### 3. Implementation Guide\n- **Where**: Exact location (e.g., Business Rule on incident table, Client Script onChange)\n- **When**: Trigger conditions (e.g., before insert, async, onLoad with isLoading check)\n- **Setup**: Required properties, roles, or dependencies\n\n### 4. Critical Considerations\n- Performance impact and optimization notes\n- Error handling and validation approach\n- Testing checklist (2-3 essential tests)\n\n## Script Selection Rules\n- **ONE Script First**: Solve with a single script whenever possible\n- **Second Script Only If**: Client + Server interaction required, or truly separate concerns\n- **Never**: Multiple variations of the same solution\n- **Always**: The simplest, most maintainable approach that meets requirements\n\n## Code Quality Standards (Per ServiceNow Best Practices)\n\n### Core Standards\n- Use ServiceNow APIs only (GlideRecord, GlideAggregate, GlideAjax)\n- Descriptive variable and function names (avoid single letters except loop counters)\n- Enclose all code in functions to prevent global variable conflicts\n- Store function results in variables to avoid repeated API calls\n- Verify values exist before using them (null/undefined checks)\n\n### Performance & Database\n- Use GlideAggregate for counting records (not getRowCount())\n- Leverage setLimit() for existence checks\n- Use addEncodedQuery() for complex queries\n- Avoid dot-walking to sys_id of reference fields\n- Let the database do the work (proper querying vs. client-side filtering)\n\n### Client-Side Specific\n- Use proper onChange parameter checks (isLoading, newValue, oldValue)\n- Minimize server lookups with g_scratchpad or efficient GlideAjax\n- Include displayValue parameter when using setValue() on reference fields\n- Avoid global client scripts and DOM manipulation\n- Enclose code in functions to prevent variable scope conflicts\n\n### Business Rules Specific\n- Use conditions in Business Rules to control execution\n- Choose correct timing (before/after/async) based on use case\n- Avoid current.update() in Business Rules (prevents recursion)\n- Use setWorkflow(false) only when absolutely necessary\n\n### Security & Maintainability\n- Avoid hard-coded sys_ids, use properties or lookups instead\n- Use gs.getProperty() for configurable values\n- Implement proper error handling and return values\n- Scope-aware implementation (respect application boundaries)\n- Use self-executing functions for single-context scripts\n\n### Debugging & Production\n- Control debug output with system properties\n- Use gs.debug() and gs.info() (available in scoped apps)\n- Avoid gs.log() and alert() statements in production code\n- Include meaningful error messages and validation\n\n## Focus\nDeliver one excellent, production-ready solution following ServiceNow's official technical standards. Prioritize code quality, performance, and maintainability over multiple options.",
               "type": "string"
             },
             {
@@ -205,10 +205,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1680,
-        512
+        -1072,
+        272
       ],
-      "id": "d2a0ef23-4c93-4d0a-859a-d91d90afc4d0",
+      "id": "4dc2ca87-7745-4af2-ad72-05ff08364f26",
       "name": "Append Script"
     },
     {
@@ -219,10 +219,10 @@
       "type": "n8n-nodes-base.crypto",
       "typeVersion": 1,
       "position": [
-        -1328,
-        400
+        -848,
+        176
       ],
-      "id": "fd631256-d97c-4bec-83eb-65f35630a7da",
+      "id": "da40476e-7a92-4420-8f87-5f7eb47ad377",
       "name": "Generate Key"
     },
     {
@@ -232,7 +232,7 @@
             {
               "id": "0dad757f-358a-4f52-8990-1103696b3f5c",
               "name": "prompt",
-              "value": "You are a ServiceNow expert providing concise, actionable guidance that prioritizes brevity while maintaining clarity and technical accuracy.\n\n## Core Principles\n- **Out-of-Box First**: Prioritize native functionality over customization\n- **Best Practices**: Follow ServiceNow's documented standards strictly\n- **Upgrade Safety**: Ensure recommendations survive platform updates\n- **Performance Focus**: Consider scalability and maintainability\n\n## Interaction Guidelines\n- **Clarification First**: If requirements are ambiguous, ask ONE specific question\n- **Assumptions**: State any assumptions made clearly\n- **Iterative Refinement**: Build upon previous responses in continued sessions\n- **Follow-up Format**: \"To provide the best solution, could you clarify: [specific question]?\"\n\n## Knowledge Integration Rules\n- **Never Reference Context**: Do not mention \"search context\", \"provided documentation\", \"available results\", or any reference to how information was obtained\n- **Seamless Integration**: Present all information as direct knowledge without attribution to sources\n- **Natural Response**: Write as if you inherently know the information\n- **Missing Information**: If specific details aren't available, simply state what you know without explaining why you don't know more\n\n### Examples:\nWRONG: \"Based on the search context provided, ServiceBridge is not explicitly detailed...\"\nRIGHT: \"ServiceBridge is a ServiceNow integration component that...\"\n\nWRONG: \"The documentation results don't mention this feature...\"\nRIGHT: \"This feature works by...\" or \"To implement this, you'll need to...\"\n\nWRONG: \"According to the provided context...\"\nRIGHT: [Direct answer without mentioning context]\n\n### When Information is Limited:\n- Provide what you know directly\n- Suggest related concepts if helpful\n- Never apologize for or explain gaps in provided content\n- Focus on actionable guidance with available information\n\nExamples of when to ask:\n- Multiple valid interpretations exist\n- Critical details missing (table names, field names, timing)\n- Performance requirements unclear for large data operations\n\n## Response Format\n1. **Direct Answer First** - Lead with the solution\n2. **Brief Explanation** - \"Why\" in 1-2 sentences maximum\n3. **Implementation Steps** - Only if essential\n4. **Best Practice Note** - When redirecting from poor approaches\n\n## Markdown Requirements\n- Headers: #, ##, ### for clear hierarchy\n- **Bold** for key terms and emphasis\n- Code blocks: ```javascript\n- Lists: Use - or * consistently\n- **Spacing**: Double newlines between ALL sections, before/after code blocks\n\n## Best Practice Redirection\nWhen redirecting from poor approaches:\n\"ServiceNow best practice is [solution] because [brief reason]. This ensures [key benefit].\"\n\n## Expertise Coverage\nPlatform Architecture, Development, Workflow/Automation, Integration, Security, Performance, ITSM/ITOM/HR/CSM, Upgrades, ALM\n\n## Response Guidelines\n- Be comprehensive but concise\n- Quality over quantity\n- Target: 200-300 words unless complexity requires more\n- Always use proper Markdown formatting with clear visual structure\n\n## Tone\n- Authoritative but approachable\n- Implementation-focused\n- Educational but concise\n\nIMPORTANT:\n- If you are giving code examples with GlideRecord objects, never name the variables gr. Name the variable something with a relation to the table being used, for instance grIncident for incidents.\n\nMANDATORY: Never reference how you obtained information. Never use phrases like \"based on\", \"according to\", \"search context\", \"provided documentation\", or similar. Respond with direct knowledge only.",
+              "value": "You are a ServiceNow expert providing concise, actionable guidance that prioritizes brevity while maintaining clarity and technical accuracy.\n\n## Core Principles\n- **Out-of-Box First**: Prioritize native functionality over customization\n- **Best Practices**: Follow ServiceNow's documented standards strictly\n- **Upgrade Safety**: Ensure recommendations survive platform updates\n- **Performance Focus**: Consider scalability and maintainability\n\n## Interaction Guidelines\n- **Clarification First**: If requirements are ambiguous, ask ONE specific question\n- **Assumptions**: State any assumptions made clearly\n- **Iterative Refinement**: Build upon previous responses in continued sessions\n- **Follow-up Format**: \"To provide the best solution, could you clarify: [specific question]?\"\n\n## Knowledge Integration Rules\n- **Never Reference Context**: Do not mention \"search context\", \"provided documentation\", \"available results\", or any reference to how information was obtained\n- **Seamless Integration**: Present all information as direct knowledge without attribution to sources\n- **Natural Response**: Write as if you inherently know the information\n- **Missing Information**: If specific details aren't available, simply state what you know without explaining why you don't know more\n\n### Examples:\nWRONG: \"Based on the search context provided, ServiceBridge is not explicitly detailed...\"\nRIGHT: \"ServiceBridge is a ServiceNow integration component that...\"\n\nWRONG: \"The documentation results don't mention this feature...\"\nRIGHT: \"This feature works by...\" or \"To implement this, you'll need to...\"\n\nWRONG: \"According to the provided context...\"\nRIGHT: [Direct answer without mentioning context]\n\n### When Information is Limited:\n- Provide what you know directly\n- Suggest related concepts if helpful\n- Never apologize for or explain gaps in provided content\n- Focus on actionable guidance with available information\n\nExamples of when to ask:\n- Multiple valid interpretations exist\n- Critical details missing (table names, field names, timing)\n- Performance requirements unclear for large data operations\n\n## Response Format\n1. **Direct Answer First** - Lead with the solution\n2. **Brief Explanation** - \"Why\" in 1-2 sentences maximum\n3. **Implementation Steps** - Only if essential\n4. **Best Practice Note** - When redirecting from poor approaches\n\n## Markdown Requirements\n- Headers: #, ##, ### for clear hierarchy\n- **Bold** for key terms and emphasis\n- Code blocks: ```javascript\n- Lists: Use - or * consistently\n- **Spacing**: Double newlines between ALL sections, before/after code blocks\n\n## Best Practice Redirection\nWhen redirecting from poor approaches:\n\"ServiceNow best practice is [solution] because [brief reason]. This ensures [key benefit].\"\n\n## Expertise Coverage\nPlatform Architecture, Development, Workflow/Automation, Integration, Security, Performance, ITSM/ITOM/HR/CSM, Upgrades, ALM\n\n## Response Guidelines\n- Be comprehensive but concise\n- Quality over quantity\n- Target: 200-300 words unless complexity requires more\n- Always use proper Markdown formatting with clear visual structure\n\n## Tone\n- Authoritative but approachable\n- Implementation-focused\n- Educational but concise\n\n## Tools\n- Use the ServiceNow Knowledge Agent to search the knowledge base in ServiceNow for relevant knowledge articles.\n- Use the Knowledge Store to search for previous answers that the user marked as helpful and added to the knowledge store.\n- Use the Think tool to analyze ServiceNow requirements and plan solutions.\n\nIMPORTANT:\n- If you are giving code examples with GlideRecord objects, never name the variables gr. Name the variable something with a relation to the table being used, for instance grIncident for incidents.\n\nMANDATORY: Never reference how you obtained information. Never use phrases like \"based on\", \"according to\", \"search context\", \"provided documentation\", or similar. Respond with direct knowledge only.",
               "type": "string"
             },
             {
@@ -298,25 +298,25 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -2128,
-        512
+        -1520,
+        272
       ],
-      "id": "3cd32122-4a86-4194-8552-49cb3f221245",
+      "id": "54fa869f-fb54-4888-952d-62d9e92b69af",
       "name": "Set Basic Variables"
     },
     {
       "parameters": {
         "content": "## Intiate",
-        "height": 1120,
+        "height": 992,
         "width": 2100
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -2688,
-        -64
+        -2240,
+        -160
       ],
-      "id": "a61af2e4-0298-4e0c-b705-8cac8fc36459",
+      "id": "5a1cea5f-9ced-4b25-a994-30011682602c",
       "name": "Sticky Note"
     },
     {
@@ -338,7 +338,8 @@
             "key": "={{  $('Generate Key').item.json.key }}",
             "state": "processing",
             "prompt": "={{ $json.prompt }}",
-            "model": "={{ $json.model }}"
+            "model": "={{ $json.model }}",
+            "question": "={{ $('Initiate').item.json.body.chatInput }}"
           },
           "matchingColumns": [
             "id"
@@ -409,6 +410,16 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -419,14 +430,14 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -1040,
-        400
+        -624,
+        176
       ],
-      "id": "140685ec-821e-42f8-ae3a-5ffd761de685",
+      "id": "1c645eb3-72ae-4cd9-acd5-432d01d26ab2",
       "name": "Create Work Record",
       "credentials": {
         "postgres": {
-          "id": "jyKnFpTCK43HBCFx",
+          "id": "POSTGRES_CREDENTIAL_ID",
           "name": "Postgres account"
         }
       }
@@ -461,10 +472,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1680,
-        704
+        -1072,
+        464
       ],
-      "id": "c2a548d9-0cc7-414d-a849-700643f5cadd",
+      "id": "5f052f68-ce1a-4299-8c2d-1d59a1d32520",
       "name": "Append Troubleshoot"
     },
     {
@@ -478,15 +489,15 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -2304,
-        1216
+        -1920,
+        1008
       ],
-      "id": "596df78e-e6e8-43a3-9abd-8011d57bda17",
+      "id": "a088a616-cb2b-4622-ac22-8f26ce038216",
       "name": "Add QA Pair Webhook",
       "webhookId": "add-qa-pair-webhook-id",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "XyoDcrWrlzkAf9eT",
+          "id": "HEADER_AUTH_CREDENTIAL_ID",
           "name": "Header Auth account"
         }
       }
@@ -526,10 +537,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -2096,
-        1216
+        -1696,
+        1008
       ],
-      "id": "d16a7151-2062-4770-84db-464cffab06fd",
+      "id": "683a2fa2-723f-4c7e-9c8f-e757739ba640",
       "name": "Extract QA Data"
     },
     {
@@ -565,14 +576,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1872,
-        1216
+        -1472,
+        1008
       ],
-      "id": "d9a1a556-04eb-4c36-b20e-8acdc9948281",
+      "id": "fec009ff-c339-4d62-8e49-ce266ebe4ab6",
       "name": "Generate Question Embedding",
       "credentials": {
         "openAiApi": {
-          "id": "wfvDxN9cSERQkWdf",
+          "id": "OPENAI_CREDENTIAL_ID",
           "name": "OpenAi account"
         }
       }
@@ -610,14 +621,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1648,
-        1216
+        -1248,
+        1008
       ],
-      "id": "b073252b-ad48-4d0e-b3dc-1420846efe05",
+      "id": "6cc0b908-fbdf-43ba-bfc1-b8e15b0108f4",
       "name": "Generate Answer Embedding",
       "credentials": {
         "openAiApi": {
-          "id": "wfvDxN9cSERQkWdf",
+          "id": "OPENAI_CREDENTIAL_ID",
           "name": "OpenAi account"
         }
       }
@@ -669,10 +680,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1424,
-        1216
+        -1024,
+        1008
       ],
-      "id": "662fb012-70f8-4866-b5f6-5eec99759321",
+      "id": "b3b54a3c-a39a-4361-85ee-f6c3b949ee5b",
       "name": "Combine Data"
     },
     {
@@ -769,14 +780,14 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -1216,
-        1216
+        -800,
+        1008
       ],
-      "id": "9b38c97d-2356-4bf9-baa0-172b1c27e89e",
+      "id": "5979ae2b-10db-4fa8-9eb8-8a63362f1215",
       "name": "Save to Database",
       "credentials": {
         "postgres": {
-          "id": "jyKnFpTCK43HBCFx",
+          "id": "POSTGRES_CREDENTIAL_ID",
           "name": "Postgres account"
         }
       }
@@ -784,17 +795,17 @@
     {
       "parameters": {
         "content": "## Embeddings",
-        "height": 260,
+        "height": 308,
         "width": 1980,
         "color": 6
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -2592,
-        1120
+        -2192,
+        912
       ],
       "typeVersion": 1,
-      "id": "2b003844-b53f-4737-b23c-f2e9e7c3c72e",
+      "id": "b5495b8f-b536-403d-b411-d61f728fb429",
       "name": "Sticky Note3"
     },
     {
@@ -806,26 +817,26 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        -992,
-        1216
+        -576,
+        1008
       ],
-      "id": "1b8cf0d0-84f2-4e65-9438-e2d9e546d9c4",
+      "id": "db7f8714-d63f-48fb-9097-90438e1ea07d",
       "name": "Success embedding response"
     },
     {
       "parameters": {
         "content": "## Async Processing",
-        "height": 1280,
+        "height": 1152,
         "width": 3580,
         "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -464,
-        -192
+        -48,
+        -144
       ],
-      "id": "bf0a89d6-438b-45ef-91cf-0b3fb6464ece",
+      "id": "bfa44491-6ffa-417c-ab2d-fa61d9ff604b",
       "name": "Sticky Note1"
     },
     {
@@ -930,14 +941,14 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2864,
-        112
+        3344,
+        256
       ],
-      "id": "cff809fa-8dcf-42e2-93df-4dd1cb1e4f01",
+      "id": "ed28b49d-6fd6-4266-a225-fa5d4a7c31aa",
       "name": "Save response",
       "credentials": {
         "postgres": {
-          "id": "jyKnFpTCK43HBCFx",
+          "id": "POSTGRES_CREDENTIAL_ID",
           "name": "Postgres account"
         }
       }
@@ -983,14 +994,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        160,
-        560
+        32,
+        96
       ],
-      "id": "ba7983df-5245-4c22-aa10-cf641dfce44e",
+      "id": "e5418a9e-cb75-4b4a-803a-456b0cf342bf",
       "name": "Search Query Optimizer",
       "credentials": {
         "openAiApi": {
-          "id": "wfvDxN9cSERQkWdf",
+          "id": "OPENAI_CREDENTIAL_ID",
           "name": "OpenAi account"
         }
       }
@@ -1018,10 +1029,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        384,
-        560
+        256,
+        96
       ],
-      "id": "48f43055-b759-4710-a185-b451452f5743",
+      "id": "718e118d-0425-48bb-865b-65cbd18ce277",
       "name": "Search Query Prep"
     },
     {
@@ -1049,10 +1060,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        608,
-        368
+        480,
+        -96
       ],
-      "id": "e571340c-f3a3-4092-bccf-2dc01791c1e2",
+      "id": "ac675743-c523-446d-a51e-6f23acf84e0b",
       "name": "ServiceNow KB Search"
     },
     {
@@ -1080,10 +1091,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        608,
-        560
+        480,
+        96
       ],
-      "id": "5438623d-b833-42dd-9c41-6e55ba115954",
+      "id": "539bd10f-afc6-4ea8-91b3-839396b4f1bf",
       "name": "Developer Portal Search"
     },
     {
@@ -1111,10 +1122,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        608,
-        768
+        480,
+        320
       ],
-      "id": "b8df2317-8d55-4d63-83b9-827648ed7ed1",
+      "id": "57fd33d1-cbec-46bc-9043-f28b4a578753",
       "name": "Community Search"
     },
     {
@@ -1142,10 +1153,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        608,
-        960
+        480,
+        544
       ],
-      "id": "93adb4f3-b4f1-41de-9b81-f554aae738e8",
+      "id": "ececd4ed-5926-4a56-8e5c-89e24b597ef5",
       "name": "ServiceNow Store Search"
     },
     {
@@ -1155,10 +1166,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        832,
-        528
+        704,
+        48
       ],
-      "id": "5fd461ea-8eef-4a20-8dfc-5a9b89082b90",
+      "id": "68613b18-8d2b-4087-a7a3-1edb17afc5a1",
       "name": "Search Results Collector"
     },
     {
@@ -1168,10 +1179,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1040,
-        544
+        928,
+        80
       ],
-      "id": "8859d061-2218-4e68-a82e-1d4ca461d4b8",
+      "id": "91dbd305-69e3-4232-b47b-2cc3421cc0a3",
       "name": "Content Processor"
     },
     {
@@ -1215,14 +1226,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1264,
-        544
+        1152,
+        80
       ],
-      "id": "548ad02d-a760-48a8-aec2-c597eab35393",
+      "id": "6c9b97c1-3599-4ef8-891f-f5f198360fdc",
       "name": "Content Summarizer",
       "credentials": {
         "openAiApi": {
-          "id": "wfvDxN9cSERQkWdf",
+          "id": "OPENAI_CREDENTIAL_ID",
           "name": "OpenAi account"
         }
       }
@@ -1245,10 +1256,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1488,
-        544
+        1376,
+        80
       ],
-      "id": "1f6eebbc-93f2-4a7a-b73a-ccf97157c6fc",
+      "id": "37eb2ab5-be35-448a-a1f1-9f534a061568",
       "name": "Prompt Enhancer"
     },
     {
@@ -1260,43 +1271,14 @@
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.3,
       "position": [
-        2416,
-        272
+        2384,
+        480
       ],
-      "id": "4ef2e989-6840-494d-bbe0-0460cbe8cbb1",
+      "id": "0dfe7dd4-e284-46a7-8d8d-3cc699e001e9",
       "name": "Chat Memory",
       "credentials": {
         "postgres": {
-          "id": "jyKnFpTCK43HBCFx",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "mode": "retrieve-as-tool",
-        "toolDescription": "Searches a knowledge base of previously saved question-and-answer pairs. This tool is designed to retrieve useful answers based on past user queries.\nUse this tool by inputting a question. If similar questions have been asked before, it will return the most relevant answers previously marked as helpful.\n\nInput:\nA natural language question from the user.\n\nOutput:\nOne or more relevant answers from the knowledge base, if any similar questions are found.\n\nExample usage:\nInput: \"How do I reset my database password?\"\nOutput: \"To reset your database password, go to the admin panel, select 'Security', then choose 'Reset Password'.\"",
-        "tableName": "qa_knowledge_base",
-        "options": {
-          "columnNames": {
-            "values": {
-              "vectorColumnName": "question_embedding",
-              "contentColumnName": "answer"
-            }
-          }
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
-      "typeVersion": 1.3,
-      "position": [
-        2560,
-        304
-      ],
-      "id": "3c440751-5d9d-4bda-9d21-2550ddd71385",
-      "name": "Postgres PGVector Store",
-      "credentials": {
-        "postgres": {
-          "id": "jyKnFpTCK43HBCFx",
+          "id": "POSTGRES_CREDENTIAL_ID",
           "name": "Postgres account"
         }
       }
@@ -1308,14 +1290,14 @@
       "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
       "typeVersion": 1.2,
       "position": [
-        2496,
-        512
+        2480,
+        640
       ],
-      "id": "e6f09e5a-2f4c-42b7-b75c-f814ef9780eb",
+      "id": "3b01667c-772d-476c-a7ed-134fa19b2b43",
       "name": "Embeddings OpenAI",
       "credentials": {
         "openAiApi": {
-          "id": "wfvDxN9cSERQkWdf",
+          "id": "OPENAI_CREDENTIAL_ID",
           "name": "OpenAi account"
         }
       }
@@ -1348,35 +1330,11 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -256,
-        320
+        -336,
+        176
       ],
-      "id": "64cd10fa-c348-4815-9e39-51a93ee25c2e",
+      "id": "3e529d89-88bf-44a2-a9b2-260778a2ef15",
       "name": "Searchmode1"
-    },
-    {
-      "parameters": {
-        "model": "={{ $('Initiate').first().json.body.aiModel }}",
-        "options": {
-          "maxTokens": "={{ $('Generate Key').first().json.max_tokens }}",
-          "temperature": "={{ $('Generate Key').first().json.temperature }}",
-          "topP": "={{ $('Generate Key').first().json.top_p }}"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
-      "typeVersion": 1,
-      "position": [
-        2240,
-        272
-      ],
-      "id": "f24b85f0-86f2-4fd5-ae09-712db0fafe34",
-      "name": "OpenRouter",
-      "credentials": {
-        "openRouterApi": {
-          "id": "MnbdZeqzq7snHPKl",
-          "name": "OpenRouter account"
-        }
-      }
     },
     {
       "parameters": {
@@ -1388,9 +1346,9 @@
       "typeVersion": 1.1,
       "position": [
         2048,
-        -80
+        208
       ],
-      "id": "c354b92e-f476-41f1-acec-e1b4425802e6",
+      "id": "cd6ef1df-961b-4dab-beb5-961d0fc624db",
       "name": "Convert to File"
     },
     {
@@ -1411,10 +1369,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1824,
-        -80
+        1776,
+        208
       ],
-      "id": "4220ed20-1e46-43ac-9070-d1ba35d9df13",
+      "id": "903c6608-280c-4682-b69e-153320c1a20c",
       "name": "Set attachment"
     },
     {
@@ -1445,10 +1403,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1632,
-        48
+        1568,
+        352
       ],
-      "id": "8b96a7ca-3032-4883-a540-086e865f0dd4",
+      "id": "e2dbb63e-8374-4676-8dd5-c5688a3fe0c1",
       "name": "File provided"
     },
     {
@@ -1462,15 +1420,15 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -2384,
-        512
+        -1744,
+        272
       ],
-      "id": "9596b35c-0087-4fa2-93c9-1bc436d12211",
+      "id": "f524b713-9471-4567-a856-7703d2a5e346",
       "name": "Initiate",
       "webhookId": "e7ff8ec4-501c-498c-8e18-b6b0fcb3786f",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "XyoDcrWrlzkAf9eT",
+          "id": "HEADER_AUTH_CREDENTIAL_ID",
           "name": "Header Auth account"
         }
       }
@@ -1486,11 +1444,145 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        -1680,
-        864
+        -1072,
+        656
       ],
-      "id": "e1695e25-c266-45bc-86d1-eef745fd16c3",
+      "id": "8dec66bf-09a5-44d3-97ad-352767a6f7d3",
       "name": "Error Response"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Creates ServiceNow Business Rules for server-side automation triggered by database operations (insert, update, delete, query). Use when the solution requires modifying record data before saving, updating related records after commit, server-side calculations, or any logic that must execute on the server when records change. Handles proper timing (before/after/async) and follows ServiceNow best practices to avoid recursion and performance issues.\n\nUse for: Server-side record automation, data validation/modification, related record updates, calculations triggered by record changes.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', `Provide a clear specification of what the Business Rule should accomplish, including:\n\nPurpose: What business logic or automation the rule should perform\nTrigger: Which table and operations (insert/update/delete) should activate the rule\nConditions: When the rule should execute (field changes, specific values, etc.)\nActions: What the rule should do (modify fields, update related records, calculations, notifications)\nContext: Any business requirements, dependencies, or constraints\n\nExample: \"Create a Business Rule on the Incident table that automatically sets Priority to 'High' when Impact is 'High' and Urgency is 'Medium' or higher, but only on insert and when the caller is a VIP user.\"\n\nThe more specific the requirements, the better the generated solution will match your needs.`, 'string') }}",
+        "options": {
+          "systemMessage": "You are an expert ServiceNow Business Rule development agent that generates high-quality, performance-optimized business rules following ServiceNow technical best practices. Your role is to create, analyze, and optimize business rules that are efficient, maintainable, and scalable.\n\n## Core Development Principles\n\n### Code Quality Standards\n- **Always write readable code**: Use descriptive variable and function names that clearly indicate purpose\n- **Comment your code**: Include clear, well-written comments explaining complex logic and business requirements\n- **Use proper white space**: Include empty lines and spacing to make code visually organized and readable\n- **Write simple statements**: Avoid complex ternary operators and nested logic that could confuse future developers\n- **Create modular components**: Break complex logic into small, specialized functions\n\n### Business Rule Timing and Structure\n- **Use appropriate \"When\" timing**:\n  - `before`: Update information on the current object (e.g., setting field values)\n  - `after`: Update information on related objects that need immediate display\n  - `async`: Update information on related objects that don't need immediate display\n  - `display`: Provide client-side scripts access to server-side data\n\n- **Always use conditions**: Implement proper Filter Conditions to ensure rules only run when necessary\n- **Keep code in functions**: Always wrap your code in the default function structure to prevent variable scope issues\n\n### Performance Best Practices\n\n#### Database Interactions\n- **Use GlideAggregate for counting**: Never use `getRowCount()` for counting records\n- **Avoid complex queries on large datasets**: Consider pre-computed related lists instead of real-time relationship queries\n- **Let the database do the work**: Use `setLimit(1)` when checking for existence rather than retrieving all records\n- **Use addEncodedQuery()**: For complex queries, use encoded query strings instead of multiple addQuery() calls\n\n#### Variable Management\n- **Use descriptive variable names**: `var currentUser = gs.getUserID()` instead of `var u = gs.getUserID()`\n- **Store function results**: Avoid calling the same function repeatedly with same parameters\n- **Verify values exist**: Always check if variables have values before using them\n- **Return meaningful values**: Functions should return useful information about execution success/failure\n\n### Security and Validation\n- **Prevent recursive business rules**: Never use `current.update()` in business rules\n- **Double-check critical input**: Use business rules to validate data that might change between client validation and server processing\n- **Avoid hard-coded values**: Use system properties instead of hard-coding sys_ids, group names, or other values\n\n### Code Structure Requirements\n\n#### Function Template\n```javascript\n(function executeRule(current, previous /*null when async*/) {\n    \n    // Your business logic here\n    // Always wrapped in the default function\n    \n})(current, previous);\n```\n\n#### Script Include Usage\n- For reusable functions, create Script Includes instead of global business rules\n- Use proper Script Include structure:\n```javascript\nvar YourScriptInclude = Class.create();\nYourScriptInclude.prototype = {\n    initialize: function() {\n        // Initialization code\n    },\n    \n    yourMethod: function(parameters) {\n        // Method implementation\n        return result;\n    },\n    \n    type: 'YourScriptInclude'\n};\n```\n\n### Debugging and Logging\n- **Use property-controlled debugging**:\n```javascript\nvar debug = gs.getProperty('debug.YourScript') == 'true';\nif (debug) {\n    gs.debug('Debug message: ' + variableValue);\n}\n```\n- **Prefer gs.debug() and gs.info()**: These work in both scoped and global applications\n- **Avoid gs.addInfoMessage()**: These impact user experience and should be used sparingly\n\n### Specific Coding Patterns\n\n#### Safe Value Checking\n```javascript\n// Good pattern for checking related record values\nvar table = current.cmdb_ci.installed_on.sys_class_name;\nif (table) {\n    gs.debug('Table is: ' + table);\n} else {\n    gs.debug('Warning: table is undefined');\n}\n```\n\n#### Proper Reference Field Handling\n```javascript\n// Correct - direct value access\nvar id = current.getValue('caller_id');\n\n// Incorrect - unnecessary dot-walking\nvar id = current.caller_id.sys_id;\n```\n\n#### Display Value Usage\n```javascript\n// Good - flexible approach\nvar parent = current.parent.getDisplayValue();\nvar myCI = current.cmdb_ci.getDisplayValue();\n\n// Avoid - hard-coded field names\nvar parent = current.parent.number;\nvar myCI = current.cmdb_ci.name;\n```\n\n## Code Generation Guidelines\n\nWhen generating business rules, you must:\n\n1. **Analyze the requirement** and determine the appropriate \"When\" timing\n2. **Implement proper conditions** to ensure the rule only runs when necessary\n3. **Use the standard function wrapper** with current and previous parameters\n4. **Include meaningful comments** explaining the business logic\n5. **Implement error handling** and validation where appropriate\n6. **Use performance-optimized database queries**\n7. **Follow naming conventions** for variables and functions\n8. **Consider debugging needs** and include property-controlled logging when appropriate\n\n## Example Business Rule Structure\n\n```javascript\n(function executeRule(current, previous /*null when async*/) {\n    \n    /***************************************************\n     * Business Rule: [Purpose Description]\n     * \n     * Triggers: [When this rule executes]\n     * Purpose: [What this rule accomplishes]\n     * Author: ServiceNow Business Rule Agent\n     * Date: [Current Date]\n     ***************************************************/\n    \n    // Validate required conditions\n    if (!current.field_name) {\n        gs.debug('Required field is empty, exiting rule');\n        return;\n    }\n    \n    // Main business logic\n    try {\n        // Implement the required functionality\n        performBusinessLogic();\n        \n    } catch (error) {\n        gs.error('Error in business rule: ' + error.message);\n    }\n    \n    /**\n     * Helper function to encapsulate business logic\n     */\n    function performBusinessLogic() {\n        // Implementation details\n    }\n    \n})(current, previous);\n```\n\n## Quality Checklist\n\nBefore finalizing any business rule, ensure:\n\n- [ ] Appropriate \"When\" timing selected\n- [ ] Proper conditions implemented\n- [ ] Code wrapped in default function\n- [ ] Descriptive variable names used\n- [ ] Comments explain complex logic\n- [ ] Error handling implemented\n- [ ] Performance considerations addressed\n- [ ] No hard-coded values\n- [ ] Proper database query patterns used\n- [ ] Debugging statements included where helpful\n\n## Anti-Patterns to Avoid\n\n- Never use `current.update()` in business rules\n- Don't create global business rules for specific functionality\n- Avoid hard-coding sys_ids or names\n- Don't use `getRowCount()` for counting\n- Avoid dot-walking to sys_id of reference fields\n- Don't use `eval()` function\n- Avoid DOM manipulation in business rules\n- Don't leave debugging statements in production code without property controls\n\n## Response Format\n\nWhen generating business rules, provide:\n\n1. **Complete business rule code** with proper structure\n2. **Condition statement** for the \"When to run\" section\n3. **Explanation** of the business logic and implementation decisions\n4. **Performance considerations** and optimizations applied\n5. **Testing recommendations** for validation\n\n## Tools\nUse the Date tool to get the current date.\n\nRemember: Your generated business rules should be production-ready, following all ServiceNow best practices for performance, maintainability, and scalability."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        2800,
+        480
+      ],
+      "id": "7b8652a2-17f1-4c71-be16-895ad6b7f751",
+      "name": "Business Rule Agent"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Creates ServiceNow Client Scripts for client-side automation triggered by form events (onLoad, onChange, onSubmit, onCellEdit). Use when the solution requires real-time form behavior, field validation before submission, dynamic UI changes, or user experience enhancements that must execute in the browser. Handles proper script types (onLoad/onChange/onSubmit/onCellEdit) and follows ServiceNow best practices for performance and user experience.\n\nUse for: Form field validation, dynamic field behavior, UI/UX enhancements, real-time form interactions triggered by user actions.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', `Provide a clear specification of what the Client Script should accomplish, including:\nPurpose: What user interface behavior or form interaction the script should enable\nTrigger: Which form/table and events (onLoad/onChange/onSubmit/onCellEdit) should activate the script\n\nConditions: When the script should execute (specific field changes, field values, user roles, etc.)\nActions: What the script should do (show/hide fields, set field values, display messages, validate input, make UI changes)\n\nContext: Any user experience requirements, business rules, or UI constraints\nExample: 'Create an onChange Client Script on the Incident form that hides the Resolution fields when State is not Resolved or Closed, shows a warning message if Priority is set to Critical without proper justification in the Description field, and makes Assignment Group mandatory when State changes to In Progress.'\n\nThe more specific the requirements about user interactions and form behavior, the better the generated solution will match your needs.`, 'string') }}",
+        "options": {
+          "systemMessage": "You are an expert ServiceNow Client Script developer. Your role is to create high-quality, efficient, and maintainable Client Scripts that follow ServiceNow best practices. Always prioritize user experience, performance, and code maintainability.\n\n## Core Principles\n\n### 1. Function Encapsulation\n- **ALWAYS** wrap your code in the appropriate function (onLoad, onChange, onSubmit, onCellEdit)\n- **NEVER** use global variables outside functions to prevent variable scope conflicts\n- Use proper function parameters: `(control, oldValue, newValue, isLoading, isTemplate)` for onChange scripts\n\n### 2. Performance Optimization\n- **Check isLoading first** in onChange scripts to prevent unnecessary execution during form load:\n  ```javascript\n  if (isLoading) return;\n  ```\n- **Validate newValue exists** before processing:\n  ```javascript\n  if (newValue) { /* your logic */ }\n  ```\n- **Add newValue != oldValue check** to ensure the script only runs when values actually change\n- **Minimize server lookups** - use client-side data when possible\n- **Bury server calls** deep in conditional logic to avoid unnecessary round trips\n\n### 3. Server Communication Best Practices\n- **Use g_scratchpad** for server-to-client data transfer when the information is known at form load\n- **Use asynchronous GlideAjax** for dynamic server lookups - NEVER use synchronous calls\n- **Include display values** when using setValue() on reference fields:\n  ```javascript\n  g_form.setValue('field_name', sys_id, display_value);\n  ```\n- **Avoid g_form.getReference()** - use GlideAjax instead for better performance\n\n### 4. Code Structure and Readability\n- Use **descriptive variable and function names**\n- Add **meaningful comments** that explain the business logic, not just the code\n- Use **proper indentation and white space** for readability\n- **Avoid complex ternary operators** - use clear if/else statements instead\n- Store function results in variables to avoid repeated calls\n\n### 5. Validation and Error Handling\n- Use Client Scripts primarily for **data validation** and **user experience enhancement**\n- Provide immediate feedback with `g_form.showErrorBox()` for validation errors\n- Verify values exist before using them to prevent undefined errors\n- Use **UI Policies instead of Client Scripts** when possible for field attribute changes\n\n## Required Script Structure\n\n### onChange Script Template:\n```javascript\nfunction onChange(control, oldValue, newValue, isLoading, isTemplate) {\n    // Always check isLoading first\n    if (isLoading) return;\n    \n    // Validate newValue exists\n    if (newValue) {\n        // Check if value actually changed\n        if (newValue != oldValue) {\n            // Check client-side conditions first\n            if (/* client-side validation */) {\n                // Only then make server calls if absolutely necessary\n                var ga = new GlideAjax('ScriptIncludeName');\n                ga.addParam('sysparm_name', 'methodName');\n                ga.addParam('sysparm_parameter', newValue);\n                ga.getXML(callbackFunction);\n            }\n        }\n    }\n}\n\nfunction callbackFunction(response) {\n    var answer = response.responseXML.documentElement.getAttribute(\"answer\");\n    // Process response\n}\n```\n\n### onLoad Script Template:\n```javascript\nfunction onLoad() {\n    // Use g_scratchpad data when available\n    if (typeof g_scratchpad.propertyName !== 'undefined') {\n        // Process server data sent via g_scratchpad\n    }\n    \n    // Set initial form state\n    // Perform client-side setup\n}\n```\n\n### onSubmit Script Template:\n```javascript\nfunction onSubmit() {\n    // Perform final validation before submission\n    if (/* validation condition */) {\n        g_form.showErrorBox('field_name', 'Error message');\n        return false; // Prevent submission\n    }\n    return true; // Allow submission\n}\n```\n\n## Practices to AVOID\n\n- **NEVER** create global Client Scripts (table = Global)\n- **NEVER** use DOM manipulation unless absolutely necessary\n- **NEVER** use alert() statements - use g_form methods instead\n- **NEVER** use synchronous server calls (getXMLWait)\n- **NEVER** use gs.log() or similar server-side functions in client scripts\n- **NEVER** hardcode sys_ids or other instance-specific values\n- **NEVER** leave variables unenclosed outside functions\n\n## Additional Requirements\n\n### Script Ordering:\n- Set appropriate Order values when multiple scripts exist on the same table\n- Lower numbers execute first (100 before 300)\n\n### Client-Server Integration:\n- Use display Business Rules with g_scratchpad for efficient server-to-client data transfer\n- Create corresponding Script Includes for GlideAjax server-side processing\n- Follow proper GlideAjax patterns with error handling\n\n### Form Enhancement Guidelines:\n- Use Client Scripts for dynamic field behavior and real-time validation\n- Implement proper user feedback mechanisms\n- Ensure scripts work correctly during both form load and user interaction\n- Consider the impact on list editing vs. form editing\n\n### Debugging Support:\n- Include jslog() statements for client-side debugging when needed\n- Use meaningful debug messages that help identify issues\n- Remove or comment out debug statements before production deployment\n\n## Code Quality Standards\n\n1. **Always** include proper error handling\n2. **Always** validate input parameters\n3. **Always** use consistent naming conventions\n4. **Always** follow the performance optimization checklist\n5. **Always** test both form load and user interaction scenarios\n6. **Always** consider the user experience impact\n\nWhen generating Client Scripts, ensure they are production-ready, well-documented, and follow these established best practices for optimal performance and maintainability."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        3088,
+        480
+      ],
+      "id": "e640cb25-c58e-4112-90b6-beb2c441e288",
+      "name": "Client Script Agent"
+    },
+    {
+      "parameters": {
+        "description": "Use this tool to analyze ServiceNow requirements and plan solutions. It provides a structured thinking space to verify policies, break down complex tasks, and validate approaches before generating scripts or configurations. Use when you need to carefully process ServiceNow data, follow development guidelines, or plan multi-step implementations."
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        3376,
+        480
+      ],
+      "id": "06d0f101-6442-487f-b5d1-1ce9b85d0051",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTimeTool",
+      "typeVersion": 2,
+      "position": [
+        2960,
+        656
+      ],
+      "id": "1e4c5797-8b07-4f4d-9f56-9da5ae71906d",
+      "name": "Date Tool"
+    },
+    {
+      "parameters": {
+        "model": "={{ $('Initiate').first().json.body.aiModel }}",
+        "options": {
+          "frequencyPenalty": 0.2,
+          "presencePenalty": 0.1,
+          "temperature": 0.1,
+          "topP": 0.9
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2768,
+        656
+      ],
+      "id": "4e2de69a-7b1c-4e5e-8240-96669b22ea1d",
+      "name": "Business Rule Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "={{ $('Initiate').first().json.body.aiModel }}",
+        "options": {
+          "frequencyPenalty": 0.2,
+          "presencePenalty": 0.1,
+          "temperature": 0.1,
+          "topP": 0.9
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        3104,
+        656
+      ],
+      "id": "d7a06558-397d-4860-a7bd-ca0cffca4891",
+      "name": "Client Script Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "={{ $('Initiate').first().json.body.aiModel }}",
+        "options": {
+          "maxTokens": "={{ $('Generate Key').first().json.max_tokens }}",
+          "temperature": "={{ $('Generate Key').first().json.temperature }}",
+          "topP": "={{ $('Generate Key').first().json.top_p }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2224,
+        480
+      ],
+      "id": "4a369593-e98f-4d5a-b0b0-3f959d5ead8c",
+      "name": "Orchestration Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1504,11 +1596,40 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
       "position": [
-        2384,
-        32
+        2672,
+        256
       ],
-      "id": "9c567bf6-0336-48c6-a264-0e8a40d02342",
-      "name": "AI Agent"
+      "id": "08970e69-f5ff-48a1-9354-ef7078f3f6f2",
+      "name": "Orchestration Agent"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Searches a knowledge base of previously saved question-and-answer pairs. This tool is designed to retrieve useful answers based on past user queries.\nUse this tool by inputting a question. If similar questions have been asked before, it will return the most relevant answers previously marked as helpful.\n\nInput:\nA natural language question from the user.\n\nOutput:\nOne or more relevant answers from the knowledge base, if any similar questions are found.\n\nExample usage:\nInput: \"How do I reset my database password?\"\nOutput: \"To reset your database password, go to the admin panel, select 'Security', then choose 'Reset Password'.\"",
+        "tableName": "qa_knowledge_base",
+        "options": {
+          "columnNames": {
+            "values": {
+              "vectorColumnName": "question_embedding",
+              "contentColumnName": "answer"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        2512,
+        480
+      ],
+      "id": "4fda1e6e-dbe6-404c-9763-402182067b2b",
+      "name": "Knowledge Store",
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -1824,19 +1945,8 @@
       "ai_memory": [
         [
           {
-            "node": "AI Agent",
+            "node": "Orchestration Agent",
             "type": "ai_memory",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Postgres PGVector Store": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
             "index": 0
           }
         ]
@@ -1846,7 +1956,7 @@
       "ai_embedding": [
         [
           {
-            "node": "Postgres PGVector Store",
+            "node": "Knowledge Store",
             "type": "ai_embedding",
             "index": 0
           }
@@ -1871,22 +1981,11 @@
         ]
       ]
     },
-    "OpenRouter": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Convert to File": {
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "Orchestration Agent",
             "type": "main",
             "index": 0
           }
@@ -1915,7 +2014,7 @@
         ],
         [
           {
-            "node": "AI Agent",
+            "node": "Orchestration Agent",
             "type": "main",
             "index": 0
           }
@@ -1933,12 +2032,100 @@
         ]
       ]
     },
-    "AI Agent": {
+    "Business Rule Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Orchestration Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Client Script Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Orchestration Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "Orchestration Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Business Rule Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Business Rule Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Business Rule Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Client Script Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Client Script Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Orchestration Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Orchestration Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Orchestration Agent": {
       "main": [
         [
           {
             "node": "Save response",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Knowledge Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "Orchestration Agent",
+            "type": "ai_tool",
             "index": 0
           }
         ]
@@ -1949,11 +2136,11 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "ad7d8d42-db29-40c8-ae2e-bd1d91b4c736",
+  "versionId": "6737700e-4334-4cd8-b8f2-d2e1456c9f3f",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "6eb59f1f7b97bea1de3f88e3f172bf50ef88215762a7e9a6e31617381ad7f932"
+    "instanceId": "2922ffa1ef3847c08fbec786aa30ef6b2d15e0a8f91aca722c38778733c92fae"
   },
-  "id": "kBIKZ2x0LqjmCEZ5",
+  "id": "6EnYTxZp6bFEnYW7",
   "tags": []
 }
