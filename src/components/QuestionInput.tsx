@@ -18,16 +18,6 @@ const QuestionInput = forwardRef<HTMLTextAreaElement, QuestionInputProps>(
     
     // Auto-resize textarea based on content
     useEffect(() => {
-      const textarea = ref as React.MutableRefObject<HTMLTextAreaElement>;
-      if (textarea.current) {
-        // Reset height to auto to get the correct scrollHeight
-        textarea.current.style.height = 'auto';
-        // Set height based on scrollHeight, with min and max constraints
-        const scrollHeight = textarea.current.scrollHeight;
-        const minHeight = 100; // Minimum height in pixels (matches min-h-[100px])
-        const maxHeight = 400; // Maximum height before scrolling
-        
-        const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
       if (ref && typeof ref === 'object' && 'current' in ref && ref.current) {
         // Reset height to auto to get the correct scrollHeight
         ref.current.style.height = 'auto';
