@@ -98,6 +98,7 @@ export async function POST(request: NextRequest) {
               type: body.type,
               aiModel: body.aiModel,
               file: body.file,
+              searching: body.searching,
               userId: 'streaming_user'
             }
           };
