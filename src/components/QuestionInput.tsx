@@ -57,7 +57,7 @@ const QuestionInput = forwardRef<HTMLTextAreaElement, QuestionInputProps>(
           placeholder={placeholder}
           className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 text-base sm:text-lg border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition-all resize-none overflow-y-auto min-h-[100px] sm:min-h-[120px] text-gray-900 dark:text-gray-100 dark:bg-gray-700 placeholder:text-gray-500 dark:placeholder:text-gray-400"
           disabled={disabled}
-          style={{ height: 'auto' }}
+          
         />
       </div>
     );
