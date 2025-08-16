@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { createRef } from 'react';
 import QuestionInput from '@/components/QuestionInput';
 
@@ -221,7 +221,7 @@ describe('QuestionInput', () => {
       expect(textarea).toHaveClass('border');
       expect(textarea).toHaveClass('focus:ring-2');
       expect(textarea).toHaveClass('focus:ring-blue-500');
-      expect(textarea).toHaveClass('resize-vertical');
+      expect(textarea).toHaveClass('resize-none');
     });
 
     it('should have correct responsive padding', () => {
@@ -246,11 +246,12 @@ describe('QuestionInput', () => {
       expect(textarea).toHaveClass('text-base', 'sm:text-lg');
     });
 
-    it('should have 4 rows by default', () => {
+    it('should use auto-resize instead of fixed rows', () => {
       render(<QuestionInput {...defaultProps} />);
 
       const textarea = screen.getByRole('textbox');
-      expect(textarea).toHaveAttribute('rows', '4');
+      expect(textarea).not.toHaveAttribute('rows');
+      expect(textarea).toHaveClass('resize-none');
     });
   });
 
@@ -385,6 +386,101 @@ describe('QuestionInput', () => {
       const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
       expect(textarea.value).toBe('final');
       expect(textarea).toBeEnabled();
+    });
+  });
+
+  describe('Auto-resize Functionality', () => {
+    it('should adjust height based on content', async () => {
+      const ref = createRef<HTMLTextAreaElement>();
+      const { rerender } = render(<QuestionInput {...defaultProps} value="" ref={ref} />);
+
+      // Wait for initial render
+      await act(async () => {
+        // Mock scrollHeight after the element is in the DOM
+        Object.defineProperty(ref.current!, 'scrollHeight', {
+          value: 150,
+          writable: false,
+        });
+
+        // Trigger re-render with new value to trigger useEffect
+        rerender(<QuestionInput {...defaultProps} value="This is a longer text" ref={ref} />);
+      });
+
+      // Verify the height was set
+      expect(ref.current?.style.height).toBe('150px');
+    });
+
+    it('should respect minimum height constraint', async () => {
+      const ref = createRef<HTMLTextAreaElement>();
+      const { rerender } = render(<QuestionInput {...defaultProps} value="" ref={ref} />);
+
+      await act(async () => {
+        // Mock scrollHeight to be smaller than minimum
+        Object.defineProperty(ref.current!, 'scrollHeight', {
+          value: 50,
+          writable: false,
+        });
+
+        // Trigger re-render
+        rerender(<QuestionInput {...defaultProps} value="Short" ref={ref} />);
+      });
+
+      // Should use minimum height of 100px
+      expect(ref.current?.style.height).toBe('100px');
+    });
+
+    it('should respect maximum height constraint', async () => {
+      const ref = createRef<HTMLTextAreaElement>();
+      const { rerender } = render(<QuestionInput {...defaultProps} value="" ref={ref} />);
+
+      await act(async () => {
+        // Mock scrollHeight to be larger than maximum
+        Object.defineProperty(ref.current!, 'scrollHeight', {
+          value: 500,
+          writable: false,
+        });
+
+        // Trigger re-render
+        rerender(<QuestionInput {...defaultProps} value="Very long text that exceeds maximum height" ref={ref} />);
+      });
+
+      // Should use maximum height of 400px
+      expect(ref.current?.style.height).toBe('400px');
+    });
+
+    it('should handle ref being null safely', () => {
+      // This tests the safety check in the useEffect
+      render(<QuestionInput {...defaultProps} />);
+      
+      // Should not throw an error even without a ref
+      const textarea = screen.getByRole('textbox');
+      expect(() => {
+        fireEvent.change(textarea, { target: { value: 'Test content' } });
+      }).not.toThrow();
+    });
+
+    it('should reset height to auto before calculating new height', async () => {
+      const ref = createRef<HTMLTextAreaElement>();
+      const { rerender } = render(<QuestionInput {...defaultProps} value="" ref={ref} />);
+
+      await act(async () => {
+        // Set an initial height
+        if (ref.current) {
+          ref.current.style.height = '200px';
+        }
+
+        // Mock scrollHeight
+        Object.defineProperty(ref.current!, 'scrollHeight', {
+          value: 120,
+          writable: false,
+        });
+
+        // Trigger re-render to trigger useEffect
+        rerender(<QuestionInput {...defaultProps} value="New content" ref={ref} />);
+      });
+
+      // Height should be set to scrollHeight (120px), not influenced by previous height
+      expect(ref.current?.style.height).toBe('120px');
     });
   });
 
