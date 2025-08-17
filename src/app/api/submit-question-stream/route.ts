@@ -36,18 +36,51 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check that we have either legacy aiModel or new agentModels
-    if (!body.aiModel && !body.agentModels) {
+    // Check that we have either legacy aiModel or new agentModels with valid configurations
+    if (!body.aiModel && (!body.agentModels || body.agentModels.length === 0)) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Either aiModel or agentModels must be provided' 
+          error: 'Either aiModel or agentModels with at least one agent configuration must be provided' 
         }),
         { 
           status: 400, 
           headers: { 'Content-Type': 'application/json' }
         }
       );
+    }
+
+    // Validate agentModels array if provided
+    if (body.agentModels && body.agentModels.length > 0) {
+      for (const agentModel of body.agentModels) {
+        if (!agentModel.agent || !agentModel.model) {
+          return new Response(
+            JSON.stringify({ 
+              success: false, 
+              error: 'Each agent configuration must have both agent and model properties' 
+            }),
+            { 
+              status: 400, 
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
+        }
+        
+        // Validate agent names against allowed values
+        const allowedAgents = ['orchestration', 'business_rule', 'client_script'];
+        if (!allowedAgents.includes(agentModel.agent)) {
+          return new Response(
+            JSON.stringify({ 
+              success: false, 
+              error: `Invalid agent name: ${agentModel.agent}. Allowed agents: ${allowedAgents.join(', ')}` 
+            }),
+            { 
+              status: 400, 
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
+        }
+      }
     }
 
     // Validate file if provided
