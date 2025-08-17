@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Trash2, Image, Headphones } from 'lucide-react';
+import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Image, Headphones, Bot, Zap, Server, Monitor } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAIModels } from '@/contexts/AIModelContext';
+import { useAgentModels } from '@/contexts/AgentModelContext';
 import BurgerMenu from './BurgerMenu';
 import ThemeToggle from './ThemeToggle';
 import AIModelModal from './AIModelModal';
@@ -12,29 +13,28 @@ import AIModelModal from './AIModelModal';
 export default function Settings() {
   const router = useRouter();
   const { settings, isLoading, error, isAuthenticated, updateSetting } = useSettings();
-  const { models, isLoading: modelsLoading, deleteModel } = useAIModels();
+  const { models } = useAIModels();
+  const { agentModels, updateAgentModel, getDefaultAgents, isLoading: agentModelsLoading } = useAgentModels();
   const [saving, setSaving] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [urlInputValue, setUrlInputValue] = useState('');
   const [showModelModal, setShowModelModal] = useState(false);
-  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
+  const [expandedAgents, setExpandedAgents] = useState<Record<string, boolean>>({});
 
   // Initialize URL input value with current setting
   useEffect(() => {
     setUrlInputValue(settings.servicenow_instance_url || '');
   }, [settings.servicenow_instance_url]);
 
-  // Close model dropdown when clicking outside
+  // Initialize expanded agents with default state
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isModelDropdownOpen && !(event.target as Element).closest('.model-dropdown')) {
-        setIsModelDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isModelDropdownOpen]);
+    const defaultAgents = getDefaultAgents();
+    const initialExpanded: Record<string, boolean> = {};
+    defaultAgents.forEach(agent => {
+      initialExpanded[agent.name] = false;
+    });
+    setExpandedAgents(initialExpanded);
+  }, [getDefaultAgents]);
 
   const handleToggle = async (key: keyof typeof settings, value: boolean) => {
     setSaving(key);
@@ -111,19 +111,18 @@ export default function Settings() {
     }
   };
 
-  const handleAIModelChange = async (modelName: string) => {
-    setSaving('default_ai_model');
+  const handleAgentModelChange = async (agentName: string, modelName: string) => {
+    setSaving(`agent_${agentName}`);
     setFeedback(null);
-    setIsModelDropdownOpen(false);
     
     try {
-      await updateSetting('default_ai_model', modelName);
-      setFeedback({ type: 'success', message: 'AI model updated successfully!' });
+      await updateAgentModel(agentName, modelName);
+      setFeedback({ type: 'success', message: `${getAgentDisplayName(agentName)} model updated successfully!` });
       setTimeout(() => setFeedback(null), 3000);
     } catch (err) {
       setFeedback({ 
         type: 'error', 
-        message: err instanceof Error ? err.message : 'Failed to update AI model' 
+        message: err instanceof Error ? err.message : 'Failed to update agent model' 
       });
       setTimeout(() => setFeedback(null), 5000);
     } finally {
@@ -131,29 +130,31 @@ export default function Settings() {
     }
   };
 
-  const handleDeleteModel = async (modelId: number, modelName: string) => {
-    try {
-      setFeedback(null);
-      await deleteModel(modelId);
-      
-      // If the deleted model was the default, reset to first available model
-      if (settings.default_ai_model === modelName && models.length > 1) {
-        const remainingModels = models.filter(m => m.id !== modelId);
-        if (remainingModels.length > 0) {
-          await updateSetting('default_ai_model', remainingModels[0].model_name);
-        }
-      }
-      
-      setFeedback({ type: 'success', message: 'AI model deleted successfully!' });
-      setTimeout(() => setFeedback(null), 3000);
-    } catch (err) {
-      setFeedback({ 
-        type: 'error', 
-        message: err instanceof Error ? err.message : 'Failed to delete AI model' 
-      });
-      setTimeout(() => setFeedback(null), 5000);
+  const toggleAgentExpanded = (agentName: string) => {
+    setExpandedAgents(prev => ({
+      ...prev,
+      [agentName]: !prev[agentName]
+    }));
+  };
+
+  const getAgentDisplayName = (agentName: string): string => {
+    const agent = getDefaultAgents().find(a => a.name === agentName);
+    return agent?.displayName || agentName;
+  };
+
+  const getAgentIcon = (agentName: string) => {
+    switch (agentName) {
+      case 'orchestration':
+        return Zap;
+      case 'business_rule':
+        return Server;
+      case 'client_script':
+        return Monitor;
+      default:
+        return Bot;
     }
   };
+
 
   const handleModelModalSuccess = () => {
     setFeedback({ type: 'success', message: 'AI model added successfully!' });
@@ -415,15 +416,15 @@ export default function Settings() {
               </div>
             </div>
 
-            {/* AI Model Selection */}
+            {/* Agent Model Configuration */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">AI Model</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">AI Agent Models</h2>
               <div className="space-y-4">
                 <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-700/30">
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-4">
                     <div>
-                      <label className="text-gray-900 dark:text-gray-100 font-medium">Default AI Model</label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Select the AI model to use for processing requests</p>
+                      <label className="text-gray-900 dark:text-gray-100 font-medium">Agent Model Configuration</label>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Configure AI models for each specialized agent</p>
                     </div>
                     <button
                       onClick={() => setShowModelModal(true)}
@@ -434,126 +435,127 @@ export default function Settings() {
                       <Plus className="w-5 h-5" />
                     </button>
                   </div>
-                  
-                  <div className="relative model-dropdown">
-                    <button
-                      onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-                      disabled={modelsLoading || !isAuthenticated || saving === 'default_ai_model'}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-2">
-                        {saving === 'default_ai_model' ? (
-                          <div className="animate-spin w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
-                        ) : (
-                          <>
-                            {models.find(m => m.model_name === settings.default_ai_model)?.is_free ? (
-                              <Gift className="w-4 h-4 text-green-600 dark:text-green-400" />
-                            ) : (
-                              <DollarSign className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                            )}
-                            <div className="flex items-center space-x-2 min-w-0">
-                              <span className="truncate">
-                                {(() => {
-                                  const selectedModel = models.find(m => m.model_name === settings.default_ai_model);
-                                  return selectedModel ? (selectedModel.display_name || selectedModel.model_name) : (settings.default_ai_model || 'Select a model...');
-                                })()}
-                              </span>
-                              {(() => {
-                                const selectedModel = models.find(m => m.model_name === settings.default_ai_model);
-                                if (selectedModel && isModelMultimodal(selectedModel)) {
-                                  return (
+
+                  <div className="space-y-3">
+                    {getDefaultAgents().map((agent) => {
+                      const AgentIcon = getAgentIcon(agent.name);
+                      const currentModel = agentModels[agent.name];
+                      const selectedModel = models.find(m => m.model_name === currentModel);
+                      const isExpanded = expandedAgents[agent.name];
+                      const isSaving = saving === `agent_${agent.name}`;
+
+                      return (
+                        <div 
+                          key={agent.name} 
+                          className="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden"
+                        >
+                          <button
+                            onClick={() => toggleAgentExpanded(agent.name)}
+                            disabled={agentModelsLoading || !isAuthenticated}
+                            className="w-full px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <AgentIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                              <div className="text-left">
+                                <div className="font-medium text-gray-900 dark:text-gray-100">{agent.displayName}</div>
+                                <div className="text-sm text-gray-600 dark:text-gray-400">{agent.description}</div>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              {isSaving ? (
+                                <div className="animate-spin w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
+                              ) : (
+                                <>
+                                  {selectedModel && (
                                     <div className="flex items-center space-x-1">
-                                      <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">MultiModal</span>
-                                      <div className="flex space-x-1">
-                                        {selectedModel.capabilities?.map((cap) => {
-                                          const IconComponent = getCapabilityIcon(cap.name);
-                                          return (
-                                            <IconComponent 
-                                              key={cap.id} 
-                                              className="w-3 h-3 text-blue-600 dark:text-blue-400" 
-                                            />
-                                          );
-                                        })}
+                                      {selectedModel.is_free ? (
+                                        <Gift className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                      ) : (
+                                        <DollarSign className="w-3 h-3 text-yellow-600 dark:text-yellow-400" />
+                                      )}
+                                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                                        {selectedModel.display_name || selectedModel.model_name}
+                                      </span>
+                                    </div>
+                                  )}
+                                  <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                </>
+                              )}
+                            </div>
+                          </button>
+
+                          {isExpanded && (
+                            <div className="px-4 pb-4 bg-gray-50 dark:bg-gray-700/50">
+                              <div className="space-y-2">
+                                {models.map((model) => (
+                                  <button
+                                    key={model.id}
+                                    onClick={() => handleAgentModelChange(agent.name, model.model_name)}
+                                    disabled={isSaving || !isAuthenticated}
+                                    className={`w-full px-3 py-2 rounded-lg text-left flex items-center justify-between transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                                      currentModel === model.model_name
+                                        ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700'
+                                        : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-750'
+                                    }`}
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      {model.is_free ? (
+                                        <Gift className="w-4 h-4 text-green-600 dark:text-green-400" />
+                                      ) : (
+                                        <DollarSign className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                                      )}
+                                      <div className="flex items-center space-x-2 min-w-0">
+                                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                                          {model.display_name || model.model_name}
+                                        </span>
+                                        {isModelMultimodal(model) && (
+                                          <div className="flex items-center space-x-1">
+                                            <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">MultiModal</span>
+                                            <div className="flex space-x-1">
+                                              {model.capabilities?.map((cap) => {
+                                                const IconComponent = getCapabilityIcon(cap.name);
+                                                return (
+                                                  <IconComponent 
+                                                    key={cap.id} 
+                                                    className="w-3 h-3 text-blue-600 dark:text-blue-400" 
+                                                  />
+                                                );
+                                              })}
+                                            </div>
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
-                                  );
-                                }
-                                return null;
-                              })()}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                      <ChevronDown className={`w-4 h-4 transition-transform ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
-                    </button>
-                    
-                    {isModelDropdownOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-                        {models.map((model) => (
-                          <div key={model.id} className="flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700">
-                            <button
-                              onClick={() => handleAIModelChange(model.model_name)}
-                              className="flex-1 px-4 py-3 text-left flex items-center space-x-2 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                            >
-                              {model.is_free ? (
-                                <Gift className="w-4 h-4 text-green-600 dark:text-green-400" />
-                              ) : (
-                                <DollarSign className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                              )}
-                              <div className="flex items-center space-x-2 min-w-0 flex-1">
-                                <span className="truncate">{model.display_name || model.model_name}</span>
-                                {isModelMultimodal(model) && (
-                                  <div className="flex items-center space-x-1">
-                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">MultiModal</span>
-                                    <div className="flex space-x-1">
-                                      {model.capabilities?.map((cap) => {
-                                        const IconComponent = getCapabilityIcon(cap.name);
-                                        return (
-                                          <IconComponent 
-                                            key={cap.id} 
-                                            className="w-3 h-3 text-blue-600 dark:text-blue-400" 
-                                          />
-                                        );
-                                      })}
-                                    </div>
+                                    {currentModel === model.model_name && (
+                                      <Check className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                    )}
+                                  </button>
+                                ))}
+                                {models.length === 0 && (
+                                  <div className="px-3 py-2 text-gray-500 dark:text-gray-400 text-sm text-center">
+                                    No AI models available. Add one using the + button above.
                                   </div>
                                 )}
                               </div>
-                              {settings.default_ai_model === model.model_name && (
-                                <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 ml-auto" />
-                              )}
-                            </button>
-                            {models.length > 1 && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteModel(model.id, model.model_name);
-                                }}
-                                className="p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors mr-2"
-                                title="Delete model"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                        {models.length === 0 && (
-                          <div className="px-4 py-3 text-gray-500 dark:text-gray-400 text-center">
-                            No AI models available. Add one using the + button.
-                          </div>
-                        )}
-                      </div>
-                    )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                   
-                  <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400 mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
                     <div className="flex items-center space-x-1">
                       <Gift className="w-3 h-3 text-green-600 dark:text-green-400" />
-                      <span>Free</span>
+                      <span>Free Model</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <DollarSign className="w-3 h-3 text-yellow-600 dark:text-yellow-400" />
-                      <span>Paid</span>
+                      <span>Paid Model</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Bot className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                      <span>Specialized Agent</span>
                     </div>
                   </div>
                 </div>

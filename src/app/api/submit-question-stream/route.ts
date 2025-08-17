@@ -23,11 +23,25 @@ export async function POST(request: NextRequest) {
     const body: StreamingRequest = await request.json();
 
     // Validate request body
-    if (!body.question || !body.type || !body.aiModel) {
+    if (!body.question || !body.type) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Missing required fields: question, type, and aiModel are required' 
+          error: 'Missing required fields: question and type are required' 
+        }),
+        { 
+          status: 400, 
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Check that we have either legacy aiModel or new agentModels
+    if (!body.aiModel && !body.agentModels) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Either aiModel or agentModels must be provided' 
         }),
         { 
           status: 400, 
@@ -96,7 +110,8 @@ export async function POST(request: NextRequest) {
             chatInput: body.question,
             metadata: {
               type: body.type,
-              aiModel: body.aiModel,
+              aiModel: body.aiModel, // Legacy field for backward compatibility
+              agentModels: body.agentModels, // New field for multi-agent support
               file: body.file,
               searching: body.searching,
               userId: 'streaming_user'

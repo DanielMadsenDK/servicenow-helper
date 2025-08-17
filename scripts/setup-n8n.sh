@@ -285,6 +285,14 @@ if [ -f /.dockerenv ]; then
         echo "⚠️ Multimodal capabilities migration script not found, skipping..."
     fi
     
+    # Run agent models migration
+    echo "Migrating to agent models system..."
+    if [ -f scripts/migrate-to-agent-models.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/migrate-to-agent-models.sql > /dev/null 2>&1 && echo "✅ Agent models migration completed" || echo "⚠️ Agent models migration failed"
+    else
+        echo "⚠️ Agent models migration script not found, skipping..."
+    fi
+    
     # Mark as initialized inside container
     docker exec $N8N_CONTAINER touch /home/node/.n8n/.initialized > /dev/null 2>&1
 else
@@ -380,6 +388,14 @@ else
         docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/add-multimodal-capabilities.sql > /dev/null 2>&1 && echo "✅ Multimodal capabilities added" || echo "⚠️ Multimodal capabilities migration failed"
     else
         echo "⚠️ Multimodal capabilities migration script not found, skipping..."
+    fi
+    
+    # Run agent models migration
+    echo "Migrating to agent models system..."
+    if [ -f scripts/migrate-to-agent-models.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/migrate-to-agent-models.sql > /dev/null 2>&1 && echo "✅ Agent models migration completed" || echo "⚠️ Agent models migration failed"
+    else
+        echo "⚠️ Agent models migration script not found, skipping..."
     fi
     
     # Mark as initialized inside container

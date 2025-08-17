@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerAuthState } from '@/lib/server-auth';
-import { UserSettingsManager } from '@/lib/database';
+import { UserSettingsManager, AgentModelManager } from '@/lib/database';
 import type { UserSettings, SettingsApiResponse } from '@/types/index';
 
 export async function GET(): Promise<NextResponse<SettingsApiResponse>> {
@@ -15,11 +15,20 @@ export async function GET(): Promise<NextResponse<SettingsApiResponse>> {
     }
 
     const settingsManager = new UserSettingsManager();
+    const agentModelManager = new AgentModelManager();
+    
     const settings = await settingsManager.getAllSettings(authResult.user.username);
+    const agentModels = await agentModelManager.getUserAgentModels(authResult.user.username);
+    
+    // Include agent models in the settings response
+    const settingsWithAgents: UserSettings = {
+      ...settings,
+      agent_models: agentModels
+    };
 
     return NextResponse.json({
       success: true,
-      data: settings
+      data: settingsWithAgents
     });
   } catch (error) {
     console.error('Settings GET error:', error);
@@ -51,14 +60,33 @@ export async function PUT(request: NextRequest): Promise<NextResponse<SettingsAp
     }
 
     const settingsManager = new UserSettingsManager();
+    const agentModelManager = new AgentModelManager();
     
     // Validate the settings object structure
-    const validKeys = ['welcome_section_visible', 'default_search_mode', 'default_request_type', 'servicenow_instance_url', 'default_ai_model'];
+    const validKeys = ['welcome_section_visible', 'default_search_mode', 'default_request_type', 'servicenow_instance_url', 'default_ai_model', 'agent_models'];
     const settings: Partial<UserSettings> = {};
+    let agentModelsToUpdate: Record<string, string> | null = null;
     
     for (const [key, value] of Object.entries(body)) {
       if (validKeys.includes(key)) {
-        if (key === 'default_request_type') {
+        if (key === 'agent_models') {
+          if (typeof value !== 'object' || value === null) {
+            return NextResponse.json(
+              { success: false, error: 'Invalid agent_models format, expected object' },
+              { status: 400 }
+            );
+          }
+          // Validate agent models format
+          for (const [agentName, modelName] of Object.entries(value as Record<string, unknown>)) {
+            if (typeof agentName !== 'string' || typeof modelName !== 'string') {
+              return NextResponse.json(
+                { success: false, error: 'Invalid agent model format. Expected { agent_name: model_name }' },
+                { status: 400 }
+              );
+            }
+          }
+          agentModelsToUpdate = value as Record<string, string>;
+        } else if (key === 'default_request_type') {
           if (!['documentation', 'recommendation', 'script', 'troubleshoot'].includes(value as string)) {
             return NextResponse.json(
               { success: false, error: `Invalid value for ${key}` },
@@ -78,18 +106,35 @@ export async function PUT(request: NextRequest): Promise<NextResponse<SettingsAp
             { status: 400 }
           );
         }
-        (settings as Record<string, unknown>)[key] = value;
+        
+        if (key !== 'agent_models') {
+          (settings as Record<string, unknown>)[key] = value;
+        }
       }
     }
 
-    await settingsManager.updateSettings(authResult.user.username, settings);
+    // Update traditional settings
+    if (Object.keys(settings).length > 0) {
+      await settingsManager.updateSettings(authResult.user.username, settings);
+    }
     
-    // Return the updated settings
+    // Update agent models if provided
+    if (agentModelsToUpdate) {
+      await agentModelManager.updateUserAgentModels(authResult.user.username, agentModelsToUpdate);
+    }
+    
+    // Return the updated settings with agent models
     const updatedSettings = await settingsManager.getAllSettings(authResult.user.username);
+    const updatedAgentModels = await agentModelManager.getUserAgentModels(authResult.user.username);
+    
+    const settingsWithAgents: UserSettings = {
+      ...updatedSettings,
+      agent_models: updatedAgentModels
+    };
 
     return NextResponse.json({
       success: true,
-      data: updatedSettings
+      data: settingsWithAgents
     });
   } catch (error) {
     console.error('Settings PUT error:', error);

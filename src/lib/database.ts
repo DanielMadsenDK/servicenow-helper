@@ -403,4 +403,127 @@ export class UserSettingsManager {
 }
 
 
+export class AgentModelManager {
+  private db: DatabaseConnection;
+
+  constructor() {
+    this.db = DatabaseConnection.getInstance();
+  }
+
+  async getUserAgentModels(userId: string): Promise<Record<string, string>> {
+    const query = `
+      SELECT agent_name, model_name
+      FROM "agent_models"
+      WHERE user_id = $1
+      ORDER BY agent_name
+    `;
+    
+    const result = await this.db.query(query, [userId]);
+    
+    const agentModels: Record<string, string> = {};
+    for (const row of result.rows) {
+      const r = row as { agent_name: string; model_name: string };
+      agentModels[r.agent_name] = r.model_name;
+    }
+
+    // If no agent models found, set up defaults
+    if (Object.keys(agentModels).length === 0) {
+      const defaultModels = {
+        orchestration: 'anthropic/claude-sonnet-4',
+        business_rule: 'anthropic/claude-sonnet-4',
+        client_script: 'anthropic/claude-sonnet-4'
+      };
+      
+      await this.updateUserAgentModels(userId, defaultModels);
+      return defaultModels;
+    }
+
+    return agentModels;
+  }
+
+  async setAgentModel(userId: string, agentName: string, modelName: string): Promise<void> {
+    const query = `
+      INSERT INTO "agent_models" (user_id, agent_name, model_name, updated_at)
+      VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+      ON CONFLICT (user_id, agent_name)
+      DO UPDATE SET 
+        model_name = EXCLUDED.model_name,
+        updated_at = CURRENT_TIMESTAMP
+    `;
+    
+    await this.db.query(query, [userId, agentName, modelName]);
+  }
+
+  async updateUserAgentModels(userId: string, agentModels: Record<string, string>): Promise<void> {
+    const client = await this.db.getClient();
+    
+    try {
+      await client.query('BEGIN');
+      
+      for (const [agentName, modelName] of Object.entries(agentModels)) {
+        await this.setAgentModel(userId, agentName, modelName);
+      }
+      
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  async getAgentModel(userId: string, agentName: string): Promise<string | null> {
+    const query = `
+      SELECT model_name
+      FROM "agent_models"
+      WHERE user_id = $1 AND agent_name = $2
+    `;
+    
+    const result = await this.db.query(query, [userId, agentName]);
+    
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    const row = result.rows[0] as { model_name: string };
+    return row.model_name;
+  }
+
+  async deleteAgentModel(userId: string, agentName: string): Promise<boolean> {
+    const query = 'DELETE FROM "agent_models" WHERE user_id = $1 AND agent_name = $2';
+    const result = await this.db.query(query, [userId, agentName]);
+    return (result.rowCount || 0) > 0;
+  }
+
+  async deleteAllUserAgentModels(userId: string): Promise<boolean> {
+    const query = 'DELETE FROM "agent_models" WHERE user_id = $1';
+    const result = await this.db.query(query, [userId]);
+    return (result.rowCount || 0) > 0;
+  }
+
+  getDefaultAgents(): Array<{ name: string; displayName: string; description: string; defaultModel: string }> {
+    return [
+      {
+        name: 'orchestration',
+        displayName: 'Orchestration Agent',
+        description: 'Coordinates overall response and routing between different specialized agents',
+        defaultModel: 'anthropic/claude-sonnet-4'
+      },
+      {
+        name: 'business_rule',
+        displayName: 'Business Rule Agent',
+        description: 'Specializes in ServiceNow business rules, server-side scripts, and workflow logic',
+        defaultModel: 'anthropic/claude-sonnet-4'
+      },
+      {
+        name: 'client_script',
+        displayName: 'Client Script Agent',
+        description: 'Handles ServiceNow client scripts, UI policies, and front-end customizations',
+        defaultModel: 'anthropic/claude-sonnet-4'
+      }
+    ];
+  }
+}
+
 export default ConversationHistory;

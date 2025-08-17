@@ -15,14 +15,14 @@
 
 ---
 
-*An intelligent ServiceNow assistance tool that provides real-time streaming AI responses through an intuitive web interface and n8n workflow automation.*
+*An intelligent ServiceNow assistance tool featuring **multi-agent AI architecture** that provides real-time streaming AI responses through an intuitive web interface and n8n workflow automation. Configure specialized agents with individual AI models for optimized performance.*
 
 </div>
 
 ## Features
 
 ### **AI-Powered Intelligence**
-Leverage cutting-edge artificial intelligence with access to multiple text-based AI models through OpenRouter integration. Get smart ServiceNow question categorization, real-time streaming response generation, and context-aware assistance that understands your specific needs.
+Leverage cutting-edge artificial intelligence with **multi-agent AI architecture** and access to multiple text-based AI models through OpenRouter integration. Configure specialized AI agents for different tasks (Orchestration, Business Rules, Client Scripts), get smart ServiceNow question categorization, real-time streaming response generation, and context-aware assistance that understands your specific needs.
 
 ### **Robust Security**
 Built with security-first principles featuring server-side JWT authentication, Next.js middleware security layers, and comprehensive security headers to protect your data and sessions.
@@ -37,12 +37,12 @@ Enjoy a responsive design built with TailwindCSS, progressive web app support fo
 
 | Feature | Description | Technology |
 |---------|-------------|------------|
-| **Multiple AI Models** | Access to Claude, GPT, and more | OpenRouter Integration |
+| **Multi-Agent AI Architecture** | Specialized agents with configurable models | Agent-Specific Model Selection |
 | **Question Types** | Documentation, Scripts, Troubleshooting | Intelligent Categorization |
 | **Real-time Streaming** | Live AI response streaming | n8n Workflow Engine + SSE |
 | **Session Management** | Unique keys & continuation | PostgreSQL Backend |
 | **Search Enhancement** | ServiceNow KB integration | API Connections |
-| **User Customization** | Persistent preferences | Settings Management |
+| **Agent Model Configuration** | Individual model selection per AI agent | Persistent Agent Settings |
 
 ## Architecture
 
@@ -68,10 +68,13 @@ graph TB
         H --> K[PostgreSQL]
     end
     
-    subgraph "AI Integration"
-        L[OpenRouter] --> M[Claude]
-        L --> N[GPT Models]
-        L --> O[Other LLMs]
+    subgraph "Multi-Agent AI Layer"
+        L[OpenRouter] --> M[Orchestration Agent]
+        L --> N[Business Rule Agent]
+        L --> O[Client Script Agent]
+        M --> P[Claude/GPT/Gemini]
+        N --> Q[Claude/GPT/Gemini]
+        O --> R[Claude/GPT/Gemini]
     end
     
     A --> E
@@ -88,13 +91,19 @@ sequenceDiagram
     participant N as Next.js App
     participant W as n8n Workflow
     participant D as PostgreSQL
-    participant A as AI API
+    participant A as Multi-Agent AI
+    participant O as Orchestration Agent
+    participant BR as Business Rule Agent
+    participant CS as Client Script Agent
 
     U->>B: Enter question
-    B->>N: POST /api/submit-question-stream (JWT)
-    N->>W: Trigger streaming webhook
+    B->>N: POST /api/submit-question-stream (JWT + agent models)
+    N->>W: Trigger streaming webhook with agent configuration
     
-    W->>A: Call AI API (streaming)
+    W->>O: Route to Orchestration Agent (configured model)
+    O->>BR: Delegate to Business Rule Agent (if needed)
+    O->>CS: Delegate to Client Script Agent (if needed)
+    O->>A: Coordinate multi-agent response (streaming)
     
     loop Real-time Streaming
         A-->>W: AI response chunk
@@ -201,6 +210,23 @@ Access the settings via the hamburger menu to personalize your experience:
 | **Welcome Section** | Toggle info box visibility | Show/Hide |
 | **Default Search Mode** | Set preferred search behavior | On/Off |
 | **Default Request Type** | Choose default category | Documentation, Recommendation, Script, Troubleshoot |
+| **Agent Model Configuration** | Configure AI models for specialized agents | Individual model selection per agent |
+
+#### **Multi-Agent AI Configuration**
+
+Configure different AI models for specialized agents to optimize performance:
+
+| Agent | Purpose | Configurable Models |
+|-------|---------|--------------------|
+| **Orchestration Agent** | Coordinates overall response and routing | Claude, GPT, Gemini, and more |
+| **Business Rule Agent** | Specialized for ServiceNow business logic | Claude, GPT, Gemini, and more |
+| **Client Script Agent** | Optimized for client-side scripting | Claude, GPT, Gemini, and more |
+
+**How to configure agent models:**
+1. Navigate to **Settings** via the hamburger menu
+2. Expand individual agent cards to view configuration options
+3. Select the optimal AI model for each agent's specialized tasks
+4. Models are automatically saved and persisted across sessions
 
 ### **Asking Questions**
 
@@ -234,6 +260,39 @@ Enhance your questions with file attachments when using multimodal AI models:
 3. The attachment button will appear automatically in the search interface
 
 > **Note:** File attachment functionality is only visible when a multimodal AI model is selected. Models become multimodal when you configure them with image, text, or audio capabilities in the settings menu.
+
+## Database Configuration
+
+### **Agent Models Migration**
+
+The application includes a comprehensive database migration system for agent model configuration:
+
+```bash
+# Manual migration (if needed)
+docker exec -i servicenow-helper-postgres-1 psql -U n8n -d n8n < scripts/migrate-to-agent-models.sql
+
+# Automatic migration (included in setup)
+docker compose --profile setup up -d
+```
+
+### **Database Schema**
+
+The `agent_models` table stores individual model configurations per user:
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | SERIAL | Primary key |
+| `user_id` | VARCHAR(255) | User identifier |
+| `agent_name` | VARCHAR(100) | Agent identifier (orchestration, business_rule, client_script) |
+| `model_name` | VARCHAR(500) | Selected AI model for the agent |
+| `created_at` | TIMESTAMP | Record creation time |
+| `updated_at` | TIMESTAMP | Last modification time |
+
+**Key Features:**
+- **Unique Constraints**: One model per agent per user
+- **Backward Compatibility**: Preserves existing single-model configurations
+- **Default Values**: Three default agents automatically created for new users
+- **Migration Safety**: Comprehensive error handling and rollback capabilities
 
 ## Testing Suite
 
@@ -277,8 +336,10 @@ servicenow-helper/
 ├── n8n/                                 # Workflow templates
 ├── public/                              # Static assets & PWA
 ├── scripts/                             # Utility scripts
+│   └── migrate-to-agent-models.sql     # Agent models database migration
 ├── src/                                 # Application source
 │   ├── app/                             # Next.js App Router
+│   │   ├── api/agent-models/           # Agent model configuration API
 │   │   ├── api/settings/               # Settings API
 │   │   ├── api/submit-question-stream/ # Streaming API
 │   │   └── settings/                   # Settings page
@@ -286,10 +347,11 @@ servicenow-helper/
 │   │   ├── Settings.tsx                   # Settings component
 │   │   └── SearchInterface.tsx            # Main interface (streaming)
 │   ├── contexts/                        # React contexts
+│   │   ├── AgentModelContext.tsx          # Agent model state management
 │   │   └── SettingsContext.tsx            # Settings state
 │   ├── lib/                             # Utilities
 │   │   ├── streaming-client.ts            # Streaming client
-│   │   └── database.ts                    # Database layer
+│   │   └── database.ts                    # Database layer (with AgentModelManager)
 │   └── types/                           # TypeScript definitions (streaming)
 └── tests/                               # Test files and mocks
 ```

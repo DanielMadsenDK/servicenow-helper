@@ -70,13 +70,15 @@ The setup process automatically:
 3. **Creates webhook authentication** using your specified API key
 4. **Configures PostgreSQL connections** for both N8N and the application
 5. **Imports and activates the workflow** with correct credential mappings
-6. **Creates the required database table** for tracking requests
+6. **Creates the required database tables** for tracking requests and agent model configurations
+7. **Migrates existing user settings** to the new multi-agent architecture
+8. **Sets up default agents** (Orchestration, Business Rule, Client Script) for each user
 
 ## Architecture
 
-- **PostgreSQL**: Shared database for N8N workflows, chat memory, and session storage
-- **N8N**: Workflow engine with automated credential setup
-- **Next.js**: Frontend application with authentication
+- **PostgreSQL**: Shared database for N8N workflows, chat memory, session storage, and agent model configurations
+- **N8N**: Workflow engine with automated credential setup and multi-agent support
+- **Next.js**: Frontend application with authentication and agent model management
 
 ## Default Credentials
 
