@@ -60,7 +60,8 @@ export TEST_AUTH_PASSWORD=password123
 - `tests/unit/components/BurgerMenu.test.tsx` - Menu component interactions and toggles
 - `tests/unit/components/LoginForm.test.tsx` - Login form validation, submission, and UI interactions
 - `tests/unit/components/ProtectedRoute.test.tsx` - Authentication routing and conditional rendering
-- `tests/unit/components/SearchInterface.test.tsx` - Main interface rendering and component structure
+- `tests/unit/components/SearchInterface.test.tsx` - Main interface rendering with agent model support
+- `tests/unit/lib/streaming-client.test.ts` - Streaming client functionality and agent model handling
 - `tests/unit/lib/utils.test.ts` - Utility functions and helper methods
 
 #### Playwright Tests:
@@ -68,8 +69,9 @@ export TEST_AUTH_PASSWORD=password123
   1. **Authentication Flow**: Login functionality and session management
   2. **Interface Elements**: UI component visibility and accessibility
   3. **User Interactions**: Form inputs, button clicks, navigation
-  4. **Feature Access**: History panel, settings, and conversation management
-  5. **Responsive Design**: Cross-browser compatibility (Chromium, Firefox)
+  4. **Feature Access**: History panel, settings with agent model configuration, and conversation management
+  5. **Agent Model Configuration**: Settings page agent model selection and persistence
+  6. **Responsive Design**: Cross-browser compatibility (Chromium, Firefox)
 
 ### Running Tests
 
@@ -169,6 +171,6 @@ npm run test:e2e -- --update-snapshots
 The testing approach focuses on:
 
 - **User Behavior**: Testing what users see and do, not implementation details
-- **Core Workflows**: Authentication, question submission, history management
+- **Core Workflows**: Authentication, question submission with agent models, history management, agent configuration
 - **Interface Reliability**: Ensuring UI elements are accessible and functional
 - **Cross-Browser Support**: Validating functionality across different browsers

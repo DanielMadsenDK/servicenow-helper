@@ -18,7 +18,12 @@ const defaultSettings: UserSettings = {
   default_search_mode: false,
   default_request_type: 'recommendation',
   servicenow_instance_url: '',
-  default_ai_model: 'anthropic/claude-sonnet-4'
+  default_ai_model: 'anthropic/claude-sonnet-4',
+  agent_models: {
+    orchestration: 'anthropic/claude-sonnet-4',
+    business_rule: 'anthropic/claude-sonnet-4',
+    client_script: 'anthropic/claude-sonnet-4'
+  }
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);

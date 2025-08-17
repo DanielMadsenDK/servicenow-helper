@@ -18,6 +18,7 @@ import ResultsSection from './ResultsSection';
 import Footer from './Footer';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAIModels } from '@/contexts/AIModelContext';
+import { useAgentModels } from '@/contexts/AgentModelContext';
 import { usePlaceholderRotation } from '@/hooks/usePlaceholderRotation';
 import { useSessionManager } from '@/hooks/useSessionManager';
 import { RequestType } from '@/lib/constants';
@@ -29,6 +30,7 @@ const HistoryPanel = lazy(() => import('./HistoryPanel'));
 export default function SearchInterface() {
   const { settings, updateSetting } = useSettings();
   const { models } = useAIModels();
+  const { agentModels } = useAgentModels();
   const [question, setQuestion] = useState('');
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<RequestType>(settings.default_request_type);
@@ -117,12 +119,19 @@ export default function SearchInterface() {
 
     const sessionKey = getSessionKey();
 
+    // Convert agentModels to array format for API
+    const agentModelsArray = Object.entries(agentModels).map(([agent, model]) => ({
+      agent,
+      model
+    }));
+
     const request: StreamingRequest = {
       question: question.trim(),
       type: selectedType,
       sessionkey: sessionKey,
       searching: searchMode,
-      aiModel: settings.default_ai_model,
+      aiModel: settings.default_ai_model, // Legacy field for backward compatibility
+      agentModels: agentModelsArray, // New field for multi-agent support
       ...(selectedFile && { file: selectedFile }),
     };
 

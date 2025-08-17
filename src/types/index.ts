@@ -1,9 +1,15 @@
+export interface AgentModel {
+  agent: string;
+  model: string;
+}
+
 export interface ServiceNowRequest {
   question: string;
   type: 'documentation' | 'recommendation' | 'script' | 'troubleshoot';
   sessionkey: string;
   searching: boolean;
-  aiModel: string;
+  aiModel: string; // Legacy field for backward compatibility
+  agentModels?: AgentModel[]; // New field for multi-agent support
   file?: string; // base64 encoded file data
 }
 
@@ -79,7 +85,8 @@ export interface UserSettings {
   default_search_mode: boolean;
   default_request_type: 'documentation' | 'recommendation' | 'script' | 'troubleshoot';
   servicenow_instance_url: string;
-  default_ai_model: string;
+  default_ai_model: string; // Legacy field for backward compatibility
+  agent_models?: Record<string, string>; // New field: { agent_name: model_name }
 }
 
 export interface Capability {
@@ -171,4 +178,32 @@ export interface StreamingApiResponse {
 
 export interface StreamingRequest extends Omit<ServiceNowRequest, 'sessionkey'> {
   sessionkey: string;
+}
+
+// Agent Models Types
+export interface AgentModelRecord {
+  id: number;
+  user_id: string;
+  agent_name: string;
+  model_name: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface AgentModelInput {
+  agent_name: string;
+  model_name: string;
+}
+
+export interface AgentModelsApiResponse {
+  success: boolean;
+  data?: Record<string, string>; // { agent_name: model_name }
+  error?: string;
+}
+
+export interface DefaultAgent {
+  name: string;
+  displayName: string;
+  description: string;
+  defaultModel: string;
 }

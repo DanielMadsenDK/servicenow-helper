@@ -1,9 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import SearchInterface from '@/components/SearchInterface';
 import { submitQuestionStreaming, cancelRequest } from '@/lib/api';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AIModelProvider } from '@/contexts/AIModelContext';
+import { AgentModelProvider } from '@/contexts/AgentModelContext';
 import { StreamingStatus } from '@/types';
 
 // Mock the API functions
@@ -124,20 +125,26 @@ describe('SearchInterface', () => {
     });
   });
 
-  const renderWithProviders = (component: React.ReactElement) => {
-    return render(
-      <ThemeProvider>
-        <SettingsProvider>
-          <AIModelProvider>
-            {component}
-          </AIModelProvider>
-        </SettingsProvider>
-      </ThemeProvider>
-    );
+  const renderWithProviders = async (component: React.ReactElement) => {
+    let result;
+    await act(async () => {
+      result = render(
+        <ThemeProvider>
+          <SettingsProvider>
+            <AIModelProvider>
+              <AgentModelProvider>
+                {component}
+              </AgentModelProvider>
+            </AIModelProvider>
+          </SettingsProvider>
+        </ThemeProvider>
+      );
+    });
+    return result;
   };
 
-  it('should render the search interface components', () => {
-    renderWithProviders(<SearchInterface />);
+  it('should render the search interface components', async () => {
+    await renderWithProviders(<SearchInterface />);
 
     // Look for the textarea instead of placeholder text
     expect(screen.getByRole('textbox')).toBeInTheDocument();
@@ -146,15 +153,15 @@ describe('SearchInterface', () => {
     expect(screen.getByTestId('burger-menu')).toBeInTheDocument();
   });
 
-  it('should render the main heading', () => {
-    renderWithProviders(<SearchInterface />);
+  it('should render the main heading', async () => {
+    await renderWithProviders(<SearchInterface />);
 
     // Be more specific to target the main heading (h1) and avoid the welcome heading (h3)
     expect(screen.getByRole('heading', { level: 1, name: /ServiceN.*o.*w Helper/i })).toBeInTheDocument();
   });
 
-  it('should render streaming-related components', () => {
-    renderWithProviders(<SearchInterface />);
+  it('should render streaming-related components', async () => {
+    await renderWithProviders(<SearchInterface />);
 
     // Check for components that handle streaming
     expect(screen.getByRole('textbox')).toBeInTheDocument();
@@ -162,7 +169,7 @@ describe('SearchInterface', () => {
   });
 
   it('should render file upload component when model supports multimodal', async () => {
-    renderWithProviders(<SearchInterface />);
+    await renderWithProviders(<SearchInterface />);
 
     // Wait for the async context providers to load models
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -179,16 +186,16 @@ describe('SearchInterface', () => {
   });
 
   describe('Streaming functionality', () => {
-    it('should handle streaming status changes', () => {
-      renderWithProviders(<SearchInterface />);
+    it('should handle streaming status changes', async () => {
+      await renderWithProviders(<SearchInterface />);
 
       // Component should be able to display different streaming states
       // The actual streaming state management is tested via integration
       expect(screen.getByRole('textbox')).toBeInTheDocument();
     });
 
-    it('should render results section for streaming content', () => {
-      renderWithProviders(<SearchInterface />);
+    it('should render results section for streaming content', async () => {
+      await renderWithProviders(<SearchInterface />);
 
       // Results section should be present to display streaming content
       const resultsContainer = document.querySelector('[data-testid="results-section"]') || 
@@ -207,8 +214,8 @@ describe('SearchInterface', () => {
   });
 
   describe('History integration', () => {
-    it('should render history button', () => {
-      renderWithProviders(<SearchInterface />);
+    it('should render history button', async () => {
+      await renderWithProviders(<SearchInterface />);
 
       // History button should be present for accessing conversation history
       const historyButton = document.querySelector('[title*="history" i]') ||
@@ -221,8 +228,8 @@ describe('SearchInterface', () => {
   });
 
   describe('Settings integration', () => {
-    it('should integrate with settings context', () => {
-      renderWithProviders(<SearchInterface />);
+    it('should integrate with settings context', async () => {
+      await renderWithProviders(<SearchInterface />);
 
       // Component should integrate with settings for streaming preferences
       expect(screen.getByRole('textbox')).toBeInTheDocument();

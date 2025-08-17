@@ -5,6 +5,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { AIModelProvider } from "@/contexts/AIModelContext";
+import { AgentModelProvider } from "@/contexts/AgentModelContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,7 +69,9 @@ export default function RootLayout({
           <AuthProvider>
             <SettingsProvider>
               <AIModelProvider>
-                {children}
+                <AgentModelProvider>
+                  {children}
+                </AgentModelProvider>
               </AIModelProvider>
             </SettingsProvider>
           </AuthProvider>

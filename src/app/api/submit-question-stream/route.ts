@@ -23,17 +23,64 @@ export async function POST(request: NextRequest) {
     const body: StreamingRequest = await request.json();
 
     // Validate request body
-    if (!body.question || !body.type || !body.aiModel) {
+    if (!body.question || !body.type) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Missing required fields: question, type, and aiModel are required' 
+          error: 'Missing required fields: question and type are required' 
         }),
         { 
           status: 400, 
           headers: { 'Content-Type': 'application/json' }
         }
       );
+    }
+
+    // Check that we have either legacy aiModel or new agentModels with valid configurations
+    if (!body.aiModel && (!body.agentModels || body.agentModels.length === 0)) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Either aiModel or agentModels with at least one agent configuration must be provided' 
+        }),
+        { 
+          status: 400, 
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Validate agentModels array if provided
+    if (body.agentModels && body.agentModels.length > 0) {
+      for (const agentModel of body.agentModels) {
+        if (!agentModel.agent || !agentModel.model) {
+          return new Response(
+            JSON.stringify({ 
+              success: false, 
+              error: 'Each agent configuration must have both agent and model properties' 
+            }),
+            { 
+              status: 400, 
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
+        }
+        
+        // Validate agent names against allowed values
+        const allowedAgents = ['orchestration', 'business_rule', 'client_script'];
+        if (!allowedAgents.includes(agentModel.agent)) {
+          return new Response(
+            JSON.stringify({ 
+              success: false, 
+              error: `Invalid agent name: ${agentModel.agent}. Allowed agents: ${allowedAgents.join(', ')}` 
+            }),
+            { 
+              status: 400, 
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
+        }
+      }
     }
 
     // Validate file if provided
@@ -96,7 +143,8 @@ export async function POST(request: NextRequest) {
             chatInput: body.question,
             metadata: {
               type: body.type,
-              aiModel: body.aiModel,
+              aiModel: body.aiModel, // Legacy field for backward compatibility
+              agentModels: body.agentModels, // New field for multi-agent support
               file: body.file,
               searching: body.searching,
               userId: 'streaming_user'

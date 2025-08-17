@@ -19,10 +19,8 @@ describe('LoginForm', () => {
     mockLogin.mockClear();
     // Mock the useAuth hook
     mockedUseAuth.mockReturnValue({
-      isAuthenticated: false,
       login: mockLogin,
       logout: jest.fn(),
-      isLoading: false,
     });
   });
 
