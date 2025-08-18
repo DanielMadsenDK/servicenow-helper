@@ -1,6 +1,7 @@
 import { Pool, PoolClient } from 'pg';
 
-interface DatabaseRow {
+// Database row interfaces for type safety
+interface ServiceNowSupportToolRow {
   id: number;
   created_at: string;
   prompt: string;
@@ -9,7 +10,46 @@ interface DatabaseRow {
   state: string;
   key: string;
   question: string | null;
-  total?: string;
+}
+
+interface CountQueryRow {
+  total: string;
+}
+
+interface UserSettingsRow {
+  setting_key: string;
+  setting_value: string;
+}
+
+interface UserSettingRow {
+  setting_value: string;
+}
+
+interface AgentModelRow {
+  agent_name: string;
+  model_name: string;
+}
+
+interface ModelNameRow {
+  model_name: string;
+}
+
+interface AgentPromptRow {
+  agent_name: string;
+  prompt_type: string;
+  prompt_content: string;
+  is_active: boolean;
+  updated_at: string;
+}
+
+interface PromptContentRow {
+  prompt_content: string;
+}
+
+interface ActiveAgentPromptRow {
+  agent_name: string;
+  prompt_type: string;
+  prompt_content: string;
 }
 
 interface DatabaseConfig {
@@ -117,7 +157,7 @@ export class ConversationHistory {
       ${whereClause}
     `;
     const countResult = await this.db.query(countQuery, params);
-    const total = parseInt((countResult.rows[0] as DatabaseRow).total || '0');
+    const total = parseInt((countResult.rows[0] as CountQueryRow).total || '0');
 
     // Get conversations
     const query = `
@@ -132,7 +172,7 @@ export class ConversationHistory {
     const result = await this.db.query(query, params);
     
     const conversations: ConversationHistoryItem[] = result.rows.map((row: unknown) => {
-      const r = row as DatabaseRow;
+      const r = row as ServiceNowSupportToolRow;
       return {
         id: r.id,
         created_at: new Date(r.created_at),
@@ -165,7 +205,7 @@ export class ConversationHistory {
       return null;
     }
 
-    const row = result.rows[0] as DatabaseRow;
+    const row = result.rows[0] as ServiceNowSupportToolRow;
     return {
       id: row.id,
       created_at: new Date(row.created_at),
@@ -210,7 +250,7 @@ export class ConversationHistory {
       ${whereClause}
     `;
     const countResult = await this.db.query(countQuery, params);
-    const total = parseInt((countResult.rows[0] as DatabaseRow).total || '0');
+    const total = parseInt((countResult.rows[0] as CountQueryRow).total || '0');
 
     // Get conversations
     const query = `
@@ -225,7 +265,7 @@ export class ConversationHistory {
     const result = await this.db.query(query, params);
     
     const conversations: ConversationHistoryItem[] = result.rows.map((row: unknown) => {
-      const r = row as DatabaseRow;
+      const r = row as ServiceNowSupportToolRow;
       return {
         id: r.id,
         created_at: new Date(r.created_at),
@@ -263,7 +303,7 @@ export class ConversationHistory {
     const result = await this.db.query(query, [limit]);
     
     return result.rows.map((row: unknown) => {
-      const r = row as DatabaseRow;
+      const r = row as ServiceNowSupportToolRow;
       return {
         id: r.id,
         created_at: new Date(r.created_at),
@@ -314,7 +354,7 @@ export class UserSettingsManager {
       return null;
     }
 
-    const row = result.rows[0] as { setting_value: string };
+    const row = result.rows[0] as UserSettingRow;
     return this.parseSettingValue(row.setting_value);
   }
 
@@ -357,7 +397,7 @@ export class UserSettingsManager {
     const settings = { ...defaults };
     
     for (const row of result.rows) {
-      const r = row as { setting_key: string; setting_value: string };
+      const r = row as UserSettingsRow;
       const value = this.parseSettingValue(r.setting_value);
       
       if (r.setting_key in settings) {
@@ -422,7 +462,7 @@ export class AgentModelManager {
     
     const agentModels: Record<string, string> = {};
     for (const row of result.rows) {
-      const r = row as { agent_name: string; model_name: string };
+      const r = row as AgentModelRow;
       agentModels[r.agent_name] = r.model_name;
     }
 
@@ -486,7 +526,7 @@ export class AgentModelManager {
       return null;
     }
 
-    const row = result.rows[0] as { model_name: string };
+    const row = result.rows[0] as ModelNameRow;
     return row.model_name;
   }
 
@@ -521,6 +561,152 @@ export class AgentModelManager {
         displayName: 'Client Script Agent',
         description: 'Handles ServiceNow client scripts, UI policies, and front-end customizations',
         defaultModel: 'anthropic/claude-sonnet-4'
+      }
+    ];
+  }
+}
+
+
+export class AgentPromptManager {
+  private db: DatabaseConnection;
+
+  constructor() {
+    this.db = DatabaseConnection.getInstance();
+  }
+
+  async getAgentPrompt(agentName: string, promptType: string = 'system'): Promise<string | null> {
+    const query = `
+      SELECT prompt_content
+      FROM "agent_prompts"
+      WHERE agent_name = $1 AND prompt_type = $2 AND is_active = TRUE
+    `;
+    
+    const result = await this.db.query(query, [agentName, promptType]);
+    
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    const row = result.rows[0] as PromptContentRow;
+    return row.prompt_content;
+  }
+
+  async setAgentPrompt(agentName: string, promptType: string, promptContent: string): Promise<void> {
+    const query = `
+      INSERT INTO "agent_prompts" (agent_name, prompt_type, prompt_content, is_active, updated_at)
+      VALUES ($1, $2, $3, TRUE, CURRENT_TIMESTAMP)
+      ON CONFLICT (agent_name, prompt_type)
+      DO UPDATE SET 
+        prompt_content = EXCLUDED.prompt_content,
+        updated_at = CURRENT_TIMESTAMP
+    `;
+    
+    await this.db.query(query, [agentName, promptType, promptContent]);
+  }
+
+  async getAllAgentPrompts(): Promise<Array<{ agentName: string; promptType: string; promptContent: string; isActive: boolean; updatedAt: Date }>> {
+    const query = `
+      SELECT agent_name, prompt_type, prompt_content, is_active, updated_at
+      FROM "agent_prompts"
+      ORDER BY agent_name, prompt_type
+    `;
+    
+    const result = await this.db.query(query);
+    
+    return result.rows.map((row: unknown) => {
+      const r = row as AgentPromptRow;
+      return {
+        agentName: r.agent_name,
+        promptType: r.prompt_type,
+        promptContent: r.prompt_content,
+        isActive: r.is_active,
+        updatedAt: new Date(r.updated_at)
+      };
+    });
+  }
+
+  async getActiveAgentPrompts(): Promise<Record<string, Record<string, string>>> {
+    const query = `
+      SELECT agent_name, prompt_type, prompt_content
+      FROM "agent_prompts"
+      WHERE is_active = TRUE
+      ORDER BY agent_name, prompt_type
+    `;
+    
+    const result = await this.db.query(query);
+    
+    const prompts: Record<string, Record<string, string>> = {};
+    for (const row of result.rows) {
+      const r = row as ActiveAgentPromptRow;
+      
+      if (!prompts[r.agent_name]) {
+        prompts[r.agent_name] = {};
+      }
+      prompts[r.agent_name][r.prompt_type] = r.prompt_content;
+    }
+
+    return prompts;
+  }
+
+  async deactivateAgentPrompt(agentName: string, promptType: string): Promise<boolean> {
+    const query = `
+      UPDATE "agent_prompts"
+      SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+      WHERE agent_name = $1 AND prompt_type = $2
+    `;
+    
+    const result = await this.db.query(query, [agentName, promptType]);
+    return (result.rowCount || 0) > 0;
+  }
+
+  async activateAgentPrompt(agentName: string, promptType: string): Promise<boolean> {
+    const query = `
+      UPDATE "agent_prompts"
+      SET is_active = TRUE, updated_at = CURRENT_TIMESTAMP
+      WHERE agent_name = $1 AND prompt_type = $2
+    `;
+    
+    const result = await this.db.query(query, [agentName, promptType]);
+    return (result.rowCount || 0) > 0;
+  }
+
+  async deleteAgentPrompt(agentName: string, promptType: string): Promise<boolean> {
+    const query = 'DELETE FROM "agent_prompts" WHERE agent_name = $1 AND prompt_type = $2';
+    const result = await this.db.query(query, [agentName, promptType]);
+    return (result.rowCount || 0) > 0;
+  }
+
+  getAvailableAgents(): Array<{ name: string; displayName: string; description: string }> {
+    return [
+      {
+        name: 'orchestration',
+        displayName: 'Orchestration Agent',
+        description: 'Coordinates overall response and routing between different specialized agents'
+      },
+      {
+        name: 'business_rule',
+        displayName: 'Business Rule Agent',
+        description: 'Specializes in ServiceNow business rules, server-side scripts, and workflow logic'
+      },
+      {
+        name: 'client_script',
+        displayName: 'Client Script Agent',
+        description: 'Handles ServiceNow client scripts, UI policies, and front-end customizations'
+      }
+    ];
+  }
+
+  getAvailablePromptTypes(): Array<{ type: string; displayName: string; description: string }> {
+    return [
+      {
+        type: 'system',
+        displayName: 'System Prompt',
+        description: 'Core system prompt that defines agent behavior and capabilities'
+      },
+      {
+        type: 'base',
+        displayName: 'Base Prompt',
+        description: 'Base prompt template for dynamic content generation'
       }
     ];
   }
