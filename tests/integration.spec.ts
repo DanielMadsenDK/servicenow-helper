@@ -312,4 +312,149 @@ test.describe('ServiceNow Helper', () => {
 
     console.log('File upload functionality verified successfully');
   });
+
+  test('should handle Continue Session toggle correctly - E2E regression test', async ({ page }) => {
+    // Navigate to the application and log in
+    await page.goto('http://localhost:3000/');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
+    
+    const testUsername = process.env.TEST_AUTH_USERNAME || process.env.AUTH_USERNAME || 'admin';
+    const testPassword = process.env.TEST_AUTH_PASSWORD || process.env.AUTH_PASSWORD || 'password123';
+    
+    await page.getByPlaceholder('Enter your username').fill(testUsername);
+    await page.getByPlaceholder('Enter your password').fill(testPassword);
+    
+    await Promise.all([
+      page.waitForResponse(response => response.url().includes('/api/auth/login')),
+      page.getByRole('button', { name: 'Sign In' }).click(),
+    ]);
+
+    await page.waitForFunction(() => {
+      return !!document.querySelector('textarea');
+    }, { timeout: 10000 });
+
+    // Verify Continue Session toggle is initially OFF
+    const continueSessionToggle = page.getByText('Continue Session').first();
+    await expect(continueSessionToggle).toBeVisible();
+    
+    // Find the toggle switch element (within the Continue Session button)
+    const continueSessionButton = page.locator('button:has-text("Continue Session")');
+    await expect(continueSessionButton).toBeVisible();
+    
+    // Verify the toggle switch is initially OFF (bg-gray-300)
+    const toggleSwitch = continueSessionButton.locator('div').first();
+    await expect(toggleSwitch).toHaveClass(/bg-gray-300/);
+    
+    // Enable Continue Session
+    await continueSessionButton.click();
+    
+    // Verify the toggle switch is now ON (should have green background)
+    await expect(toggleSwitch).toHaveClass(/bg-green-500/);
+    
+    console.log('Continue Session toggle functionality verified');
+  });
+
+  test('should maintain session context when Continue Session is enabled - E2E workflow test', async ({ page }) => {
+    // This test verifies the complete workflow but cannot test actual session persistence 
+    // without a real backend, so it focuses on UI state consistency
+    
+    await page.goto('http://localhost:3000/');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
+    
+    const testUsername = process.env.TEST_AUTH_USERNAME || process.env.AUTH_USERNAME || 'admin';
+    const testPassword = process.env.TEST_AUTH_PASSWORD || process.env.AUTH_PASSWORD || 'password123';
+    
+    await page.getByPlaceholder('Enter your username').fill(testUsername);
+    await page.getByPlaceholder('Enter your password').fill(testPassword);
+    
+    await Promise.all([
+      page.waitForResponse(response => response.url().includes('/api/auth/login')),
+      page.getByRole('button', { name: 'Sign In' }).click(),
+    ]);
+
+    await page.waitForFunction(() => {
+      return !!document.querySelector('textarea');
+    }, { timeout: 10000 });
+
+    // Enable Continue Session
+    const continueSessionButton = page.locator('button:has-text("Continue Session")');
+    await continueSessionButton.click();
+    
+    // Verify toggle is now active
+    const toggleSwitch = continueSessionButton.locator('div').first();
+    await expect(toggleSwitch).toHaveClass(/bg-green-500/);
+    
+    // Type a question
+    const questionTextarea = page.locator('textarea').first();
+    await questionTextarea.fill('What is ServiceNow?');
+    
+    // Verify the Get Help button is enabled
+    const getHelpButton = page.getByRole('button', { name: 'Get Help' });
+    await expect(getHelpButton).toBeEnabled();
+    
+    // The key test: Continue Session state should persist across interactions
+    // Type another question to simulate a follow-up
+    await questionTextarea.fill('How do I create an incident in ServiceNow?');
+    
+    // Verify Continue Session is still enabled
+    await expect(toggleSwitch).toHaveClass(/bg-green-500/);
+    
+    // Disable Continue Session
+    await continueSessionButton.click();
+    
+    // Verify toggle is now inactive
+    await expect(toggleSwitch).toHaveClass(/bg-gray-300/);
+    
+    console.log('Continue Session workflow state persistence verified');
+  });
+
+  test('should toggle Continue Session state correctly - UI behavior test', async ({ page }) => {
+    await page.goto('http://localhost:3000/');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
+    
+    const testUsername = process.env.TEST_AUTH_USERNAME || process.env.AUTH_USERNAME || 'admin';
+    const testPassword = process.env.TEST_AUTH_PASSWORD || process.env.AUTH_PASSWORD || 'password123';
+    
+    await page.getByPlaceholder('Enter your username').fill(testUsername);
+    await page.getByPlaceholder('Enter your password').fill(testPassword);
+    
+    await Promise.all([
+      page.waitForResponse(response => response.url().includes('/api/auth/login')),
+      page.getByRole('button', { name: 'Sign In' }).click(),
+    ]);
+
+    await page.waitForFunction(() => {
+      return !!document.querySelector('textarea');
+    }, { timeout: 10000 });
+
+    const continueSessionButton = page.locator('button:has-text("Continue Session")');
+    const toggleSwitch = continueSessionButton.locator('div').first();
+    
+    // Initial state: OFF (gray)
+    await expect(toggleSwitch).toHaveClass(/bg-gray-300/);
+    
+    // Toggle ON
+    await continueSessionButton.click();
+    await expect(toggleSwitch).toHaveClass(/bg-green-500/);
+    
+    // Toggle OFF
+    await continueSessionButton.click();
+    await expect(toggleSwitch).toHaveClass(/bg-gray-300/);
+    
+    // Toggle ON again
+    await continueSessionButton.click();
+    await expect(toggleSwitch).toHaveClass(/bg-green-500/);
+    
+    // Multiple rapid toggles should work correctly
+    await continueSessionButton.click(); // OFF
+    await expect(toggleSwitch).toHaveClass(/bg-gray-300/);
+    
+    await continueSessionButton.click(); // ON
+    await expect(toggleSwitch).toHaveClass(/bg-green-500/);
+    
+    console.log('Continue Session multiple toggle behavior verified');
+  });
 });
