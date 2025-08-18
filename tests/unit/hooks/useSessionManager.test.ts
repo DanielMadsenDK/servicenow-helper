@@ -113,6 +113,72 @@ describe('useSessionManager', () => {
       expect(result.current.continueMode).toBe(false);
     });
 
+    it('should prevent new session ID generation when continue mode is ON - bug regression test', () => {
+      const { result } = renderHook(() => useSessionManager());
+
+      // Enable continue mode
+      act(() => {
+        result.current.setContinueMode(true);
+      });
+
+      const persistentSessionKey = result.current.currentSessionKey;
+      expect(persistentSessionKey).toMatch(/^session_\d+_[a-z0-9]+$/);
+
+      // Multiple calls to getSessionKey should return SAME session key
+      let sessionKey1: string;
+      let sessionKey2: string;
+      let sessionKey3: string;
+
+      act(() => {
+        sessionKey1 = result.current.getSessionKey();
+      });
+
+      act(() => {
+        sessionKey2 = result.current.getSessionKey();
+      });
+
+      act(() => {
+        sessionKey3 = result.current.getSessionKey();
+      });
+
+      // CRITICAL: All session keys should be identical when continue mode is ON
+      expect(sessionKey1).toBe(persistentSessionKey);
+      expect(sessionKey2).toBe(persistentSessionKey);
+      expect(sessionKey3).toBe(persistentSessionKey);
+      expect(sessionKey1).toBe(sessionKey2);
+      expect(sessionKey2).toBe(sessionKey3);
+    });
+
+    it('should generate new session ID each time when continue mode is OFF', () => {
+      const { result } = renderHook(() => useSessionManager());
+
+      // Ensure continue mode is OFF
+      expect(result.current.continueMode).toBe(false);
+
+      let sessionKey1: string;
+      let sessionKey2: string;
+
+      // Mock different timestamps and random values for each call
+      mockDateNow.mockReturnValueOnce(1640995200000);
+      mockMath.random.mockReturnValueOnce(0.123456789);
+
+      act(() => {
+        sessionKey1 = result.current.getSessionKey();
+      });
+
+      mockDateNow.mockReturnValueOnce(1640995201000);
+      mockMath.random.mockReturnValueOnce(0.987654321);
+
+      act(() => {
+        sessionKey2 = result.current.getSessionKey();
+      });
+
+      // When continue mode is OFF, session keys should be different
+      expect(sessionKey1).not.toBe(sessionKey2);
+      expect(sessionKey1).toMatch(/^session_\d+_[a-z0-9]+$/);
+      expect(sessionKey2).toMatch(/^session_\d+_[a-z0-9]+$/);
+    });
+
     it('should generate session key when enabling continue mode without existing key', () => {
       const { result } = renderHook(() => useSessionManager());
 

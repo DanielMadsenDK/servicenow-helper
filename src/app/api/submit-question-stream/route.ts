@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
           // Transform request to n8n's expected streaming format
           const n8nStreamingRequest = {
             action: 'sendMessage',
-            sessionId: generateSessionId(),
+            sessionId: body.sessionkey || generateSessionId(),
             chatInput: body.question,
             metadata: {
               type: body.type,
