@@ -1,6 +1,7 @@
 import { Pool, PoolClient } from 'pg';
 
-interface DatabaseRow {
+// Database row interfaces for type safety
+interface ServiceNowSupportToolRow {
   id: number;
   created_at: string;
   prompt: string;
@@ -9,7 +10,46 @@ interface DatabaseRow {
   state: string;
   key: string;
   question: string | null;
-  total?: string;
+}
+
+interface CountQueryRow {
+  total: string;
+}
+
+interface UserSettingsRow {
+  setting_key: string;
+  setting_value: string;
+}
+
+interface UserSettingRow {
+  setting_value: string;
+}
+
+interface AgentModelRow {
+  agent_name: string;
+  model_name: string;
+}
+
+interface ModelNameRow {
+  model_name: string;
+}
+
+interface AgentPromptRow {
+  agent_name: string;
+  prompt_type: string;
+  prompt_content: string;
+  is_active: boolean;
+  updated_at: string;
+}
+
+interface PromptContentRow {
+  prompt_content: string;
+}
+
+interface ActiveAgentPromptRow {
+  agent_name: string;
+  prompt_type: string;
+  prompt_content: string;
 }
 
 interface DatabaseConfig {
@@ -117,7 +157,7 @@ export class ConversationHistory {
       ${whereClause}
     `;
     const countResult = await this.db.query(countQuery, params);
-    const total = parseInt((countResult.rows[0] as DatabaseRow).total || '0');
+    const total = parseInt((countResult.rows[0] as CountQueryRow).total || '0');
 
     // Get conversations
     const query = `
@@ -132,7 +172,7 @@ export class ConversationHistory {
     const result = await this.db.query(query, params);
     
     const conversations: ConversationHistoryItem[] = result.rows.map((row: unknown) => {
-      const r = row as DatabaseRow;
+      const r = row as ServiceNowSupportToolRow;
       return {
         id: r.id,
         created_at: new Date(r.created_at),
@@ -165,7 +205,7 @@ export class ConversationHistory {
       return null;
     }
 
-    const row = result.rows[0] as DatabaseRow;
+    const row = result.rows[0] as ServiceNowSupportToolRow;
     return {
       id: row.id,
       created_at: new Date(row.created_at),
@@ -210,7 +250,7 @@ export class ConversationHistory {
       ${whereClause}
     `;
     const countResult = await this.db.query(countQuery, params);
-    const total = parseInt((countResult.rows[0] as DatabaseRow).total || '0');
+    const total = parseInt((countResult.rows[0] as CountQueryRow).total || '0');
 
     // Get conversations
     const query = `
@@ -225,7 +265,7 @@ export class ConversationHistory {
     const result = await this.db.query(query, params);
     
     const conversations: ConversationHistoryItem[] = result.rows.map((row: unknown) => {
-      const r = row as DatabaseRow;
+      const r = row as ServiceNowSupportToolRow;
       return {
         id: r.id,
         created_at: new Date(r.created_at),
@@ -263,7 +303,7 @@ export class ConversationHistory {
     const result = await this.db.query(query, [limit]);
     
     return result.rows.map((row: unknown) => {
-      const r = row as DatabaseRow;
+      const r = row as ServiceNowSupportToolRow;
       return {
         id: r.id,
         created_at: new Date(r.created_at),
@@ -314,7 +354,7 @@ export class UserSettingsManager {
       return null;
     }
 
-    const row = result.rows[0] as { setting_value: string };
+    const row = result.rows[0] as UserSettingRow;
     return this.parseSettingValue(row.setting_value);
   }
 
@@ -357,7 +397,7 @@ export class UserSettingsManager {
     const settings = { ...defaults };
     
     for (const row of result.rows) {
-      const r = row as { setting_key: string; setting_value: string };
+      const r = row as UserSettingsRow;
       const value = this.parseSettingValue(r.setting_value);
       
       if (r.setting_key in settings) {
@@ -422,7 +462,7 @@ export class AgentModelManager {
     
     const agentModels: Record<string, string> = {};
     for (const row of result.rows) {
-      const r = row as { agent_name: string; model_name: string };
+      const r = row as AgentModelRow;
       agentModels[r.agent_name] = r.model_name;
     }
 
@@ -486,7 +526,7 @@ export class AgentModelManager {
       return null;
     }
 
-    const row = result.rows[0] as { model_name: string };
+    const row = result.rows[0] as ModelNameRow;
     return row.model_name;
   }
 
@@ -547,7 +587,7 @@ export class AgentPromptManager {
       return null;
     }
 
-    const row = result.rows[0] as { prompt_content: string };
+    const row = result.rows[0] as PromptContentRow;
     return row.prompt_content;
   }
 
@@ -574,7 +614,7 @@ export class AgentPromptManager {
     const result = await this.db.query(query);
     
     return result.rows.map((row: unknown) => {
-      const r = row as { agent_name: string; prompt_type: string; prompt_content: string; is_active: boolean; updated_at: string };
+      const r = row as AgentPromptRow;
       return {
         agentName: r.agent_name,
         promptType: r.prompt_type,
@@ -597,7 +637,7 @@ export class AgentPromptManager {
     
     const prompts: Record<string, Record<string, string>> = {};
     for (const row of result.rows) {
-      const r = row as { agent_name: string; prompt_type: string; prompt_content: string };
+      const r = row as ActiveAgentPromptRow;
       
       if (!prompts[r.agent_name]) {
         prompts[r.agent_name] = {};
