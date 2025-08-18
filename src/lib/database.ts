@@ -526,4 +526,150 @@ export class AgentModelManager {
   }
 }
 
+
+export class AgentPromptManager {
+  private db: DatabaseConnection;
+
+  constructor() {
+    this.db = DatabaseConnection.getInstance();
+  }
+
+  async getAgentPrompt(agentName: string, promptType: string = 'system'): Promise<string | null> {
+    const query = `
+      SELECT prompt_content
+      FROM "agent_prompts"
+      WHERE agent_name = $1 AND prompt_type = $2 AND is_active = TRUE
+    `;
+    
+    const result = await this.db.query(query, [agentName, promptType]);
+    
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    const row = result.rows[0] as { prompt_content: string };
+    return row.prompt_content;
+  }
+
+  async setAgentPrompt(agentName: string, promptType: string, promptContent: string): Promise<void> {
+    const query = `
+      INSERT INTO "agent_prompts" (agent_name, prompt_type, prompt_content, is_active, updated_at)
+      VALUES ($1, $2, $3, TRUE, CURRENT_TIMESTAMP)
+      ON CONFLICT (agent_name, prompt_type)
+      DO UPDATE SET 
+        prompt_content = EXCLUDED.prompt_content,
+        updated_at = CURRENT_TIMESTAMP
+    `;
+    
+    await this.db.query(query, [agentName, promptType, promptContent]);
+  }
+
+  async getAllAgentPrompts(): Promise<Array<{ agentName: string; promptType: string; promptContent: string; isActive: boolean; updatedAt: Date }>> {
+    const query = `
+      SELECT agent_name, prompt_type, prompt_content, is_active, updated_at
+      FROM "agent_prompts"
+      ORDER BY agent_name, prompt_type
+    `;
+    
+    const result = await this.db.query(query);
+    
+    return result.rows.map((row: unknown) => {
+      const r = row as { agent_name: string; prompt_type: string; prompt_content: string; is_active: boolean; updated_at: string };
+      return {
+        agentName: r.agent_name,
+        promptType: r.prompt_type,
+        promptContent: r.prompt_content,
+        isActive: r.is_active,
+        updatedAt: new Date(r.updated_at)
+      };
+    });
+  }
+
+  async getActiveAgentPrompts(): Promise<Record<string, Record<string, string>>> {
+    const query = `
+      SELECT agent_name, prompt_type, prompt_content
+      FROM "agent_prompts"
+      WHERE is_active = TRUE
+      ORDER BY agent_name, prompt_type
+    `;
+    
+    const result = await this.db.query(query);
+    
+    const prompts: Record<string, Record<string, string>> = {};
+    for (const row of result.rows) {
+      const r = row as { agent_name: string; prompt_type: string; prompt_content: string };
+      
+      if (!prompts[r.agent_name]) {
+        prompts[r.agent_name] = {};
+      }
+      prompts[r.agent_name][r.prompt_type] = r.prompt_content;
+    }
+
+    return prompts;
+  }
+
+  async deactivateAgentPrompt(agentName: string, promptType: string): Promise<boolean> {
+    const query = `
+      UPDATE "agent_prompts"
+      SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+      WHERE agent_name = $1 AND prompt_type = $2
+    `;
+    
+    const result = await this.db.query(query, [agentName, promptType]);
+    return (result.rowCount || 0) > 0;
+  }
+
+  async activateAgentPrompt(agentName: string, promptType: string): Promise<boolean> {
+    const query = `
+      UPDATE "agent_prompts"
+      SET is_active = TRUE, updated_at = CURRENT_TIMESTAMP
+      WHERE agent_name = $1 AND prompt_type = $2
+    `;
+    
+    const result = await this.db.query(query, [agentName, promptType]);
+    return (result.rowCount || 0) > 0;
+  }
+
+  async deleteAgentPrompt(agentName: string, promptType: string): Promise<boolean> {
+    const query = 'DELETE FROM "agent_prompts" WHERE agent_name = $1 AND prompt_type = $2';
+    const result = await this.db.query(query, [agentName, promptType]);
+    return (result.rowCount || 0) > 0;
+  }
+
+  getAvailableAgents(): Array<{ name: string; displayName: string; description: string }> {
+    return [
+      {
+        name: 'orchestration',
+        displayName: 'Orchestration Agent',
+        description: 'Coordinates overall response and routing between different specialized agents'
+      },
+      {
+        name: 'business_rule',
+        displayName: 'Business Rule Agent',
+        description: 'Specializes in ServiceNow business rules, server-side scripts, and workflow logic'
+      },
+      {
+        name: 'client_script',
+        displayName: 'Client Script Agent',
+        description: 'Handles ServiceNow client scripts, UI policies, and front-end customizations'
+      }
+    ];
+  }
+
+  getAvailablePromptTypes(): Array<{ type: string; displayName: string; description: string }> {
+    return [
+      {
+        type: 'system',
+        displayName: 'System Prompt',
+        description: 'Core system prompt that defines agent behavior and capabilities'
+      },
+      {
+        type: 'base',
+        displayName: 'Base Prompt',
+        description: 'Base prompt template for dynamic content generation'
+      }
+    ];
+  }
+}
+
 export default ConversationHistory;
