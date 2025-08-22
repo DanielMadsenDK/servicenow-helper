@@ -22,18 +22,18 @@ export default function StreamingMarkdownRenderer({
   className = ''
 }: StreamingMarkdownRendererProps) {
 
-  // Ultra-simple approach: Raw content during streaming, ReactMarkdown when complete
+  // Optimized approach: Lightweight raw content during streaming, full ReactMarkdown when complete
   if (isStreaming) {
-    // During streaming: Show raw content with good typography
+    // During streaming: Show optimized raw content with minimal DOM operations
     return (
       <div className={className}>
         <div className="streaming-raw-content" data-testid="markdown-content">
-          <pre className="whitespace-pre-wrap text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base">
+          <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base will-change-contents">
             {content}
             {showStreamingCursor && (
               <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
             )}
-          </pre>
+          </div>
         </div>
       </div>
     );
