@@ -106,27 +106,39 @@
   75% { transform: translateX(2px); }
 }
 
-/* Simple Streaming Markdown Renderer Styles */
+/* Optimized Streaming Markdown Renderer Styles for Mobile Safari */
 .streaming-raw-content {
-  opacity: 0.95;
-  transition: opacity 0.2s ease-in-out;
+  opacity: 0.98;
+  contain: layout style paint; /* CSS containment for better performance */
 }
 
-.streaming-enhanced-content {
-  opacity: 1;
-  transition: opacity 0.3s ease-in-out;
-  animation: enhancementFadeIn 0.4s ease-out;
+/* Performance optimization for frequently changing content */
+.will-change-contents {
+  will-change: contents;
+  transform: translateZ(0); /* Force hardware acceleration */
 }
 
-/* Fade-in animation when switching from raw to enhanced */
-@keyframes enhancementFadeIn {
-  0% {
-    opacity: 0.8;
-    transform: translateY(2px);
+/* Mobile Safari optimizations */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+  /* Reduce animation complexity on high-DPI mobile devices (like iPhones) */
+  .streaming-indicator,
+  .streaming-glow {
+    animation-duration: 3s; /* Slower animations to reduce CPU load */
   }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .streaming-dots {
+    animation-duration: 2s;
+  }
+  
+  .streaming-cursor {
+    animation-duration: 1.5s;
+  }
+}
+
+/* Reduce motion for better mobile performance */
+@media (max-width: 768px) {
+  .streaming-glow {
+    animation: none; /* Disable heavy glow effects on mobile */
   }
 }
 
@@ -137,19 +149,17 @@
   .streaming-dots,
   .streaming-slide,
   .streaming-cursor,
-  .connection-status,
-  .streaming-enhanced-content {
+  .connection-status {
     animation: none;
   }
   
   .streaming-content,
-  .streaming-raw-content,
-  .streaming-enhanced-content {
+  .streaming-raw-content {
     transition: none;
   }
   
-  .streaming-enhanced-content {
-    opacity: 1;
+  .will-change-contents {
+    will-change: auto;
     transform: none;
   }
 }

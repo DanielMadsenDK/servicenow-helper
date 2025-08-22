@@ -41,6 +41,8 @@ export default function SearchInterface() {
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [streamingClient, setStreamingClient] = useState<StreamingClient | null>(null);
   const [streamingContent, setStreamingContent] = useState<string>('');
+  const [streamingChunks, setStreamingChunks] = useState<string[]>([]); // Used for batched chunk accumulation during streaming
+  const [batchTimeout, setBatchTimeout] = useState<NodeJS.Timeout | null>(null);
   const [streamingStatus, setStreamingStatus] = useState<StreamingStatus>(StreamingStatus.CONNECTING);
   const [isStreaming, setIsStreaming] = useState(false);
   const [hasScrolledToResults, setHasScrolledToResults] = useState(false);
@@ -49,10 +51,45 @@ export default function SearchInterface() {
   const [isWelcomeSectionVisible, setIsWelcomeSectionVisible] = useState(settings.welcome_section_visible);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const batchingActiveRef = useRef<boolean>(false);
 
   // Use custom hooks
   const { continueMode, setContinueMode, getSessionKey, currentSessionKey } = useSessionManager();
   const currentPlaceholder = usePlaceholderRotation({ textareaRef, question });
+
+  // Optimized chunk batching for better performance with race condition protection
+  const addChunkToBatch = (chunkContent: string) => {
+    // Prevent race conditions by checking if batching is still active
+    if (!batchingActiveRef.current) return;
+    
+    setStreamingChunks(prev => [...prev, chunkContent]);
+    
+    // Clear existing timeout and set new one
+    if (batchTimeout) clearTimeout(batchTimeout);
+    
+    const newTimeout = setTimeout(() => {
+      // Double-check batching is still active when timeout fires
+      if (!batchingActiveRef.current) return;
+      
+      setStreamingChunks(chunks => {
+        const content = chunks.join('');
+        setStreamingContent(content);
+        
+        // Scroll to results on first meaningful content
+        if (!hasScrolledToResults && content.length > 0 && resultsRef.current) {
+          setTimeout(() => {
+            smoothScrollToResults();
+          }, 100);
+          setHasScrolledToResults(true);
+        }
+        
+        return chunks;
+      });
+      setBatchTimeout(null);
+    }, 75); // 75ms batching interval for optimal performance
+    
+    setBatchTimeout(newTimeout);
+  };
 
   // Optimized smooth scroll function
   const smoothScrollToResults = () => {
@@ -82,6 +119,15 @@ export default function SearchInterface() {
       textareaRef.current.focus();
     }
   }, []);
+
+  // Cleanup batch timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (batchTimeout) {
+        clearTimeout(batchTimeout);
+      }
+    };
+  }, [batchTimeout]);
 
   // Sync with settings changes
   useEffect(() => {
@@ -114,8 +160,16 @@ export default function SearchInterface() {
     setResponse(null);
     setIsLoadedFromHistory(false);
     setStreamingContent('');
+    setStreamingChunks([]);
+    if (batchTimeout) {
+      clearTimeout(batchTimeout);
+      setBatchTimeout(null);
+    }
     setIsStreaming(true);
     setHasScrolledToResults(false);
+    
+    // Activate batching for race condition protection
+    batchingActiveRef.current = true;
 
     const sessionKey = getSessionKey();
 
@@ -138,20 +192,23 @@ export default function SearchInterface() {
     try {
       const client = await submitQuestionStreaming(request, {
         onChunk: (chunk: StreamingChunk) => {
-          setStreamingContent(prev => {
-            const newContent = prev + chunk.content;
-            // Scroll to results on first chunk (when content starts appearing)
-            if (!hasScrolledToResults && newContent.length > 0 && resultsRef.current) {
-              setTimeout(() => {
-                smoothScrollToResults();
-              }, 100);
-              setHasScrolledToResults(true);
-            }
-            return newContent;
-          });
+          // Use batched chunk processing for better performance
+          addChunkToBatch(chunk.content);
         },
         
         onComplete: (totalContent: string) => {
+          // Deactivate batching to prevent race conditions
+          batchingActiveRef.current = false;
+          
+          // Clear any pending batch timeout
+          if (batchTimeout) {
+            clearTimeout(batchTimeout);
+            setBatchTimeout(null);
+          }
+          
+          // Use totalContent directly as it contains the complete accumulated content
+          setStreamingContent(totalContent);
+          
           setIsStreaming(false);
           setIsLoading(false);
           setStreamingClient(null);
@@ -171,9 +228,19 @@ export default function SearchInterface() {
           
           setResponse(finalResponse);
           setStreamingContent('');
+          setStreamingChunks([]);
         },
         
         onError: (errorMessage: string) => {
+          // Deactivate batching to prevent race conditions
+          batchingActiveRef.current = false;
+          
+          // Clear any pending batch timeout
+          if (batchTimeout) {
+            clearTimeout(batchTimeout);
+            setBatchTimeout(null);
+          }
+          
           setIsStreaming(false);
           setIsLoading(false);
           setStreamingClient(null);
@@ -184,6 +251,7 @@ export default function SearchInterface() {
           
           setError(errorMessage);
           setStreamingContent('');
+          setStreamingChunks([]);
         },
         
         onStatusChange: (status: StreamingStatus) => {
@@ -201,6 +269,10 @@ export default function SearchInterface() {
       
     } catch (error) {
       console.error('Submit question streaming error:', error);
+      
+      // Deactivate batching to prevent race conditions
+      batchingActiveRef.current = false;
+      
       setIsStreaming(false);
       setIsLoading(false);
       setStreamingClient(null);
@@ -210,12 +282,22 @@ export default function SearchInterface() {
   };
 
   const handleStop = async () => {
+    // Deactivate batching to prevent race conditions
+    batchingActiveRef.current = false;
+    
+    // Clear any pending batch timeout
+    if (batchTimeout) {
+      clearTimeout(batchTimeout);
+      setBatchTimeout(null);
+    }
+    
     // Reset UI state immediately
     setIsLoading(false);
     setIsStreaming(false);
     setAbortController(null);
     setError(null);
     setStreamingContent('');
+    setStreamingChunks([]);
     
     try {
       // Use enhanced cancellation manager

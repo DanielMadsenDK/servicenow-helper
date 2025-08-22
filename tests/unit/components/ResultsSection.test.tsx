@@ -138,7 +138,7 @@ describe('ResultsSection', () => {
       expect(screen.getByTestId('markdown-content')).toHaveTextContent('Partial response');
     });
 
-    it('should handle streaming completion', () => {
+    it('should handle streaming completion', async () => {
       render(
         <ResultsSection 
           {...defaultProps} 
@@ -150,7 +150,10 @@ describe('ResultsSection', () => {
       );
 
       // When streaming is complete (isStreaming=false), should show the regular response content
-      expect(screen.getByTestId('markdown-content')).toHaveTextContent('This is a test response from ServiceNow Helper.');
+      // Wait for lazy-loaded ReactMarkdown component to load
+      await waitFor(() => {
+        expect(screen.getByTestId('markdown-content')).toHaveTextContent('This is a test response from ServiceNow Helper.');
+      });
     });
 
     it('should prioritize streaming content over regular response', () => {
