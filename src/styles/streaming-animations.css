@@ -159,7 +159,7 @@
     animation: none; /* Disable heavy glow effects on mobile */
   }
   
-  .enhancementFadeIn {
+  .streaming-enhanced-content {
     animation-duration: 0.2s; /* Faster transitions on mobile */
   }
 }
