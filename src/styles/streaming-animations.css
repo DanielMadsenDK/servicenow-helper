@@ -112,24 +112,6 @@
   contain: layout style paint; /* CSS containment for better performance */
 }
 
-.streaming-enhanced-content {
-  opacity: 1;
-  contain: layout style paint; /* CSS containment for better performance */
-  animation: enhancementFadeIn 0.3s ease-out;
-}
-
-/* Optimized fade-in animation when switching from raw to enhanced */
-@keyframes enhancementFadeIn {
-  0% {
-    opacity: 0.9;
-    transform: translate3d(0, 1px, 0); /* Use 3D transforms for GPU acceleration */
-  }
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
 /* Performance optimization for frequently changing content */
 .will-change-contents {
   will-change: contents;
@@ -158,10 +140,6 @@
   .streaming-glow {
     animation: none; /* Disable heavy glow effects on mobile */
   }
-  
-  .streaming-enhanced-content {
-    animation-duration: 0.2s; /* Faster transitions on mobile */
-  }
 }
 
 /* Responsive animations */
@@ -171,20 +149,13 @@
   .streaming-dots,
   .streaming-slide,
   .streaming-cursor,
-  .connection-status,
-  .streaming-enhanced-content {
+  .connection-status {
     animation: none;
   }
   
   .streaming-content,
-  .streaming-raw-content,
-  .streaming-enhanced-content {
+  .streaming-raw-content {
     transition: none;
-  }
-  
-  .streaming-enhanced-content {
-    opacity: 1;
-    transform: none;
   }
   
   .will-change-contents {
