@@ -76,7 +76,7 @@ export default function SearchInterface() {
           setHasScrolledToResults(true);
         }
         
-        return chunks; // Keep chunks for potential future use
+        return chunks; // Return unchanged chunks array (required by React setState)
       });
       setBatchTimeout(null);
     }, 75); // 75ms batching interval for optimal performance
