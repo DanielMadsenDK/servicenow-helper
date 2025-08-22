@@ -25,6 +25,7 @@ export default function StreamingMarkdownRenderer({
   // Optimized approach: Lightweight raw content during streaming, full ReactMarkdown when complete
   if (isStreaming) {
     // During streaming: Show optimized raw content with minimal DOM operations
+    // will-change-contents is only applied here when content is actively being updated
     return (
       <div className={className}>
         <div className="streaming-raw-content" data-testid="markdown-content">
