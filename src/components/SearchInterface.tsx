@@ -57,7 +57,7 @@ export default function SearchInterface() {
   const { continueMode, setContinueMode, getSessionKey, currentSessionKey } = useSessionManager();
   const currentPlaceholder = usePlaceholderRotation({ textareaRef, question });
 
-  // Optimized chunk batching for better performance with memory management and race condition protection
+  // Optimized chunk batching for better performance with race condition protection
   const addChunkToBatch = (chunkContent: string) => {
     // Prevent race conditions by checking if batching is still active
     if (!batchingActiveRef.current) return;
@@ -81,13 +81,6 @@ export default function SearchInterface() {
             smoothScrollToResults();
           }, 100);
           setHasScrolledToResults(true);
-        }
-        
-        // Memory optimization: Keep sliding window of chunks to prevent memory buildup
-        // For very long responses (>100 chunks), keep only the last 100 chunks to reduce memory usage
-        // This prevents Safari mobile memory issues while maintaining UI responsiveness
-        if (chunks.length > 100) {
-          return chunks.slice(-100); // Keep only last 100 chunks
         }
         
         return chunks;
