@@ -41,7 +41,7 @@ export default function SearchInterface() {
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [streamingClient, setStreamingClient] = useState<StreamingClient | null>(null);
   const [streamingContent, setStreamingContent] = useState<string>('');
-  const [streamingChunks, setStreamingChunks] = useState<string[]>([]);
+  const [streamingChunks, setStreamingChunks] = useState<string[]>([]); // Used for batched chunk accumulation during streaming
   const [batchTimeout, setBatchTimeout] = useState<NodeJS.Timeout | null>(null);
   const [streamingStatus, setStreamingStatus] = useState<StreamingStatus>(StreamingStatus.CONNECTING);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -193,9 +193,8 @@ export default function SearchInterface() {
             setBatchTimeout(null);
           }
           
-          // Ensure final content is set from accumulated chunks
-          const finalContent = streamingChunks.join('');
-          setStreamingContent(finalContent || totalContent);
+          // Use totalContent directly as it contains the complete accumulated content
+          setStreamingContent(totalContent);
           
           setIsStreaming(false);
           setIsLoading(false);
@@ -207,7 +206,7 @@ export default function SearchInterface() {
           
           // Create a ServiceNowResponse for compatibility with existing components
           const finalResponse: ServiceNowResponse = {
-            message: finalContent || totalContent,
+            message: totalContent,
             type: selectedType,
             timestamp: new Date().toISOString(),
             sessionkey: sessionKey,
