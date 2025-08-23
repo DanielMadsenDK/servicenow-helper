@@ -58,7 +58,7 @@ export class N8NClient {
 
   public static getInstance(): N8NClient {
     if (!N8NClient.instance) {
-      const baseUrl = process.env.N8N_WEBHOOK_BASE_URL?.replace(/\/[^/]*$/, '') || 'http://n8n:5678';
+      const baseUrl = process.env.N8N_WEBHOOK_BASE_URL || 'http://n8n:5678';
       const apiKey = process.env.N8N_API_KEY || process.env.WEBHOOK_API_KEY || '';
       
       N8NClient.instance = new N8NClient({
