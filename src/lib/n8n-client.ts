@@ -186,6 +186,51 @@ export class N8NClient {
     
     return result.data as number[];
   }
+
+  async deleteQAPair(id: number): Promise<boolean> {
+    const result = await this.callWebhook('deleteKnowledgeStoreId', { id });
+    
+    if (!result.success) {
+      console.error('N8N webhook error for deleteKnowledgeStoreId:', result.error);
+      return false;
+    }
+    
+    // Check if the webhook response itself indicates failure
+    if (result.data && typeof result.data === 'object' && 'success' in result.data) {
+      const responseData = result.data as { success: boolean; error?: string };
+      if (!responseData.success) {
+        console.error('Failed to delete QA pair:', responseData.error);
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  async deleteMultipleQAPairs(ids: number[]): Promise<boolean> {
+    try {
+      const result = await this.callWebhook('deleteKnowledgeStoreIds', { ids });
+      
+      if (!result.success) {
+        console.error('Failed to delete multiple QA pairs:', result.error);
+        return false;
+      }
+      
+      // Check if the webhook response itself indicates failure
+      if (result.data && typeof result.data === 'object' && 'success' in result.data) {
+        const responseData = result.data as { success: boolean; error?: string };
+        if (!responseData.success) {
+          console.error('Failed to delete multiple QA pairs:', responseData.error);
+          return false;
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Failed to delete multiple QA pairs:', error instanceof Error ? error.message : 'Unknown error');
+      return false;
+    }
+  }
 }
 
 export default N8NClient;

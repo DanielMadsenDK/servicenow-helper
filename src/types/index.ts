@@ -207,3 +207,48 @@ export interface DefaultAgent {
   description: string;
   defaultModel: string;
 }
+
+// Knowledge Store Types
+export interface KnowledgeStoreItem {
+  id: number;
+  question: string;
+  answer: string;
+  question_embedding: number[] | null;
+  answer_embedding: number[] | null;
+  category: string | null;
+  tags: string[] | null;
+  quality_score: number;
+  usage_count: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface KnowledgeStoreQueryOptions {
+  limit?: number;
+  offset?: number;
+  search?: string;
+  category?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export interface KnowledgeStoreQueryResult {
+  items: KnowledgeStoreItem[];
+  total: number;
+  hasMore: boolean;
+}
+
+export interface KnowledgeStoreApiResponse {
+  success: boolean;
+  data?: KnowledgeStoreQueryResult;
+  error?: string;
+}
+
+export interface KnowledgeStoreFilters {
+  search: string;
+  category: string;
+  dateRange: {
+    start: Date | null;
+    end: Date | null;
+  };
+}

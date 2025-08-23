@@ -108,4 +108,78 @@ describe('BurgerMenu', () => {
     const menu = screen.getByText('Sign Out').closest('div');
     expect(menu).toHaveClass('absolute', 'right-0', 'mt-2', 'w-48');
   });
+
+  it('should navigate to settings when Settings is clicked', () => {
+    render(<BurgerMenu />);
+    
+    const burgerMenuButton = screen.getByRole('button');
+    
+    // Open menu
+    act(() => {
+      fireEvent.click(burgerMenuButton);
+    });
+    
+    // Click Settings
+    const settingsButton = screen.getByText('Settings');
+    act(() => {
+      fireEvent.click(settingsButton);
+    });
+    
+    expect(mockPush).toHaveBeenCalledWith('/settings');
+  });
+
+  it('should navigate to knowledge store when Knowledge Store is clicked', () => {
+    render(<BurgerMenu />);
+    
+    const burgerMenuButton = screen.getByRole('button');
+    
+    // Open menu
+    act(() => {
+      fireEvent.click(burgerMenuButton);
+    });
+    
+    // Click Knowledge Store
+    const knowledgeStoreButton = screen.getByText('Knowledge Store');
+    act(() => {
+      fireEvent.click(knowledgeStoreButton);
+    });
+    
+    expect(mockPush).toHaveBeenCalledWith('/knowledge-store');
+  });
+
+  it('should navigate to manual when User Manual is clicked', () => {
+    render(<BurgerMenu />);
+    
+    const burgerMenuButton = screen.getByRole('button');
+    
+    // Open menu
+    act(() => {
+      fireEvent.click(burgerMenuButton);
+    });
+    
+    // Click User Manual
+    const manualButton = screen.getByText('User Manual');
+    act(() => {
+      fireEvent.click(manualButton);
+    });
+    
+    expect(mockPush).toHaveBeenCalledWith('/manual');
+  });
+
+  it('should display all menu items when open', () => {
+    render(<BurgerMenu />);
+    
+    const burgerMenuButton = screen.getByRole('button');
+    
+    // Open menu
+    act(() => {
+      fireEvent.click(burgerMenuButton);
+    });
+    
+    // Check all menu items are present
+    expect(screen.getByText('Settings')).toBeInTheDocument();
+    expect(screen.getByText('Knowledge Store')).toBeInTheDocument();
+    expect(screen.getByText('User Manual')).toBeInTheDocument();
+    expect(screen.getByText('Sign Out')).toBeInTheDocument();
+  });
 });

@@ -241,6 +241,83 @@ export default function UserManual() {
               </div>
             </div>
 
+            {/* Knowledge Store Management */}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center">
+                <Database className="w-5 h-5 mr-3 text-indigo-500" />
+                Knowledge Store Management
+              </h2>
+              <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl p-6">
+                <h3 className="font-semibold text-indigo-900 dark:text-indigo-100 mb-4">Managing Your Knowledge Store</h3>
+                <p className="text-sm text-indigo-800 dark:text-indigo-200 mb-6">
+                  Access the dedicated Knowledge Store Management page to view, search, and organize all your saved Q&A pairs in one place.
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Accessing Knowledge Store</h4>
+                      <p className="text-sm text-indigo-800 dark:text-indigo-200">
+                        Click the hamburger menu (☰) and select &quot;Knowledge Store&quot; to open the management interface.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Browsing & Searching</h4>
+                      <p className="text-sm text-indigo-800 dark:text-indigo-200">
+                        View all saved entries with their questions, answers, categories, tags, usage counts, and quality scores. Use the search bar to find specific entries by keywords.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">3</div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Deleting Entries</h4>
+                      <p className="text-sm text-indigo-800 dark:text-indigo-200">
+                        Remove individual entries using the delete button (🗑️) on each item, or select multiple entries for bulk deletion.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">4</div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Viewing Details</h4>
+                      <p className="text-sm text-indigo-800 dark:text-indigo-200">
+                        Click on any entry to expand and view the full answer, or click an item to view detailed information including metadata, tags, and creation dates.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-6 p-4 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
+                  <h4 className="font-medium text-indigo-900 dark:text-indigo-100 mb-2 flex items-center">
+                    <Database className="w-4 h-4 mr-2" />
+                    Management Features
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-indigo-800 dark:text-indigo-200">
+                    <div>
+                      <span className="font-medium">Search & Filter:</span> Find entries by keywords in questions and answers
+                    </div>
+                    <div>
+                      <span className="font-medium">Bulk Operations:</span> Select and delete multiple entries at once
+                    </div>
+                    <div>
+                      <span className="font-medium">Quality Metrics:</span> View usage counts and quality scores for each entry
+                    </div>
+                    <div>
+                      <span className="font-medium">Metadata:</span> See creation dates, categories, and tags
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Settings Guide */}
             <div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center">

@@ -30,6 +30,9 @@ Built with security-first principles featuring server-side JWT authentication, N
 ### **Conversation Management** 
 Complete conversation lifecycle management with full history tracking, advanced search and filtering capabilities, session continuity across interactions, and export functionality for documentation purposes.
 
+### **Knowledge Store Management**
+Comprehensive knowledge base management with dedicated interface for viewing, searching, and organizing saved Q&A pairs. Features bulk operations, quality metrics tracking, and metadata management for curated knowledge content.
+
 ### **Modern Experience**
 Enjoy a responsive design built with TailwindCSS, progressive web app support for mobile devices, dark/light theme toggle for user preference, real-time streaming responses with automatic scrolling, and full accessibility optimization for inclusive usage.
 
@@ -43,6 +46,7 @@ Enjoy a responsive design built with TailwindCSS, progressive web app support fo
 | **Session Management** | Unique keys & continuation | PostgreSQL Backend |
 | **Search Enhancement** | ServiceNow KB integration | API Connections |
 | **Agent Model Configuration** | Individual model selection per AI agent | Persistent Agent Settings |
+| **Knowledge Store Management** | Comprehensive Q&A management interface | React Components + PostgreSQL |
 
 ## Architecture
 
@@ -200,6 +204,7 @@ docker compose up -d
 1. **Login** with your credentials to access the secure dashboard
 2. **Configure** your preferences in the settings panel
 3. **Customize** default search modes and request types
+4. **Manage** your knowledge store entries via the dedicated management interface
 
 ### **Settings Configuration**
 
@@ -240,6 +245,8 @@ Configure different AI models for specialized agents to optimize performance:
 3. **Watch Live Responses** stream in real-time as the AI generates answers
 4. **Enjoy Enhanced UX** with automatic scrolling to responses when streaming starts
 5. **Access History** through the conversation panel with advanced filtering
+6. **Save to Knowledge Store** by clicking the "Add to knowledge base" button on helpful responses
+7. **Manage Knowledge Store** through the dedicated management interface accessible via the hamburger menu
 
 ### **File Attachments (Multimodal Support)**
 
@@ -260,6 +267,33 @@ Enhance your questions with file attachments when using multimodal AI models:
 3. The attachment button will appear automatically in the search interface
 
 > **Note:** File attachment functionality is only visible when a multimodal AI model is selected. Models become multimodal when you configure them with image, text, or audio capabilities in the settings menu.
+
+### **Knowledge Store Management**
+
+Efficiently manage your curated Q&A knowledge base with comprehensive management features:
+
+| Feature | Description | Access |
+|---------|-------------|--------|
+| **Browse All Entries** | View complete list of saved Q&A pairs | Hamburger Menu → Knowledge Store |
+| **Search & Filter** | Find entries by keywords in questions/answers | Search bar in management interface |
+| **Bulk Operations** | Select and delete multiple entries simultaneously | Checkbox selection + bulk actions |
+| **Quality Metrics** | View usage counts and quality scores | Displayed on each entry |
+| **Metadata Display** | See creation dates, categories, and tags | Entry details view |
+| **Individual Deletion** | Remove specific entries with confirmation | Delete button on each entry |
+
+**How to manage your knowledge store:**
+1. **Access Management Interface** via Hamburger Menu → Knowledge Store
+2. **Browse Entries** to see all saved Q&A pairs with metadata
+3. **Search Content** using the search bar to find specific entries
+4. **View Details** by clicking entries to see full answers and metadata
+5. **Delete Entries** individually or select multiple for bulk deletion
+6. **Navigate Back** using the close button to return to main interface
+
+**Knowledge Store Benefits:**
+- **Automated Integration**: AI automatically uses knowledge store content for enhanced responses
+- **Quality Tracking**: Monitor which entries are most valuable with usage metrics
+- **Organized Content**: Categories and tags help organize and find relevant information
+- **Bulk Management**: Efficiently manage large collections of saved Q&A pairs
 
 ## Database Configuration
 
@@ -340,19 +374,24 @@ servicenow-helper/
 ├── src/                                 # Application source
 │   ├── app/                             # Next.js App Router
 │   │   ├── api/agent-models/           # Agent model configuration API
+│   │   ├── api/knowledge-store/        # Knowledge store management API
 │   │   ├── api/settings/               # Settings API
 │   │   ├── api/submit-question-stream/ # Streaming API
+│   │   ├── knowledge-store/            # Knowledge store management page
 │   │   └── settings/                   # Settings page
 │   ├── components/                      # React components
+│   │   ├── KnowledgeStorePanel.tsx        # Knowledge store management interface
+│   │   ├── KnowledgeStoreItem.tsx         # Individual knowledge store entry display
 │   │   ├── Settings.tsx                   # Settings component
 │   │   └── SearchInterface.tsx            # Main interface (streaming)
 │   ├── contexts/                        # React contexts
 │   │   ├── AgentModelContext.tsx          # Agent model state management
 │   │   └── SettingsContext.tsx            # Settings state
 │   ├── lib/                             # Utilities
+│   │   ├── n8n-client.ts                  # N8N client with knowledge store methods
 │   │   ├── streaming-client.ts            # Streaming client
 │   │   └── database.ts                    # Database layer (with AgentModelManager)
-│   └── types/                           # TypeScript definitions (streaming)
+│   └── types/                           # TypeScript definitions (with knowledge store types)
 └── tests/                               # Test files and mocks
 ```
 

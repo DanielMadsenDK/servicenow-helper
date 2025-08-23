@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { LogOut, Settings, BookOpen } from 'lucide-react';
+import { LogOut, Settings, BookOpen, Database } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -79,6 +79,24 @@ export default function BurgerMenu() {
           >
             <Settings className="w-4 h-4 mr-3" />
             <span className="text-sm font-medium">Settings</span>
+          </button>
+          <button
+            onClick={() => {
+              router.push('/knowledge-store');
+              setIsOpen(false);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                router.push('/knowledge-store');
+                setIsOpen(false);
+              }
+            }}
+            className="flex items-center w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700"
+            role="menuitem"
+          >
+            <Database className="w-4 h-4 mr-3" />
+            <span className="text-sm font-medium">Knowledge Store</span>
           </button>
           <button
             onClick={() => {
