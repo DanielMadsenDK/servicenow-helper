@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Database, Search, X, Filter, RefreshCw, AlertCircle, Trash2, CheckSquare, Square } from 'lucide-react';
 import { KnowledgeStoreItem, KnowledgeStoreQueryResult, KnowledgeStoreFilters } from '@/types';
 import KnowledgeStoreItemComponent from './KnowledgeStoreItem';
@@ -158,18 +158,18 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
     }
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     setCurrentPage(1);
     fetchItems(1, true);
-  };
+  }, [fetchItems]);
 
-  const handleLoadMore = () => {
+  const handleLoadMore = useCallback(() => {
     if (!loading && hasMore) {
       fetchItems(currentPage + 1, false);
     }
-  };
+  }, [loading, hasMore, currentPage, fetchItems]);
 
-  const handleSelectionChange = (id: number, selected: boolean) => {
+  const handleSelectionChange = useCallback((id: number, selected: boolean) => {
     setSelectedItems(prev => {
       const newSelection = new Set(prev);
       if (selected) {
@@ -179,17 +179,17 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
       }
       return newSelection;
     });
-  };
+  }, []);
 
-  const handleSelectAll = () => {
+  const handleSelectAll = useCallback(() => {
     if (selectedItems.size === items.length) {
       setSelectedItems(new Set());
     } else {
       setSelectedItems(new Set(items.map(item => item.id)));
     }
-  };
+  }, [selectedItems.size, items]);
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setFilters({
       search: '',
       category: '',
@@ -197,7 +197,7 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
     });
     setSearchInput('');
     setCurrentPage(1);
-  };
+  }, []);
 
   // Load items when filters change
   useEffect(() => {
@@ -225,9 +225,34 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
     setShowBulkActions(selectedItems.size > 0);
   }, [selectedItems.size]);
 
-  if (!isOpen) return null;
+  // Memoize expensive computations - must be before early return
+  const allSelected = useMemo(() => {
+    return selectedItems.size === items.length && items.length > 0;
+  }, [selectedItems.size, items.length]);
 
-  const allSelected = selectedItems.size === items.length && items.length > 0;
+  const filteredAndSortedItems = useMemo(() => {
+    // Since we now do server-side filtering, items are already filtered
+    // But we can still add client-side sorting if needed in the future
+    return items.sort((a, b) => {
+      // Sort by updated_at descending (most recent first)
+      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+    });
+  }, [items]);
+
+  const displayItems = useMemo(() => {
+    return filteredAndSortedItems;
+  }, [filteredAndSortedItems]);
+
+  // Memoize selection state for each item to avoid unnecessary re-renders
+  const itemSelectionStates = useMemo(() => {
+    const states = new Map<number, boolean>();
+    displayItems.forEach(item => {
+      states.set(item.id, selectedItems.has(item.id));
+    });
+    return states;
+  }, [displayItems, selectedItems]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -376,13 +401,13 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
             )}
 
             <div className="p-4 space-y-4">
-              {items.map((item) => (
+              {displayItems.map((item) => (
                 <KnowledgeStoreItemComponent
                   key={item.id}
                   item={item}
                   onDelete={handleDeleteItem}
                   onSelect={onSelectItem}
-                  isSelected={selectedItems.has(item.id)}
+                  isSelected={itemSelectionStates.get(item.id) || false}
                   onSelectionChange={handleSelectionChange}
                   showSelection={true}
                 />
