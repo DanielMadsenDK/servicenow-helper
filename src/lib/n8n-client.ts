@@ -92,6 +92,30 @@ export class N8NClient {
     }
   }
 
+  /**
+   * Helper method to check webhook response success for delete operations
+   * @param result The webhook response
+   * @param errorMessage Error message to log if operation fails
+   * @returns boolean indicating success
+   */
+  private checkDeleteOperationSuccess(result: N8NWebhookResponse, errorMessage: string): boolean {
+    if (!result.success) {
+      console.error(errorMessage, result.error);
+      return false;
+    }
+    
+    // Check if the webhook response itself indicates failure
+    if (result.data && typeof result.data === 'object' && 'success' in result.data) {
+      const responseData = result.data as { success: boolean; error?: string };
+      if (!responseData.success) {
+        console.error(errorMessage, responseData.error);
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
   async saveQAPair(request: SaveQAPairRequest): Promise<QAKnowledgeBaseItem | null> {
     const result = await this.callWebhook('save-qa-pair', request);
     
@@ -185,6 +209,21 @@ export class N8NClient {
     }
     
     return result.data as number[];
+  }
+
+  async deleteQAPair(id: number): Promise<boolean> {
+    const result = await this.callWebhook('deleteKnowledgeStoreId', { id });
+    return this.checkDeleteOperationSuccess(result, 'Failed to delete QA pair:');
+  }
+
+  async deleteMultipleQAPairs(ids: number[]): Promise<boolean> {
+    try {
+      const result = await this.callWebhook('deleteKnowledgeStoreIds', { ids });
+      return this.checkDeleteOperationSuccess(result, 'Failed to delete multiple QA pairs:');
+    } catch (error) {
+      console.error('Failed to delete multiple QA pairs:', error instanceof Error ? error.message : 'Unknown error');
+      return false;
+    }
   }
 }
 

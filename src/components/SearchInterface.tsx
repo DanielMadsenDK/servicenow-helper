@@ -41,7 +41,8 @@ export default function SearchInterface() {
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [streamingClient, setStreamingClient] = useState<StreamingClient | null>(null);
   const [streamingContent, setStreamingContent] = useState<string>('');
-  const [streamingChunks, setStreamingChunks] = useState<string[]>([]); // Used for batched chunk accumulation during streaming
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_streamingChunks, setStreamingChunks] = useState<string[]>([]); // Used for batched chunk accumulation during streaming
   const [batchTimeout, setBatchTimeout] = useState<NodeJS.Timeout | null>(null);
   const [streamingStatus, setStreamingStatus] = useState<StreamingStatus>(StreamingStatus.CONNECTING);
   const [isStreaming, setIsStreaming] = useState(false);
