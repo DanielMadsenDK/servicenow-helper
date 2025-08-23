@@ -69,7 +69,7 @@ describe('/api/knowledge-store', () => {
       
       expect(response).toBeDefined();
       expect(response.status).toBe(200);
-      expect(mockClient.getAllQAPairs).toHaveBeenCalledWith(20, 0);
+      expect(mockClient.getAllQAPairs).toHaveBeenCalledWith(40, 0);
     });
 
     it('should handle N8N client errors', async () => {

@@ -18,21 +18,16 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0');
     const search = searchParams.get('search') || '';
     const category = searchParams.get('category') || '';
-    
-    // Query options for future enhancement - currently using individual parameters
-    // const options: KnowledgeStoreQueryOptions = {
-    //   limit,
-    //   offset,
-    //   ...(search && { search }),
-    //   ...(category && { category })
-    // };
 
     const n8nClient = N8NClient.getInstance();
-    const items = await n8nClient.getAllQAPairs(limit, offset);
+    
+    // For now, we'll fetch a larger set and implement proper server-side filtering
+    // TODO: Implement server-side filtering in N8N webhooks for better performance
+    const fetchLimit = search || category ? 1000 : limit + 20; // Fetch extra to determine hasMore
+    const allItems = await n8nClient.getAllQAPairs(fetchLimit, 0);
 
-    // Simple client-side filtering for search and category
-    // This could be optimized by adding server-side filtering to the N8N endpoint
-    let filteredItems = items;
+    // Apply filtering
+    let filteredItems = allItems;
     
     if (search) {
       const searchLower = search.toLowerCase();
@@ -48,8 +43,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Apply pagination after filtering
+    const paginatedItems = filteredItems.slice(offset, offset + limit);
+    const hasMore = filteredItems.length > offset + limit;
+
     // Convert string dates to Date objects
-    const itemsWithDates = filteredItems.map(item => ({
+    const itemsWithDates = paginatedItems.map(item => ({
       ...item,
       created_at: new Date(item.created_at),
       updated_at: new Date(item.updated_at)
@@ -57,8 +56,8 @@ export async function GET(request: NextRequest) {
 
     const result: KnowledgeStoreQueryResult = {
       items: itemsWithDates,
-      total: itemsWithDates.length,
-      hasMore: false // Since we're doing client-side filtering, we can't determine this accurately
+      total: filteredItems.length,
+      hasMore: hasMore
     };
 
     return NextResponse.json({

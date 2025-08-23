@@ -16,6 +16,8 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const [filters, setFilters] = useState<KnowledgeStoreFilters>({
     search: '',
     category: '',
@@ -27,15 +29,19 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Pagination constants
+  const ITEMS_PER_PAGE = 20;
 
-  const fetchItems = useCallback(async () => {
+  const fetchItems = useCallback(async (page: number = 1, reset: boolean = true) => {
     setLoading(true);
     setError(null);
 
     try {
+      const offset = (page - 1) * ITEMS_PER_PAGE;
       const params = new URLSearchParams({
-        limit: '100', // Get more items since we're doing client-side filtering
-        offset: '0',
+        limit: ITEMS_PER_PAGE.toString(),
+        offset: offset.toString(),
       });
 
       // Add search filter
@@ -64,8 +70,17 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
           updated_at: new Date(item.updated_at)
         }));
         
-        setItems(itemsWithDates);
+        if (reset) {
+          setItems(itemsWithDates);
+          setCurrentPage(page);
+        } else {
+          // Append to existing items for pagination
+          setItems(prev => [...prev, ...itemsWithDates]);
+          setCurrentPage(page);
+        }
+        
         setTotal(result.total);
+        setHasMore(result.hasMore);
       } else {
         throw new Error(data.error || 'Invalid response format');
       }
@@ -74,7 +89,7 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, ITEMS_PER_PAGE]);
 
   const handleSearch = useCallback((searchTerm: string) => {
     if (searchTimeoutRef.current) {
@@ -83,6 +98,7 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
 
     searchTimeoutRef.current = setTimeout(() => {
       setFilters(prev => ({ ...prev, search: searchTerm }));
+      setCurrentPage(1); // Reset to first page when search changes
     }, 300);
   }, []);
 
@@ -143,7 +159,14 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
   };
 
   const handleRefresh = () => {
-    fetchItems();
+    setCurrentPage(1);
+    fetchItems(1, true);
+  };
+
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      fetchItems(currentPage + 1, false);
+    }
   };
 
   const handleSelectionChange = (id: number, selected: boolean) => {
@@ -173,12 +196,13 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
       dateRange: { start: null, end: null },
     });
     setSearchInput('');
+    setCurrentPage(1);
   };
 
   // Load items when filters change
   useEffect(() => {
     if (isOpen) {
-      fetchItems();
+      fetchItems(1, true);
     }
   }, [isOpen, filters, fetchItems]);
 
@@ -369,6 +393,18 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
               <div className="p-8 text-center">
                 <div className="animate-spin w-8 h-8 border-4 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full mx-auto mb-4"></div>
                 <p className="text-gray-500 dark:text-gray-400">Loading knowledge store items...</p>
+              </div>
+            )}
+
+            {/* Load More Button */}
+            {!loading && hasMore && items.length > 0 && (
+              <div className="p-4 text-center border-t border-gray-200 dark:border-gray-600">
+                <button
+                  onClick={handleLoadMore}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Load More
+                </button>
               </div>
             )}
           </div>
