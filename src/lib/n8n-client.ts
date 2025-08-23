@@ -74,7 +74,7 @@ export class N8NClient {
       const response = await axios.post(`${this.config.baseUrl}/webhook/${endpoint}`, data, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.apiKey}`
+          'apikey': this.config.apiKey
         },
         timeout: 30000 // 30 second timeout
       });
