@@ -151,16 +151,27 @@ export async function POST(request: NextRequest) {
             }
           };
 
+          // Mobile-specific timeout adjustments to prevent connection drops
+          const timeoutMs = isMobileClient ? 480000 : 330000; // 8 min for mobile, 5.5 min for desktop
+          
           const response = await axios.post(API_BASE_URL, n8nStreamingRequest, {
-            headers,
+            headers: {
+              ...headers,
+              'X-Client-Type': isMobileClient ? 'mobile' : 'desktop',
+            },
             responseType: 'stream',
-            timeout: 330000, // 5.5 minutes
+            timeout: timeoutMs,
           });
 
           // Handle streaming response from n8n with optimized buffer accumulation
           const textDecoder = new TextDecoder('utf-8');
           let partialJsonBuffer = '';
-          const maxBufferSize = 1024 * 1024; // 1MB buffer limit for mobile safety
+          // Mobile-specific buffer limits to prevent performance issues and connection timeouts
+          const userAgent = request.headers.get('user-agent') || '';
+          const isMobileClient = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+          
+          // Reduced buffer size for mobile devices - prevents memory issues and connection timeouts
+          const maxBufferSize = isMobileClient ? 512 * 1024 : 1024 * 1024; // 512KB for mobile, 1MB for desktop
           let bufferOverflowCount = 0;
           
           const processJsonLine = (jsonLine: string) => {
