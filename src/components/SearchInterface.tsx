@@ -222,32 +222,76 @@ export default function SearchInterface() {
           // Get final content from streaming buffer (should match totalContent)
           const finalContent = streamingBufferRef.current.getContent();
           
-          // Log performance stats
-          const stats = performanceMonitorRef.current.getStats();
-          console.log('Streaming Performance Stats:', stats);
-          
-          setIsStreaming(false);
-          setIsLoading(false);
-          setStreamingClient(null);
-          setHasScrolledToResults(false);
-          
-          // Cleanup cancellation manager
-          streamingCancellation.cleanupSession(sessionKey);
-          
-          // Create a ServiceNowResponse for compatibility with existing components
-          const finalResponse: ServiceNowResponse = {
-            message: finalContent,
-            type: selectedType,
-            timestamp: new Date().toISOString(),
-            sessionkey: sessionKey,
-            status: 'done'
+          // Define completion function before using it
+          const completeStreaming = (content: string) => {
+            // Log performance stats
+            const stats = performanceMonitorRef.current.getStats();
+            console.log('Streaming Performance Stats:', stats);
+            console.log(`Streaming completed with ${content.length} characters of content`);
+            
+            setIsStreaming(false);
+            setIsLoading(false);
+            setStreamingClient(null);
+            setHasScrolledToResults(false);
+            
+            // Cleanup cancellation manager
+            streamingCancellation.cleanupSession(sessionKey);
+            
+            // Create a ServiceNowResponse for compatibility with existing components
+            const finalResponse: ServiceNowResponse = {
+              message: content,
+              type: selectedType,
+              timestamp: new Date().toISOString(),
+              sessionkey: sessionKey,
+              status: 'done'
+            };
+            
+            setResponse(finalResponse);
+            setStreamingContent('');
+            
+            // Clear streaming buffer
+            streamingBufferRef.current.clear();
           };
           
-          setResponse(finalResponse);
-          setStreamingContent('');
+          // Validation: Ensure we have substantial content before completing
+          // This prevents displaying partial/empty responses on mobile
+          const contentLength = finalContent.trim().length;
+          const minimumContentLength = 10; // At least 10 characters for a meaningful response
           
-          // Clear streaming buffer
-          streamingBufferRef.current.clear();
+          if (contentLength < minimumContentLength) {
+            console.warn(`Completion called with insufficient content (${contentLength} chars). Waiting for more content...`);
+            // Don't complete yet - wait for more content or explicit error
+            return;
+          }
+          
+          // Additional validation: Check if content appears complete
+          // Look for signs of truncated content (common indicators)
+          const contentTrimmed = finalContent.trim();
+          const suspiciousEndings = [
+            /\d+$/, // Ends with just a number
+            /[,\-;:]$/, // Ends with punctuation that suggests continuation
+            /\w{1,3}$/, // Ends with a very short word
+            /^\d+\.\s*$/, // Just a number and period (like list item start)
+          ];
+          
+          const isSuspiciouslyCut = suspiciousEndings.some(pattern => pattern.test(contentTrimmed));
+          if (isSuspiciouslyCut && contentLength < 100) {
+            console.warn('Content appears to be truncated based on ending pattern. Delaying completion...');
+            
+            // Set a timeout to force completion if no more content arrives
+            setTimeout(() => {
+              const currentContent = streamingBufferRef.current.getContent().trim();
+              if (currentContent === contentTrimmed) {
+                console.log('No additional content received, proceeding with completion');
+                completeStreaming(currentContent);
+              }
+            }, 2000); // Wait 2 seconds for more content
+            
+            return;
+          }
+          
+          // Content validation passed, proceed with completion
+          completeStreaming(finalContent);
         },
         
         onError: (errorMessage: string) => {

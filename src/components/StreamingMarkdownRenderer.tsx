@@ -9,8 +9,8 @@ import { isMobileDevice } from '@/lib/streaming-buffer';
 // Lazy load ReactMarkdown
 const ReactMarkdown = lazy(() => import('react-markdown'));
 
-// Progress estimation factor: assumes ~1000 characters represents a typical complete response
-const PROGRESS_ESTIMATION_FACTOR = 1000;
+// Note: Progress estimation was removed from mobile view as it was unreliable for streaming content
+// const PROGRESS_ESTIMATION_FACTOR = 1000;
 
 interface StreamingMarkdownRendererProps {
   content: string;
@@ -38,7 +38,42 @@ export default function StreamingMarkdownRenderer({
   // Enhanced approach: Progressive rendering based on device capabilities
   if (isStreaming) {
     // Mobile-specific behavior: Hide streaming content to improve performance
+    // Additional safeguards to prevent premature content display
     if (isMobile) {
+      // Extra validation: Only show loading if content is still being received
+      // This prevents showing loading for already completed but incorrectly flagged streams
+      const hasMinimalContent = content.length >= 10;
+      const contentLooksIncomplete = hasMinimalContent && (
+        content.endsWith('...') ||
+        content.match(/\d+$/) ||
+        content.match(/[,\-;:]$/) ||
+        content.length < 50 // Very short responses might be incomplete
+      );
+      
+      // If we have content that looks reasonably complete, consider showing it
+      // This prevents the loading state when streaming incorrectly signals as active
+      if (hasMinimalContent && !contentLooksIncomplete && content.length > 100) {
+        console.log('Mobile: Content appears complete despite streaming flag, showing content');
+        return (
+          <div className={className} data-testid="markdown-content">
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <span className="ml-2 text-gray-600 dark:text-gray-400">Loading content...</span>
+              </div>
+            }>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeHighlight]}
+                components={markdownComponents}
+              >
+                {content || ''}
+              </ReactMarkdown>
+            </Suspense>
+          </div>
+        );
+      }
+      
       return (
         <div className={className} data-testid="markdown-content">
           <div className="flex flex-col items-center justify-center py-8 space-y-4">
@@ -55,24 +90,13 @@ export default function StreamingMarkdownRenderer({
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Content will appear when complete for optimal mobile performance
               </p>
-            </div>
-            
-            {/* Progress indicator based on content length */}
-            {content.length > 0 && (
-              <div className="w-full max-w-md">
-                <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div 
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
-                    style={{ 
-                      width: `${Math.min(100, (content.length / PROGRESS_ESTIMATION_FACTOR) * 100)}%`
-                    }}
-                  ></div>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
-                  {Math.round((content.length / PROGRESS_ESTIMATION_FACTOR) * 100)}% estimated progress
+              {/* Show content length instead of misleading progress bar */}
+              {content.length > 0 && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  {content.length} characters received...
                 </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       );
