@@ -157,9 +157,11 @@ export async function POST(request: NextRequest) {
             timeout: 330000, // 5.5 minutes
           });
 
-          // Handle streaming response from n8n with proper buffer accumulation
+          // Handle streaming response from n8n with optimized buffer accumulation
           const textDecoder = new TextDecoder('utf-8');
           let partialJsonBuffer = '';
+          const maxBufferSize = 1024 * 1024; // 1MB buffer limit for mobile safety
+          let bufferOverflowCount = 0;
           
           const processJsonLine = (jsonLine: string) => {
             try {
@@ -224,50 +226,93 @@ export async function POST(request: NextRequest) {
 
           response.data.on('data', (chunk: Buffer) => {
             try {
-              // Properly decode the buffer to UTF-8 text
+              // Check for buffer overflow (mobile safety)
+              if (partialJsonBuffer.length > maxBufferSize) {
+                bufferOverflowCount++;
+                console.warn(`Buffer overflow detected (${bufferOverflowCount}), clearing buffer to prevent memory issues`);
+                // Force process what we have and reset buffer
+                if (partialJsonBuffer.trim()) {
+                  try {
+                    processJsonLine(partialJsonBuffer.trim());
+                  } catch (overflowError) {
+                    console.error('Error processing overflow buffer:', overflowError);
+                  }
+                }
+                partialJsonBuffer = '';
+              }
+              
+              // Properly decode the buffer to UTF-8 text with optimized chunk processing
               const chunkText = textDecoder.decode(chunk, { stream: true });
               
-              // Add to our partial buffer
+              // Efficient buffer accumulation with size monitoring
               partialJsonBuffer += chunkText;
               
-              // Extract complete JSON lines from buffer
-              const lines = partialJsonBuffer.split('\n');
+              // Optimized line splitting - avoid repeated splits on large buffers
+              let lineStart = 0;
+              let lineEnd = partialJsonBuffer.indexOf('\n', lineStart);
               
-              // Keep the last line in buffer (it might be partial)
-              partialJsonBuffer = lines[lines.length - 1] || '';
-              
-              // Process all complete lines
-              for (const line of lines.slice(0, -1)) {
-                const trimmedLine = line.trim();
-                if (trimmedLine) {
-                  processJsonLine(trimmedLine);
+              // Process complete lines efficiently
+              while (lineEnd !== -1) {
+                const line = partialJsonBuffer.slice(lineStart, lineEnd).trim();
+                if (line) {
+                  processJsonLine(line);
                 }
+                lineStart = lineEnd + 1;
+                lineEnd = partialJsonBuffer.indexOf('\n', lineStart);
               }
+              
+              // Keep remaining partial line in buffer
+              partialJsonBuffer = lineStart < partialJsonBuffer.length 
+                ? partialJsonBuffer.slice(lineStart) 
+                : '';
               
             } catch (bufferError) {
               console.error('Buffer processing error in streaming:', {
                 error: bufferError instanceof Error ? bufferError.message : String(bufferError),
                 stack: bufferError instanceof Error ? bufferError.stack : undefined,
-                bufferLength: partialJsonBuffer.length
+                bufferLength: partialJsonBuffer.length,
+                overflowCount: bufferOverflowCount
               });
-              // Continue processing instead of crashing
+              // Emergency buffer reset on critical errors
+              if (bufferError instanceof Error && bufferError.message.includes('Maximum call stack')) {
+                partialJsonBuffer = '';
+                console.warn('Buffer reset due to stack overflow');
+              }
             }
           });
 
           response.data.on('end', () => {
             
-            // Process any remaining partial JSON in buffer
-            if (partialJsonBuffer.trim()) {
-              try {
-                processJsonLine(partialJsonBuffer.trim());
-              } catch (finalBufferError) {
-                console.error('Error processing final buffer on stream end:', {
-                  error: finalBufferError instanceof Error ? finalBufferError.message : String(finalBufferError),
-                  stack: finalBufferError instanceof Error ? finalBufferError.stack : undefined,
-                  remainingBuffer: partialJsonBuffer.trim()
-                });
-                // Continue to completion instead of crashing
+            // Process any remaining partial JSON in buffer with safety checks
+            const remainingBuffer = partialJsonBuffer.trim();
+            if (remainingBuffer) {
+              // Safety check for buffer size before final processing
+              if (remainingBuffer.length > maxBufferSize) {
+                console.warn('Final buffer exceeds size limit, truncating for safety');
+                const truncatedBuffer = remainingBuffer.substring(0, maxBufferSize);
+                try {
+                  processJsonLine(truncatedBuffer);
+                } catch (truncationError) {
+                  console.error('Error processing truncated final buffer:', truncationError);
+                }
+              } else {
+                try {
+                  processJsonLine(remainingBuffer);
+                } catch (finalBufferError) {
+                  console.error('Error processing final buffer on stream end:', {
+                    error: finalBufferError instanceof Error ? finalBufferError.message : String(finalBufferError),
+                    stack: finalBufferError instanceof Error ? finalBufferError.stack : undefined,
+                    remainingBufferLength: remainingBuffer.length,
+                    overflowCount: bufferOverflowCount
+                  });
+                  // Continue to completion instead of crashing
+                }
               }
+            }
+            
+            // Log buffer performance stats
+            if (bufferOverflowCount > 0) {
+              console.log(`Stream completed with ${bufferOverflowCount} buffer overflows handled`);
             }
             
             // Send completion if controller is still open

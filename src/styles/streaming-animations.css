@@ -118,6 +118,13 @@
   transform: translateZ(0); /* Force hardware acceleration */
 }
 
+/* Mobile-optimized streaming content without will-change */
+.streaming-raw-content-mobile {
+  opacity: 0.98;
+  contain: layout style paint;
+  /* No will-change on mobile to avoid GPU layer thrashing */
+}
+
 /* Mobile Safari optimizations */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
   /* Reduce animation complexity on high-DPI mobile devices (like iPhones) */
@@ -135,10 +142,36 @@
   }
 }
 
-/* Reduce motion for better mobile performance */
+/* Enhanced mobile optimizations */
 @media (max-width: 768px) {
   .streaming-glow {
     animation: none; /* Disable heavy glow effects on mobile */
+  }
+  
+  /* Use simplified animations on mobile */
+  .streaming-indicator {
+    animation: streamingPulseSimple 2s ease-in-out infinite;
+  }
+  
+  /* Disable hardware acceleration on mobile for better memory usage */
+  .will-change-contents {
+    will-change: auto;
+    transform: none;
+  }
+  
+  /* Optimize streaming content for mobile */
+  .streaming-raw-content {
+    contain: layout style; /* Reduce paint containment on mobile */
+  }
+}
+
+/* Simplified pulse animation for mobile */
+@keyframes streamingPulseSimple {
+  0%, 100% { 
+    opacity: 1; 
+  }
+  50% { 
+    opacity: 0.6; 
   }
 }
 
@@ -160,6 +193,52 @@
   
   .will-change-contents {
     will-change: auto;
+    transform: none;
+  }
+}
+
+/* Battery optimization for mobile devices */
+@media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
+  /* Use minimal animations to preserve battery */
+  .streaming-cursor {
+    animation: streamingPulseSimple 2s ease-in-out infinite;
+  }
+}
+
+/* Performance optimization for low-end mobile devices */
+@media (max-width: 480px) {
+  /* Disable all complex animations on very small screens */
+  .streaming-indicator,
+  .streaming-glow,
+  .streaming-dots,
+  .streaming-slide {
+    animation: none;
+  }
+  
+  /* Use static indicators instead */
+  .streaming-indicator {
+    opacity: 0.8;
+  }
+  
+  /* Minimal cursor animation */
+  .streaming-cursor {
+    animation: streamingPulseSimple 3s ease-in-out infinite;
+  }
+}
+
+/* iOS Safari specific optimizations */
+@supports (-webkit-touch-callout: none) {
+  /* iOS-specific optimizations */
+  .streaming-raw-content {
+    -webkit-overflow-scrolling: touch;
+    /* Reduce repaints on iOS */
+    -webkit-transform: translateZ(0);
+  }
+  
+  /* Disable will-change on iOS to prevent memory issues */
+  .will-change-contents {
+    will-change: auto;
+    -webkit-transform: none;
     transform: none;
   }
 }
