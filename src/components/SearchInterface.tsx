@@ -222,6 +222,37 @@ export default function SearchInterface() {
           // Get final content from streaming buffer (should match totalContent)
           const finalContent = streamingBufferRef.current.getContent();
           
+          // Define completion function before using it
+          const completeStreaming = (content: string) => {
+            // Log performance stats
+            const stats = performanceMonitorRef.current.getStats();
+            console.log('Streaming Performance Stats:', stats);
+            console.log(`Streaming completed with ${content.length} characters of content`);
+            
+            setIsStreaming(false);
+            setIsLoading(false);
+            setStreamingClient(null);
+            setHasScrolledToResults(false);
+            
+            // Cleanup cancellation manager
+            streamingCancellation.cleanupSession(sessionKey);
+            
+            // Create a ServiceNowResponse for compatibility with existing components
+            const finalResponse: ServiceNowResponse = {
+              message: content,
+              type: selectedType,
+              timestamp: new Date().toISOString(),
+              sessionkey: sessionKey,
+              status: 'done'
+            };
+            
+            setResponse(finalResponse);
+            setStreamingContent('');
+            
+            // Clear streaming buffer
+            streamingBufferRef.current.clear();
+          };
+          
           // Validation: Ensure we have substantial content before completing
           // This prevents displaying partial/empty responses on mobile
           const contentLength = finalContent.trim().length;
@@ -261,36 +292,6 @@ export default function SearchInterface() {
           
           // Content validation passed, proceed with completion
           completeStreaming(finalContent);
-          
-          function completeStreaming(content: string) {
-            // Log performance stats
-            const stats = performanceMonitorRef.current.getStats();
-            console.log('Streaming Performance Stats:', stats);
-            console.log(`Streaming completed with ${content.length} characters of content`);
-            
-            setIsStreaming(false);
-            setIsLoading(false);
-            setStreamingClient(null);
-            setHasScrolledToResults(false);
-            
-            // Cleanup cancellation manager
-            streamingCancellation.cleanupSession(sessionKey);
-            
-            // Create a ServiceNowResponse for compatibility with existing components
-            const finalResponse: ServiceNowResponse = {
-              message: content,
-              type: selectedType,
-              timestamp: new Date().toISOString(),
-              sessionkey: sessionKey,
-              status: 'done'
-            };
-            
-            setResponse(finalResponse);
-            setStreamingContent('');
-            
-            // Clear streaming buffer
-            streamingBufferRef.current.clear();
-          }
         },
         
         onError: (errorMessage: string) => {
