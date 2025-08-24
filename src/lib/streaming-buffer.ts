@@ -116,9 +116,7 @@ export const isSafari = (): boolean => {
 
 /**
  * Get optimal batching interval based on device capabilities
- * Mobile devices use longer intervals to reduce processing overhead,
- * but since mobile now shows a loading state instead of streaming content,
- * we can be more conservative with updates
+ * Optimized intervals to prevent mobile connection timeouts while maintaining performance
  */
 export const getOptimalBatchInterval = (): number => {
   if (typeof window === 'undefined') return 75;
@@ -126,9 +124,10 @@ export const getOptimalBatchInterval = (): number => {
   const mobile = isMobileDevice();
   const safari = isSafari();
   
-  // Longer intervals for mobile since content is buffered and not displayed during streaming
-  if (mobile && safari) return 300; // iOS Safari - even longer since content is hidden
-  if (mobile) return 250; // Other mobile browsers - longer intervals for better performance
+  // Reduced intervals for mobile to prevent connection timeouts and ensure complete content delivery
+  // The previous 250-300ms intervals were causing stream termination at ~1000 characters
+  if (mobile && safari) return 150; // iOS Safari - reduced from 300ms to prevent timeout
+  if (mobile) return 100; // Other mobile browsers - reduced from 250ms for better responsiveness  
   return 75; // Desktop default - keep responsive for real-time display
 };
 

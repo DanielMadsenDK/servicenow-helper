@@ -6,7 +6,7 @@ import { ServiceNowResponse, ConversationHistoryItem, StreamingRequest, Streamin
 import { cancelRequest, submitQuestionStreaming } from '@/lib/api';
 import { StreamingClient } from '@/lib/streaming-client';
 import { streamingCancellation } from '@/lib/streaming-cancellation';
-import { StreamingBuffer, getOptimalBatchInterval, StreamingPerformanceMonitor } from '@/lib/streaming-buffer';
+import { StreamingBuffer, getOptimalBatchInterval, StreamingPerformanceMonitor, isMobileDevice } from '@/lib/streaming-buffer';
 import BurgerMenu from './BurgerMenu';
 import ThemeToggle from './ThemeToggle';
 import WelcomeSection from './WelcomeSection';
@@ -242,7 +242,7 @@ export default function SearchInterface() {
         cleanupStreamingState(currentSessionKey);
         setError('Request timed out. Please try again.');
       }
-    }, 300000); // 5 minutes timeout
+    }, isMobileDevice() ? 450000 : 300000); // 7.5 minutes for mobile, 5 minutes for desktop
 
     const sessionKey = getSessionKey();
 
