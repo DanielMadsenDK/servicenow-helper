@@ -6,6 +6,7 @@ import { ServiceNowResponse, ConversationHistoryItem, StreamingRequest, Streamin
 import { cancelRequest, submitQuestionStreaming } from '@/lib/api';
 import { StreamingClient } from '@/lib/streaming-client';
 import { streamingCancellation } from '@/lib/streaming-cancellation';
+import { StreamingBuffer, getOptimalBatchInterval, StreamingPerformanceMonitor } from '@/lib/streaming-buffer';
 import BurgerMenu from './BurgerMenu';
 import ThemeToggle from './ThemeToggle';
 import WelcomeSection from './WelcomeSection';
@@ -41,9 +42,9 @@ export default function SearchInterface() {
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [streamingClient, setStreamingClient] = useState<StreamingClient | null>(null);
   const [streamingContent, setStreamingContent] = useState<string>('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_streamingChunks, setStreamingChunks] = useState<string[]>([]); // Used for batched chunk accumulation during streaming
   const [batchTimeout, setBatchTimeout] = useState<NodeJS.Timeout | null>(null);
+  const streamingBufferRef = useRef<StreamingBuffer>(new StreamingBuffer());
+  const performanceMonitorRef = useRef<StreamingPerformanceMonitor>(new StreamingPerformanceMonitor());
   const [streamingStatus, setStreamingStatus] = useState<StreamingStatus>(StreamingStatus.CONNECTING);
   const [isStreaming, setIsStreaming] = useState(false);
   const [hasScrolledToResults, setHasScrolledToResults] = useState(false);
@@ -63,31 +64,38 @@ export default function SearchInterface() {
     // Prevent race conditions by checking if batching is still active
     if (!batchingActiveRef.current) return;
     
-    setStreamingChunks(prev => [...prev, chunkContent]);
+    const startTime = performance.now();
+    
+    // Use efficient streaming buffer instead of array operations
+    streamingBufferRef.current.append(chunkContent);
+    
+    performanceMonitorRef.current.recordAppend(performance.now() - startTime);
     
     // Clear existing timeout and set new one
     if (batchTimeout) clearTimeout(batchTimeout);
+    
+    const batchInterval = getOptimalBatchInterval();
     
     const newTimeout = setTimeout(() => {
       // Double-check batching is still active when timeout fires
       if (!batchingActiveRef.current) return;
       
-      setStreamingChunks(chunks => {
-        const content = chunks.join('');
-        setStreamingContent(content);
-        
-        // Scroll to results on first meaningful content
-        if (!hasScrolledToResults && content.length > 0 && resultsRef.current) {
-          setTimeout(() => {
-            smoothScrollToResults();
-          }, 100);
-          setHasScrolledToResults(true);
-        }
-        
-        return chunks;
-      });
+      const renderStart = performance.now();
+      const content = streamingBufferRef.current.getContent();
+      setStreamingContent(content);
+      
+      performanceMonitorRef.current.recordRender(performance.now() - renderStart);
+      
+      // Scroll to results on first meaningful content
+      if (!hasScrolledToResults && content.length > 0 && resultsRef.current) {
+        setTimeout(() => {
+          smoothScrollToResults();
+        }, 100);
+        setHasScrolledToResults(true);
+      }
+      
       setBatchTimeout(null);
-    }, 75); // 75ms batching interval for optimal performance
+    }, batchInterval);
     
     setBatchTimeout(newTimeout);
   };
@@ -161,7 +169,10 @@ export default function SearchInterface() {
     setResponse(null);
     setIsLoadedFromHistory(false);
     setStreamingContent('');
-    setStreamingChunks([]);
+    
+    // Clear streaming buffer and reset performance monitoring
+    streamingBufferRef.current.clear();
+    performanceMonitorRef.current.reset();
     if (batchTimeout) {
       clearTimeout(batchTimeout);
       setBatchTimeout(null);
@@ -197,7 +208,8 @@ export default function SearchInterface() {
           addChunkToBatch(chunk.content);
         },
         
-        onComplete: (totalContent: string) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        onComplete: (_totalContent: string) => {
           // Deactivate batching to prevent race conditions
           batchingActiveRef.current = false;
           
@@ -207,8 +219,12 @@ export default function SearchInterface() {
             setBatchTimeout(null);
           }
           
-          // Use totalContent directly as it contains the complete accumulated content
-          setStreamingContent(totalContent);
+          // Get final content from streaming buffer (should match totalContent)
+          const finalContent = streamingBufferRef.current.getContent();
+          
+          // Log performance stats
+          const stats = performanceMonitorRef.current.getStats();
+          console.log('Streaming Performance Stats:', stats);
           
           setIsStreaming(false);
           setIsLoading(false);
@@ -220,7 +236,7 @@ export default function SearchInterface() {
           
           // Create a ServiceNowResponse for compatibility with existing components
           const finalResponse: ServiceNowResponse = {
-            message: totalContent,
+            message: finalContent,
             type: selectedType,
             timestamp: new Date().toISOString(),
             sessionkey: sessionKey,
@@ -229,7 +245,9 @@ export default function SearchInterface() {
           
           setResponse(finalResponse);
           setStreamingContent('');
-          setStreamingChunks([]);
+          
+          // Clear streaming buffer
+          streamingBufferRef.current.clear();
         },
         
         onError: (errorMessage: string) => {
@@ -252,7 +270,9 @@ export default function SearchInterface() {
           
           setError(errorMessage);
           setStreamingContent('');
-          setStreamingChunks([]);
+          
+          // Clear streaming buffer
+          streamingBufferRef.current.clear();
         },
         
         onStatusChange: (status: StreamingStatus) => {
@@ -279,6 +299,9 @@ export default function SearchInterface() {
       setStreamingClient(null);
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
       setStreamingContent('');
+      
+      // Clear streaming buffer on error
+      streamingBufferRef.current.clear();
     }
   };
 
@@ -298,7 +321,9 @@ export default function SearchInterface() {
     setAbortController(null);
     setError(null);
     setStreamingContent('');
-    setStreamingChunks([]);
+    
+    // Clear streaming buffer
+    streamingBufferRef.current.clear();
     
     try {
       // Use enhanced cancellation manager

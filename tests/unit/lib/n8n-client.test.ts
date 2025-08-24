@@ -53,7 +53,7 @@ describe('N8NClient - Knowledge Store Methods', () => {
         expect.objectContaining({
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer test-api-key'
+            'apikey': 'test-api-key'
           }),
           timeout: 30000
         })
@@ -112,7 +112,7 @@ describe('N8NClient - Knowledge Store Methods', () => {
         expect.objectContaining({
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer test-api-key'
+            'apikey': 'test-api-key'
           }),
           timeout: 30000
         })
