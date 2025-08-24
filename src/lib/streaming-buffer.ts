@@ -105,12 +105,13 @@ export const isMobileDevice = (): boolean => {
 
 /**
  * Safari detection utility
+ * Uses modern detection pattern that excludes Chrome and Android browsers
  */
 export const isSafari = (): boolean => {
   if (typeof window === 'undefined') return false;
   
   const userAgent = window.navigator.userAgent;
-  return /Safari/.test(userAgent) && /Apple Computer/.test(window.navigator.vendor);
+  return /^((?!chrome|android).)*safari/i.test(userAgent);
 };
 
 /**
