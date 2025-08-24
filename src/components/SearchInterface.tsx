@@ -42,6 +42,7 @@ export default function SearchInterface() {
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [streamingClient, setStreamingClient] = useState<StreamingClient | null>(null);
   const [streamingContent, setStreamingContent] = useState<string>('');
+  const streamingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [batchTimeout, setBatchTimeout] = useState<NodeJS.Timeout | null>(null);
   const streamingBufferRef = useRef<StreamingBuffer>(new StreamingBuffer());
   const performanceMonitorRef = useRef<StreamingPerformanceMonitor>(new StreamingPerformanceMonitor());
@@ -58,6 +59,39 @@ export default function SearchInterface() {
   // Use custom hooks
   const { continueMode, setContinueMode, getSessionKey, currentSessionKey } = useSessionManager();
   const currentPlaceholder = usePlaceholderRotation({ textareaRef, question });
+
+  // Helper function to clean up streaming state
+  const cleanupStreamingState = (sessionKey?: string) => {
+    // Clear streaming timeout if it exists
+    if (streamingTimeoutRef.current) {
+      clearTimeout(streamingTimeoutRef.current);
+      streamingTimeoutRef.current = null;
+    }
+    
+    // Deactivate batching to prevent race conditions
+    batchingActiveRef.current = false;
+    
+    // Clear any pending batch timeout
+    if (batchTimeout) {
+      clearTimeout(batchTimeout);
+      setBatchTimeout(null);
+    }
+    
+    // Reset UI state
+    setIsStreaming(false);
+    setIsLoading(false);
+    setStreamingClient(null);
+    setHasScrolledToResults(false);
+    
+    // Clear content and buffer
+    setStreamingContent('');
+    streamingBufferRef.current.clear();
+    
+    // Cleanup cancellation manager if session key provided
+    if (sessionKey) {
+      streamingCancellation.cleanupSession(sessionKey);
+    }
+  };
 
   // Optimized chunk batching for better performance with race condition protection
   const addChunkToBatch = (chunkContent: string) => {
@@ -183,6 +217,33 @@ export default function SearchInterface() {
     // Activate batching for race condition protection
     batchingActiveRef.current = true;
 
+    // Set streaming timeout safeguard to prevent infinite loading (5 minutes max)
+    streamingTimeoutRef.current = setTimeout(() => {
+      console.warn('Streaming timeout reached, forcing completion with current content');
+      const currentContent = streamingBufferRef.current.getContent();
+      const currentSessionKey = getSessionKey();
+      
+      if (currentContent.trim().length > 0) {
+        // Force completion with current content
+        cleanupStreamingState(currentSessionKey);
+        
+        const timeoutResponse: ServiceNowResponse = {
+          message: currentContent,
+          type: selectedType,
+          timestamp: new Date().toISOString(),
+          sessionkey: currentSessionKey,
+          status: 'done'
+        };
+        
+        setResponse(timeoutResponse);
+        console.log(`Streaming forced completion with ${currentContent.length} characters due to timeout`);
+      } else {
+        // No content received, show error
+        cleanupStreamingState(currentSessionKey);
+        setError('Request timed out. Please try again.');
+      }
+    }, 300000); // 5 minutes timeout
+
     const sessionKey = getSessionKey();
 
     // Convert agentModels to array format for API
@@ -224,6 +285,12 @@ export default function SearchInterface() {
           
           // Define completion function before using it
           const completeStreaming = (content: string) => {
+            // Clear streaming timeout if it exists
+            if (streamingTimeoutRef.current) {
+              clearTimeout(streamingTimeoutRef.current);
+              streamingTimeoutRef.current = null;
+            }
+            
             // Log performance stats
             const stats = performanceMonitorRef.current.getStats();
             console.log('Streaming Performance Stats:', stats);
@@ -253,10 +320,10 @@ export default function SearchInterface() {
             streamingBufferRef.current.clear();
           };
           
-          // Validation: Ensure we have substantial content before completing
-          // This prevents displaying partial/empty responses on mobile
+          // Simple validation: Ensure we have some content before completing
+          // This prevents displaying completely empty responses
           const contentLength = finalContent.trim().length;
-          const minimumContentLength = 10; // At least 10 characters for a meaningful response
+          const minimumContentLength = 5; // Reduced from 10 - just check for some content
           
           if (contentLength < minimumContentLength) {
             console.warn(`Completion called with insufficient content (${contentLength} chars). Waiting for more content...`);
@@ -264,59 +331,15 @@ export default function SearchInterface() {
             return;
           }
           
-          // Additional validation: Check if content appears complete
-          // Look for signs of truncated content (common indicators)
-          const contentTrimmed = finalContent.trim();
-          const suspiciousEndings = [
-            /\d+$/, // Ends with just a number
-            /[,\-;:]$/, // Ends with punctuation that suggests continuation
-            /\w{1,3}$/, // Ends with a very short word
-            /^\d+\.\s*$/, // Just a number and period (like list item start)
-          ];
+          console.log(`Streaming completion triggered with ${contentLength} characters of content`);
           
-          const isSuspiciouslyCut = suspiciousEndings.some(pattern => pattern.test(contentTrimmed));
-          if (isSuspiciouslyCut && contentLength < 100) {
-            console.warn('Content appears to be truncated based on ending pattern. Delaying completion...');
-            
-            // Set a timeout to force completion if no more content arrives
-            setTimeout(() => {
-              const currentContent = streamingBufferRef.current.getContent().trim();
-              if (currentContent === contentTrimmed) {
-                console.log('No additional content received, proceeding with completion');
-                completeStreaming(currentContent);
-              }
-            }, 2000); // Wait 2 seconds for more content
-            
-            return;
-          }
-          
-          // Content validation passed, proceed with completion
+          // Proceed with completion - trust the API completion signal
           completeStreaming(finalContent);
         },
         
         onError: (errorMessage: string) => {
-          // Deactivate batching to prevent race conditions
-          batchingActiveRef.current = false;
-          
-          // Clear any pending batch timeout
-          if (batchTimeout) {
-            clearTimeout(batchTimeout);
-            setBatchTimeout(null);
-          }
-          
-          setIsStreaming(false);
-          setIsLoading(false);
-          setStreamingClient(null);
-          setHasScrolledToResults(false);
-          
-          // Cleanup cancellation manager
-          streamingCancellation.cleanupSession(sessionKey);
-          
+          cleanupStreamingState(sessionKey);
           setError(errorMessage);
-          setStreamingContent('');
-          
-          // Clear streaming buffer
-          streamingBufferRef.current.clear();
         },
         
         onStatusChange: (status: StreamingStatus) => {
@@ -334,40 +357,18 @@ export default function SearchInterface() {
       
     } catch (error) {
       console.error('Submit question streaming error:', error);
-      
-      // Deactivate batching to prevent race conditions
-      batchingActiveRef.current = false;
-      
-      setIsStreaming(false);
-      setIsLoading(false);
-      setStreamingClient(null);
+      cleanupStreamingState();
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
-      setStreamingContent('');
-      
-      // Clear streaming buffer on error
-      streamingBufferRef.current.clear();
     }
   };
 
   const handleStop = async () => {
-    // Deactivate batching to prevent race conditions
-    batchingActiveRef.current = false;
+    // Clean up streaming state
+    cleanupStreamingState(currentSessionKey);
     
-    // Clear any pending batch timeout
-    if (batchTimeout) {
-      clearTimeout(batchTimeout);
-      setBatchTimeout(null);
-    }
-    
-    // Reset UI state immediately
-    setIsLoading(false);
-    setIsStreaming(false);
+    // Additional cleanup specific to stopping
     setAbortController(null);
     setError(null);
-    setStreamingContent('');
-    
-    // Clear streaming buffer
-    streamingBufferRef.current.clear();
     
     try {
       // Use enhanced cancellation manager
