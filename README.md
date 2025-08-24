@@ -81,10 +81,32 @@ graph TB
         O --> R[Claude/GPT/Gemini]
     end
     
+    subgraph "ServiceNow Integration"
+        S[ServiceNow Helper Companion App] --> T[Staging Tables]
+        T --> U[ServiceNow Instance]
+        I --> S
+    end
+    
     A --> E
     H --> L
     J --> K
+    I --> S
 ```
+
+### ServiceNow Helper Companion App
+
+The ServiceNow Helper includes a companion application (`848250f153632210030191e0a0490ed5/`) that facilitates seamless integration between the external ServiceNow Helper tool and your ServiceNow instance. This companion app serves as a bridge, implementing a staging table approach for secure and reliable data synchronization.
+
+**Key Features:**
+- **Staging Table Architecture**: When data needs to be synchronized to ServiceNow, the integration creates records in staging tables within the companion app
+- **Asynchronous Processing**: The companion app processes staged records and synchronizes data with the ServiceNow instance
+- **Security & Compliance**: Maintains ServiceNow security policies and audit trails
+- **Role-Based Access**: Includes predefined roles for administration and user access:
+  - `servicenow helper admin` - Administrates the ServiceNow Helper application and configurations
+  - `servicenow helper user` - Able to view data in the ServiceNow Helper application
+
+**Installation:**
+The companion app can be installed directly into your ServiceNow instance using the provided XML files in the `848250f153632210030191e0a0490ed5/` directory. The folder name corresponds to the sys_id assigned by ServiceNow upon app creation.
 
 ### Request Flow Sequence
 
@@ -366,6 +388,13 @@ servicenow-helper/
 ├── package.json, package-lock.json      # Dependencies
 ├── Configuration files                   # ESLint, Jest, Next.js
 ├── Dockerfile, docker-compose.yml       # Containerization
+├── 848250f153632210030191e0a0490ed5/    # ServiceNow Helper Companion App
+│   ├── README.md                        # Companion app documentation
+│   ├── checksum.txt                     # File integrity verification
+│   ├── sys_app_848250f153632210030191e0a0490ed5.xml  # Main app definition
+│   └── update/                          # ServiceNow update sets
+│       ├── sys_embedded_help_role_*.xml # Help role assignments
+│       └── sys_user_role_*.xml         # User roles (admin/user)
 ├── docs/                                # Detailed documentation
 ├── n8n/                                 # Workflow templates
 ├── public/                              # Static assets & PWA

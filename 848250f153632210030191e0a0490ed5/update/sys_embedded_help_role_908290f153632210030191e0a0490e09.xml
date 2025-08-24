@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_embedded_help_role">
+    <sys_embedded_help_role action="INSERT_OR_UPDATE">
+        <order>10</order>
+        <role display_value="x_1118332_servic_0.servicenow helper admin" name="x_1118332_servic_0.servicenow helper admin">dc8250f153632210030191e0a0490ef9</role>
+        <sys_class_name>sys_embedded_help_role</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-08-24 08:19:57</sys_created_on>
+        <sys_id>908290f153632210030191e0a0490e09</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>dc8250f153632210030191e0a0490ef9</sys_name>
+        <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+        <sys_update_name>sys_embedded_help_role_908290f153632210030191e0a0490e09</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-08-24 08:19:57</sys_updated_on>
+    </sys_embedded_help_role>
+</record_update>
