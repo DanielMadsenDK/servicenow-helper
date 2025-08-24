@@ -32,18 +32,58 @@ export default function StreamingMarkdownRenderer({
   const shouldUseProgressiveRendering = enableProgressiveRendering && 
     content.length > progressiveRenderingThreshold;
 
-  // Enhanced approach: Progressive rendering based on content length and device capabilities
+  // Enhanced approach: Progressive rendering based on device capabilities
   if (isStreaming) {
-    // For very long content on mobile or when progressive rendering is enabled,
+    // Mobile-specific behavior: Hide streaming content to improve performance
+    if (isMobile) {
+      return (
+        <div className={className} data-testid="markdown-content">
+          <div className="flex flex-col items-center justify-center py-8 space-y-4">
+            {/* Loading animation */}
+            <div className="flex space-x-2">
+              <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
+              <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            </div>
+            
+            {/* Status text */}
+            <div className="text-center space-y-2">
+              <p className="text-blue-600 dark:text-blue-400 font-medium">AI is generating your response...</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Content will appear when complete for optimal mobile performance
+              </p>
+            </div>
+            
+            {/* Progress indicator based on content length */}
+            {content.length > 0 && (
+              <div className="w-full max-w-md">
+                <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
+                    style={{ 
+                      width: `${Math.min(100, (content.length / 1000) * 100)}%`
+                    }}
+                  ></div>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+                  {Math.round((content.length / 1000) * 100)}% estimated progress
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+    
+    // Desktop behavior: Show streaming content as before
+    // For very long content when progressive rendering is enabled,
     // use ReactMarkdown even during streaming to provide better UX
     if (shouldUseProgressiveRendering && content.length > progressiveRenderingThreshold) {
       return (
         <div className={className} data-testid="markdown-content">
           <Suspense fallback={
             <div className="streaming-raw-content">
-              <div className={`whitespace-pre-wrap text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base ${
-                isMobile ? '' : 'will-change-contents'
-              }`}>
+              <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base will-change-contents">
                 {content}
                 {showStreamingCursor && (
                   <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
@@ -52,8 +92,8 @@ export default function StreamingMarkdownRenderer({
             </div>
           }>
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]} // Always enable GFM for consistent rendering across devices
-              rehypePlugins={isMobile ? [] : [rehypeHighlight]} // Only disable syntax highlighting on mobile
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeHighlight]}
               components={markdownComponents}
             >
               {content || ''}
@@ -66,14 +106,11 @@ export default function StreamingMarkdownRenderer({
       );
     }
     
-    // During streaming: Show optimized raw content with minimal DOM operations
-    // will-change-contents is conditionally applied based on device capabilities
+    // During streaming: Show optimized raw content with minimal DOM operations (desktop only)
     return (
       <div className={className}>
         <div className="streaming-raw-content" data-testid="markdown-content">
-          <div className={`whitespace-pre-wrap text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base ${
-            isMobile ? '' : 'will-change-contents'
-          }`}>
+          <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base will-change-contents">
             {content}
             {showStreamingCursor && (
               <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
@@ -84,7 +121,7 @@ export default function StreamingMarkdownRenderer({
     );
   }
 
-  // When streaming is complete: Full ReactMarkdown rendering (identical to history)
+  // When streaming is complete: Full ReactMarkdown rendering with syntax highlighting enabled for all devices
   return (
     <div className={className} data-testid="markdown-content">
       <Suspense fallback={
@@ -95,7 +132,7 @@ export default function StreamingMarkdownRenderer({
       }>
         <ReactMarkdown
           remarkPlugins={[remarkGfm]} // Always enable GFM for consistent rendering across devices
-          rehypePlugins={isMobile ? [] : [rehypeHighlight]} // Only disable syntax highlighting on mobile for better performance
+          rehypePlugins={[rehypeHighlight]} // Enable syntax highlighting for all devices when streaming is complete
           components={markdownComponents}
         >
           {content || ''}
