@@ -229,16 +229,37 @@ export async function POST(request: NextRequest) {
               // Check for buffer overflow (mobile safety)
               if (partialJsonBuffer.length > maxBufferSize) {
                 bufferOverflowCount++;
-                console.warn(`Buffer overflow detected (${bufferOverflowCount}), clearing buffer to prevent memory issues`);
-                // Force process what we have and reset buffer
-                if (partialJsonBuffer.trim()) {
-                  try {
-                    processJsonLine(partialJsonBuffer.trim());
-                  } catch (overflowError) {
-                    console.error('Error processing overflow buffer:', overflowError);
+                console.warn(`Buffer overflow detected (${bufferOverflowCount}), processing safe portion and clearing buffer`);
+                
+                // Find the last complete line boundary to avoid breaking JSON
+                const lastLineBreak = partialJsonBuffer.lastIndexOf('\n');
+                if (lastLineBreak > 0) {
+                  const safeBuffer = partialJsonBuffer.substring(0, lastLineBreak);
+                  const remainingPartial = partialJsonBuffer.substring(lastLineBreak + 1);
+                  
+                  // Process complete lines from safe buffer
+                  const lines = safeBuffer.split('\n');
+                  for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine) {
+                      try {
+                        processJsonLine(trimmedLine);
+                      } catch (overflowError) {
+                        console.error('Error processing line from overflow buffer:', {
+                          line: trimmedLine.substring(0, 100) + '...', // Log first 100 chars for debugging
+                          error: overflowError instanceof Error ? overflowError.message : String(overflowError)
+                        });
+                      }
+                    }
                   }
+                  
+                  // Keep only the remaining partial line
+                  partialJsonBuffer = remainingPartial;
+                } else {
+                  // No complete lines found, reset buffer to prevent memory issues
+                  console.warn('No complete lines in overflow buffer, resetting to prevent memory exhaustion');
+                  partialJsonBuffer = '';
                 }
-                partialJsonBuffer = '';
               }
               
               // Properly decode the buffer to UTF-8 text with optimized chunk processing
@@ -288,12 +309,46 @@ export async function POST(request: NextRequest) {
             if (remainingBuffer) {
               // Safety check for buffer size before final processing
               if (remainingBuffer.length > maxBufferSize) {
-                console.warn('Final buffer exceeds size limit, truncating for safety');
-                const truncatedBuffer = remainingBuffer.substring(0, maxBufferSize);
-                try {
-                  processJsonLine(truncatedBuffer);
-                } catch (truncationError) {
-                  console.error('Error processing truncated final buffer:', truncationError);
+                console.warn('Final buffer exceeds size limit, finding safe truncation point');
+                
+                // Find the last complete line boundary within the buffer limit
+                const truncationPoint = maxBufferSize;
+                let lastLineBreak = remainingBuffer.lastIndexOf('\n', truncationPoint);
+                
+                // If no line break found within limit, try to find a reasonable JSON boundary
+                if (lastLineBreak === -1) {
+                  // Look for common JSON delimiters as fallback
+                  const jsonDelimiters = ['}', ']', '"'];
+                  for (const delimiter of jsonDelimiters) {
+                    const delimiterIndex = remainingBuffer.lastIndexOf(delimiter, truncationPoint);
+                    if (delimiterIndex > truncationPoint * 0.5) { // Only use if reasonably close to limit
+                      lastLineBreak = delimiterIndex + 1;
+                      break;
+                    }
+                  }
+                }
+                
+                if (lastLineBreak > 0) {
+                  const safeBuffer = remainingBuffer.substring(0, lastLineBreak);
+                  console.log(`Truncating buffer from ${remainingBuffer.length} to ${safeBuffer.length} characters at safe boundary`);
+                  
+                  // Process each complete line in the safe buffer
+                  const lines = safeBuffer.split('\n');
+                  for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine) {
+                      try {
+                        processJsonLine(trimmedLine);
+                      } catch (lineError) {
+                        console.error('Error processing line from truncated buffer:', {
+                          line: trimmedLine.substring(0, 100) + '...', // Log first 100 chars for debugging
+                          error: lineError instanceof Error ? lineError.message : String(lineError)
+                        });
+                      }
+                    }
+                  }
+                } else {
+                  console.warn('Could not find safe truncation point, skipping oversized final buffer to prevent JSON parsing errors');
                 }
               } else {
                 try {
