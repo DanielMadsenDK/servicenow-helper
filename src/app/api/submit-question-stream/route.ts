@@ -170,6 +170,27 @@ export async function POST(request: NextRequest) {
           const userAgent = request.headers.get('user-agent') || '';
           const isMobileClient = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
           
+          // Controller state tracking to prevent duplicate closes (fixes premature stream termination)
+          let controllerClosed = false;
+          
+          // Safe controller closing wrapper to prevent "Controller is already closed" errors
+          const safeCloseController = () => {
+            if (!controllerClosed) {
+              try {
+                controller.close();
+                controllerClosed = true;
+                console.log('Stream controller safely closed');
+              } catch (error) {
+                console.error('Error closing stream controller:', {
+                  error: error instanceof Error ? error.message : String(error),
+                  stack: error instanceof Error ? error.stack : undefined
+                });
+              }
+            } else {
+              console.log('Controller close skipped - already closed');
+            }
+          };
+          
           // Reduced buffer size for mobile devices - prevents memory issues and connection timeouts
           const maxBufferSize = isMobileClient ? 512 * 1024 : 1024 * 1024; // 512KB for mobile, 1MB for desktop
           let bufferOverflowCount = 0;
@@ -195,7 +216,7 @@ export async function POST(request: NextRequest) {
                     timestamp: new Date().toISOString()
                   })}\n\n`
                 );
-                controller.close();
+                safeCloseController(); // Use safe closing to prevent duplicate close errors
                 return;
               } else if (n8nChunk.content !== undefined) {
                 // SIMPLE: Just extract the content property directly
@@ -424,29 +445,23 @@ export async function POST(request: NextRequest) {
             // Only send completion if we haven't already sent it via n8n 'end' signal
             // The completion should be handled by the explicit 'end' message from n8n
             // This prevents duplicate completion signals that cause premature content display
-            try {
-              // Close the controller but don't send duplicate completion signal
-              if (!controller.desiredSize === null) { // Check if controller is still active
-                console.log('Stream ended without explicit n8n completion signal, sending fallback completion');
-                controller.enqueue(
-                  `data: ${JSON.stringify({
-                    content: '',
-                    type: 'complete',
-                    timestamp: new Date().toISOString()
-                  })}\n\n`
-                );
-              }
-              controller.close();
-            } catch (closeError) {
-              console.error('Error closing stream controller on end:', {
-                error: closeError instanceof Error ? closeError.message : String(closeError),
-                stack: closeError instanceof Error ? closeError.stack : undefined
-              });
+            if (!controllerClosed) {
+              console.log('Stream ended without explicit n8n completion signal, sending fallback completion');
+              controller.enqueue(
+                `data: ${JSON.stringify({
+                  content: '',
+                  type: 'complete',
+                  timestamp: new Date().toISOString()
+                })}\n\n`
+              );
             }
+            
+            // Use safe close to prevent duplicate controller close errors
+            safeCloseController();
           });
 
           response.data.on('error', (error: Error) => {
-            try {
+            if (!controllerClosed) {
               controller.enqueue(
                 `data: ${JSON.stringify({
                   content: error.message,
@@ -454,26 +469,27 @@ export async function POST(request: NextRequest) {
                   timestamp: new Date().toISOString()
                 })}\n\n`
               );
-              controller.close();
-            } catch (errorCloseError) {
-              console.error('Error closing stream controller on error:', {
-                error: errorCloseError instanceof Error ? errorCloseError.message : String(errorCloseError),
-                stack: errorCloseError instanceof Error ? errorCloseError.stack : undefined,
-                originalError: error.message
-              });
             }
+            
+            // Use safe close to prevent duplicate controller close errors
+            safeCloseController();
           });
 
         } catch (error) {
           console.error('Streaming error:', error);
-          controller.enqueue(
-            `data: ${JSON.stringify({
-              content: error instanceof Error ? error.message : 'An error occurred',
-              type: 'error',
-              timestamp: new Date().toISOString()
-            })}\n\n`
-          );
-          controller.close();
+          
+          if (!controllerClosed) {
+            controller.enqueue(
+              `data: ${JSON.stringify({
+                content: error instanceof Error ? error.message : 'An error occurred',
+                type: 'error',
+                timestamp: new Date().toISOString()
+              })}\n\n`
+            );
+          }
+          
+          // Use safe close to prevent duplicate controller close errors
+          safeCloseController();
         }
       },
 
