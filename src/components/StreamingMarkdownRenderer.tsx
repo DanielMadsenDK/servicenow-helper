@@ -9,6 +9,9 @@ import { isMobileDevice } from '@/lib/streaming-buffer';
 // Lazy load ReactMarkdown
 const ReactMarkdown = lazy(() => import('react-markdown'));
 
+// Progress estimation factor: assumes ~1000 characters represents a typical complete response
+const PROGRESS_ESTIMATION_FACTOR = 1000;
+
 interface StreamingMarkdownRendererProps {
   content: string;
   isStreaming?: boolean;
@@ -61,12 +64,12 @@ export default function StreamingMarkdownRenderer({
                   <div 
                     className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
                     style={{ 
-                      width: `${Math.min(100, (content.length / 1000) * 100)}%`
+                      width: `${Math.min(100, (content.length / PROGRESS_ESTIMATION_FACTOR) * 100)}%`
                     }}
                   ></div>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
-                  {Math.round((content.length / 1000) * 100)}% estimated progress
+                  {Math.round((content.length / PROGRESS_ESTIMATION_FACTOR) * 100)}% estimated progress
                 </p>
               </div>
             )}
