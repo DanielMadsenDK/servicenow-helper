@@ -49,9 +49,36 @@
   }
 }
 
+/* Loading dots bounce animation */
+@keyframes bounceLoading {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
 /* Custom classes for streaming */
 .streaming-indicator {
   animation: streamingPulse 2s ease-in-out infinite;
+}
+
+/* Loading dots with staggered animation delays */
+.loading-dot {
+  animation: bounceLoading 1.5s infinite ease-in-out;
+}
+
+.loading-dot-1 {
+  animation-delay: 0s;
+}
+
+.loading-dot-2 {
+  animation-delay: 0.15s;
+}
+
+.loading-dot-3 {
+  animation-delay: 0.3s;
 }
 
 .streaming-glow {
