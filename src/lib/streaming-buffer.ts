@@ -8,6 +8,7 @@ export class StreamingBuffer {
   private cachedContent: string = '';
   private lastCacheIndex: number = 0;
   private isDirty: boolean = false;
+  private totalLength: number = 0;
 
   /**
    * Append new content to the buffer
@@ -17,6 +18,7 @@ export class StreamingBuffer {
     if (!content) return;
     
     this.chunks.push(content);
+    this.totalLength += content.length;
     this.isDirty = true;
   }
 
@@ -41,10 +43,11 @@ export class StreamingBuffer {
   }
 
   /**
-   * Get content length without triggering full join
+   * Get content length without triggering full content rebuild
+   * Uses incremental length tracking for optimal performance
    */
   getLength(): number {
-    return this.getContent().length;
+    return this.totalLength;
   }
 
   /**
@@ -69,6 +72,7 @@ export class StreamingBuffer {
     this.cachedContent = '';
     this.lastCacheIndex = 0;
     this.isDirty = false;
+    this.totalLength = 0;
   }
 
   /**
@@ -77,7 +81,8 @@ export class StreamingBuffer {
   getStats() {
     return {
       chunkCount: this.chunks.length,
-      contentLength: this.cachedContent.length,
+      totalLength: this.totalLength,
+      cachedContentLength: this.cachedContent.length,
       isDirty: this.isDirty,
       cacheEfficiency: this.lastCacheIndex / (this.chunks.length || 1)
     };

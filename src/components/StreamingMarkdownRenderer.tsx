@@ -52,8 +52,8 @@ export default function StreamingMarkdownRenderer({
             </div>
           }>
             <ReactMarkdown
-              remarkPlugins={isMobile ? [] : [remarkGfm]} // Reduce plugins on mobile
-              rehypePlugins={isMobile ? [] : [rehypeHighlight]} // Reduce plugins on mobile
+              remarkPlugins={[remarkGfm]} // Always enable GFM for consistent rendering across devices
+              rehypePlugins={isMobile ? [] : [rehypeHighlight]} // Only disable syntax highlighting on mobile
               components={markdownComponents}
             >
               {content || ''}
@@ -94,8 +94,8 @@ export default function StreamingMarkdownRenderer({
         </div>
       }>
         <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeHighlight]}
+          remarkPlugins={[remarkGfm]} // Always enable GFM for consistent rendering across devices
+          rehypePlugins={isMobile ? [] : [rehypeHighlight]} // Only disable syntax highlighting on mobile for better performance
           components={markdownComponents}
         >
           {content || ''}
