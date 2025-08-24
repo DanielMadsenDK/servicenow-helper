@@ -60,6 +60,39 @@ export default function SearchInterface() {
   const { continueMode, setContinueMode, getSessionKey, currentSessionKey } = useSessionManager();
   const currentPlaceholder = usePlaceholderRotation({ textareaRef, question });
 
+  // Helper function to clean up streaming state
+  const cleanupStreamingState = (sessionKey?: string) => {
+    // Clear streaming timeout if it exists
+    if (streamingTimeoutRef.current) {
+      clearTimeout(streamingTimeoutRef.current);
+      streamingTimeoutRef.current = null;
+    }
+    
+    // Deactivate batching to prevent race conditions
+    batchingActiveRef.current = false;
+    
+    // Clear any pending batch timeout
+    if (batchTimeout) {
+      clearTimeout(batchTimeout);
+      setBatchTimeout(null);
+    }
+    
+    // Reset UI state
+    setIsStreaming(false);
+    setIsLoading(false);
+    setStreamingClient(null);
+    setHasScrolledToResults(false);
+    
+    // Clear content and buffer
+    setStreamingContent('');
+    streamingBufferRef.current.clear();
+    
+    // Cleanup cancellation manager if session key provided
+    if (sessionKey) {
+      streamingCancellation.cleanupSession(sessionKey);
+    }
+  };
+
   // Optimized chunk batching for better performance with race condition protection
   const addChunkToBatch = (chunkContent: string) => {
     // Prevent race conditions by checking if batching is still active
@@ -188,31 +221,26 @@ export default function SearchInterface() {
     streamingTimeoutRef.current = setTimeout(() => {
       console.warn('Streaming timeout reached, forcing completion with current content');
       const currentContent = streamingBufferRef.current.getContent();
+      const currentSessionKey = getSessionKey();
+      
       if (currentContent.trim().length > 0) {
         // Force completion with current content
-        setIsStreaming(false);
-        setIsLoading(false);
-        setStreamingClient(null);
+        cleanupStreamingState(currentSessionKey);
         
         const timeoutResponse: ServiceNowResponse = {
           message: currentContent,
           type: selectedType,
           timestamp: new Date().toISOString(),
-          sessionkey: getSessionKey(),
+          sessionkey: currentSessionKey,
           status: 'done'
         };
         
         setResponse(timeoutResponse);
-        setStreamingContent('');
-        streamingBufferRef.current.clear();
-        
         console.log(`Streaming forced completion with ${currentContent.length} characters due to timeout`);
       } else {
         // No content received, show error
+        cleanupStreamingState(currentSessionKey);
         setError('Request timed out. Please try again.');
-        setIsStreaming(false);
-        setIsLoading(false);
-        setStreamingClient(null);
       }
     }, 300000); // 5 minutes timeout
 
@@ -310,34 +338,8 @@ export default function SearchInterface() {
         },
         
         onError: (errorMessage: string) => {
-          // Clear streaming timeout if it exists
-          if (streamingTimeoutRef.current) {
-            clearTimeout(streamingTimeoutRef.current);
-            streamingTimeoutRef.current = null;
-          }
-          
-          // Deactivate batching to prevent race conditions
-          batchingActiveRef.current = false;
-          
-          // Clear any pending batch timeout
-          if (batchTimeout) {
-            clearTimeout(batchTimeout);
-            setBatchTimeout(null);
-          }
-          
-          setIsStreaming(false);
-          setIsLoading(false);
-          setStreamingClient(null);
-          setHasScrolledToResults(false);
-          
-          // Cleanup cancellation manager
-          streamingCancellation.cleanupSession(sessionKey);
-          
+          cleanupStreamingState(sessionKey);
           setError(errorMessage);
-          setStreamingContent('');
-          
-          // Clear streaming buffer
-          streamingBufferRef.current.clear();
         },
         
         onStatusChange: (status: StreamingStatus) => {
@@ -355,46 +357,18 @@ export default function SearchInterface() {
       
     } catch (error) {
       console.error('Submit question streaming error:', error);
-      
-      // Deactivate batching to prevent race conditions
-      batchingActiveRef.current = false;
-      
-      setIsStreaming(false);
-      setIsLoading(false);
-      setStreamingClient(null);
+      cleanupStreamingState();
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
-      setStreamingContent('');
-      
-      // Clear streaming buffer on error
-      streamingBufferRef.current.clear();
     }
   };
 
   const handleStop = async () => {
-    // Clear streaming timeout if it exists
-    if (streamingTimeoutRef.current) {
-      clearTimeout(streamingTimeoutRef.current);
-      streamingTimeoutRef.current = null;
-    }
+    // Clean up streaming state
+    cleanupStreamingState(currentSessionKey);
     
-    // Deactivate batching to prevent race conditions
-    batchingActiveRef.current = false;
-    
-    // Clear any pending batch timeout
-    if (batchTimeout) {
-      clearTimeout(batchTimeout);
-      setBatchTimeout(null);
-    }
-    
-    // Reset UI state immediately
-    setIsLoading(false);
-    setIsStreaming(false);
+    // Additional cleanup specific to stopping
     setAbortController(null);
     setError(null);
-    setStreamingContent('');
-    
-    // Clear streaming buffer
-    streamingBufferRef.current.clear();
     
     try {
       // Use enhanced cancellation manager
