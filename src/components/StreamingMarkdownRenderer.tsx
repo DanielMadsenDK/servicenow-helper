@@ -37,43 +37,9 @@ export default function StreamingMarkdownRenderer({
 
   // Enhanced approach: Progressive rendering based on device capabilities
   if (isStreaming) {
-    // Mobile-specific behavior: Hide streaming content to improve performance
-    // Additional safeguards to prevent premature content display
+    // Mobile-specific behavior: Always show loading animation when streaming
+    // No exceptions - wait for streaming to complete before showing content
     if (isMobile) {
-      // Extra validation: Only show loading if content is still being received
-      // This prevents showing loading for already completed but incorrectly flagged streams
-      const hasMinimalContent = content.length >= 10;
-      const contentLooksIncomplete = hasMinimalContent && (
-        content.endsWith('...') ||
-        content.match(/\d+$/) ||
-        content.match(/[,\-;:]$/) ||
-        content.length < 50 // Very short responses might be incomplete
-      );
-      
-      // If we have content that looks reasonably complete, consider showing it
-      // This prevents the loading state when streaming incorrectly signals as active
-      if (hasMinimalContent && !contentLooksIncomplete && content.length > 100) {
-        console.log('Mobile: Content appears complete despite streaming flag, showing content');
-        return (
-          <div className={className} data-testid="markdown-content">
-            <Suspense fallback={
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                <span className="ml-2 text-gray-600 dark:text-gray-400">Loading content...</span>
-              </div>
-            }>
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeHighlight]}
-                components={markdownComponents}
-              >
-                {content || ''}
-              </ReactMarkdown>
-            </Suspense>
-          </div>
-        );
-      }
-      
       return (
         <div className={className} data-testid="markdown-content">
           <div className="flex flex-col items-center justify-center py-8 space-y-4">
