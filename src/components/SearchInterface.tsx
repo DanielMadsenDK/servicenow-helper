@@ -44,6 +44,8 @@ export default function SearchInterface() {
   const [streamingContent, setStreamingContent] = useState<string>('');
   const streamingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const mobileHealthCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastChunkTimeRef = useRef<number>(0);
+  const streamingCompletedRef = useRef<boolean>(false);
   const [batchTimeout, setBatchTimeout] = useState<NodeJS.Timeout | null>(null);
   const streamingBufferRef = useRef<StreamingBuffer>(new StreamingBuffer());
   const performanceMonitorRef = useRef<StreamingPerformanceMonitor>(new StreamingPerformanceMonitor());
@@ -61,7 +63,7 @@ export default function SearchInterface() {
   const { continueMode, setContinueMode, getSessionKey, currentSessionKey } = useSessionManager();
   const currentPlaceholder = usePlaceholderRotation({ textareaRef, question });
 
-  // Mobile health check for dead connection detection
+  // Mobile health check for dead connection detection - improved version
   const setupMobileHealthCheck = () => {
     if (!isMobileDevice()) return;
     
@@ -70,30 +72,53 @@ export default function SearchInterface() {
       clearTimeout(mobileHealthCheckTimeoutRef.current);
     }
     
-    // Set up new timeout - shorter than main timeout for faster dead connection detection
+    // Set up health check that monitors for truly stalled connections
     mobileHealthCheckTimeoutRef.current = setTimeout(() => {
-      const currentContent = streamingBufferRef.current.getContent();
-      const currentSessionKey = getSessionKey();
-      
-      if (currentContent.trim().length > 0) {
-        // We have content but stream appears dead - force completion for mobile users
-        console.warn('Mobile connection health check: stream appears dead, auto-completing with existing content');
-        cleanupStreamingState(currentSessionKey || undefined);
-        
-        const timeoutResponse: ServiceNowResponse = {
-          message: currentContent,
-          type: selectedType,
-          timestamp: new Date().toISOString()
-        };
-        
-        setResponse(timeoutResponse);
-        console.log(`Mobile auto-completion with ${currentContent.length} characters due to connection timeout`);
+      // Check if streaming has already completed naturally
+      if (streamingCompletedRef.current) {
+        console.log('Mobile health check: streaming already completed, skipping');
+        return;
       }
-    }, 60000); // 1 minute timeout for mobile dead connection detection
+      
+      const now = Date.now();
+      const timeSinceLastChunk = now - lastChunkTimeRef.current;
+      
+      // Only force completion if no chunks received for extended period
+      if (timeSinceLastChunk > 120000) { // 2 minutes since last chunk
+        const currentContent = streamingBufferRef.current.getContent();
+        const currentSessionKey = getSessionKey();
+        
+        if (currentContent.trim().length > 0) {
+          // We have content but connection is truly stalled
+          console.warn(`Mobile health check: no chunks for ${Math.round(timeSinceLastChunk/1000)}s, auto-completing with existing content`);
+          
+          // Mark as completed to prevent race conditions
+          streamingCompletedRef.current = true;
+          
+          cleanupStreamingState(currentSessionKey || undefined);
+          
+          const timeoutResponse: ServiceNowResponse = {
+            message: currentContent,
+            type: selectedType,
+            timestamp: new Date().toISOString()
+          };
+          
+          setResponse(timeoutResponse);
+          console.log(`Mobile auto-completion with ${currentContent.length} characters due to connection timeout`);
+        }
+      } else {
+        // Connection is still active, set up another check
+        console.log(`Mobile health check: recent activity (${Math.round(timeSinceLastChunk/1000)}s ago), continuing monitoring`);
+        setupMobileHealthCheck();
+      }
+    }, 180000); // 3 minutes total timeout
   };
 
   // Helper function to clean up streaming state
   const cleanupStreamingState = (sessionKey?: string) => {
+    // Mark streaming as completed to prevent race conditions
+    streamingCompletedRef.current = true;
+    
     // Clear streaming timeout if it exists
     if (streamingTimeoutRef.current) {
       clearTimeout(streamingTimeoutRef.current);
@@ -252,6 +277,10 @@ export default function SearchInterface() {
     setIsStreaming(true);
     setHasScrolledToResults(false);
     
+    // Reset streaming state tracking
+    streamingCompletedRef.current = false;
+    lastChunkTimeRef.current = Date.now();
+    
     // Set up mobile health check for connection monitoring
     setupMobileHealthCheck();
     
@@ -306,15 +335,24 @@ export default function SearchInterface() {
     try {
       const client = await submitQuestionStreaming(request, {
         onChunk: (chunk: StreamingChunk) => {
+          // Update last chunk timestamp for mobile health monitoring
+          lastChunkTimeRef.current = Date.now();
+          
           // Use batched chunk processing for better performance
           addChunkToBatch(chunk.content);
-          
-          // Reset mobile health check timeout since we received data
-          setupMobileHealthCheck();
         },
         
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         onComplete: (_totalContent: string) => {
+          // Check if already completed (race condition prevention)
+          if (streamingCompletedRef.current) {
+            console.log('Stream completion already handled, ignoring duplicate');
+            return;
+          }
+          
+          // Mark as completed immediately to prevent race conditions
+          streamingCompletedRef.current = true;
+          
           // Deactivate batching to prevent race conditions
           batchingActiveRef.current = false;
           
@@ -382,6 +420,13 @@ export default function SearchInterface() {
         },
         
         onError: (errorMessage: string) => {
+          // Check if already completed (race condition prevention)
+          if (streamingCompletedRef.current) {
+            console.log('Stream error ignored - already completed');
+            return;
+          }
+          
+          streamingCompletedRef.current = true;
           cleanupStreamingState(sessionKey);
           setError(errorMessage);
         },
@@ -401,12 +446,17 @@ export default function SearchInterface() {
       
     } catch (error) {
       console.error('Submit question streaming error:', error);
+      // Mark as completed before cleanup to prevent race conditions
+      streamingCompletedRef.current = true;
       cleanupStreamingState();
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   };
 
   const handleStop = async () => {
+    // Mark as completed to prevent race conditions during manual stop
+    streamingCompletedRef.current = true;
+    
     // Clean up streaming state
     cleanupStreamingState(currentSessionKey || undefined);
     
