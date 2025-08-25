@@ -273,9 +273,10 @@ export async function POST(request: NextRequest) {
                     timestamp: new Date().toISOString()
                   })}\n\n`
                 );
-              } else if (n8nChunk.type === 'end') {
-                safeSendCompletion('n8n end signal');
-                safeCloseController('stream end signal from n8n');
+              } else if (n8nChunk.type === 'end' || n8nChunk.type === 'complete') {
+                console.log(`🟢 STREAMING [${correlationId}]: Received completion signal - type: ${n8nChunk.type}`);
+                safeSendCompletion(`n8n ${n8nChunk.type} signal`);
+                safeCloseController(`stream ${n8nChunk.type} signal from n8n`);
                 return;
               } else if (n8nChunk.content !== undefined) {
                 // SIMPLE: Just extract the content property directly
@@ -333,12 +334,29 @@ export async function POST(request: NextRequest) {
               let lineStart = 0;
               let lineEnd = partialJsonBuffer.indexOf('\n', lineStart);
               
-              // Process complete lines efficiently
+              // Process complete lines efficiently - only parse SSE data lines
               while (lineEnd !== -1) {
                 const line = partialJsonBuffer.slice(lineStart, lineEnd).trim();
-                if (line) {
-                  processJsonLine(line);
+                
+                // Only process lines that start with 'data: ' - these contain JSON
+                if (line.startsWith('data: ')) {
+                  const jsonPart = line.substring(6); // Remove 'data: ' prefix
+                  if (jsonPart) {
+                    try {
+                      // Validate that it's complete JSON before processing
+                      JSON.parse(jsonPart); // Test parse to validate JSON
+                      processJsonLine(jsonPart); // Process valid JSON
+                    } catch (validateError) {
+                      console.log('Skipping incomplete JSON chunk:', {
+                        line: line,
+                        jsonPart: jsonPart.substring(0, 100) + '...', // First 100 chars for debugging
+                        error: validateError instanceof Error ? validateError.message : String(validateError)
+                      });
+                    }
+                  }
                 }
+                // Ignore other SSE lines (empty lines, comments, etc.)
+                
                 lineStart = lineEnd + 1;
                 lineEnd = partialJsonBuffer.indexOf('\n', lineStart);
               }
