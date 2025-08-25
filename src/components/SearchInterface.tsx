@@ -43,8 +43,6 @@ export default function SearchInterface() {
   const [streamingClient, setStreamingClient] = useState<StreamingClient | null>(null);
   const [streamingContent, setStreamingContent] = useState<string>('');
   const streamingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const mobileHealthCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastChunkTimeRef = useRef<number>(0);
   const streamingCompletedRef = useRef<boolean>(false);
   const [batchTimeout, setBatchTimeout] = useState<NodeJS.Timeout | null>(null);
   const streamingBufferRef = useRef<StreamingBuffer>(new StreamingBuffer());
@@ -63,58 +61,8 @@ export default function SearchInterface() {
   const { continueMode, setContinueMode, getSessionKey, currentSessionKey } = useSessionManager();
   const currentPlaceholder = usePlaceholderRotation({ textareaRef, question });
 
-  // Mobile health check for dead connection detection - improved version
-  const setupMobileHealthCheck = () => {
-    if (!isMobileDevice()) return;
-    
-    // Clear any existing timeout
-    if (mobileHealthCheckTimeoutRef.current) {
-      clearTimeout(mobileHealthCheckTimeoutRef.current);
-    }
-    
-    // Set up health check that monitors for truly stalled connections
-    mobileHealthCheckTimeoutRef.current = setTimeout(() => {
-      // Check if streaming has already completed naturally
-      if (streamingCompletedRef.current) {
-        console.log('Mobile health check: streaming already completed, skipping');
-        return;
-      }
-      
-      const now = Date.now();
-      const timeSinceLastChunk = now - lastChunkTimeRef.current;
-      
-      // Only force completion if no chunks received for extended period
-      if (timeSinceLastChunk > 120000) { // 2 minutes since last chunk
-        const currentContent = streamingBufferRef.current.getContent();
-        const currentSessionKey = getSessionKey();
-        
-        if (currentContent.trim().length > 0) {
-          // We have content but connection is truly stalled
-          console.warn(`Mobile health check: no chunks for ${Math.round(timeSinceLastChunk/1000)}s, auto-completing with existing content`);
-          
-          // Mark as completed to prevent race conditions
-          streamingCompletedRef.current = true;
-          
-          cleanupStreamingState(currentSessionKey || undefined);
-          
-          const timeoutResponse: ServiceNowResponse = {
-            message: currentContent,
-            type: selectedType,
-            timestamp: new Date().toISOString()
-          };
-          
-          setResponse(timeoutResponse);
-          console.log(`Mobile auto-completion with ${currentContent.length} characters due to connection timeout`);
-        }
-      } else {
-        // Connection is still active, set up another check
-        console.log(`Mobile health check: recent activity (${Math.round(timeSinceLastChunk/1000)}s ago), continuing monitoring`);
-        setupMobileHealthCheck();
-      }
-    }, 180000); // 3 minutes total timeout
-  };
 
-  // Helper function to clean up streaming state
+  // Helper function to clean up streaming state  
   const cleanupStreamingState = (sessionKey?: string) => {
     // Mark streaming as completed to prevent race conditions
     streamingCompletedRef.current = true;
@@ -123,12 +71,6 @@ export default function SearchInterface() {
     if (streamingTimeoutRef.current) {
       clearTimeout(streamingTimeoutRef.current);
       streamingTimeoutRef.current = null;
-    }
-    
-    // Clear mobile health check timeout if it exists
-    if (mobileHealthCheckTimeoutRef.current) {
-      clearTimeout(mobileHealthCheckTimeoutRef.current);
-      mobileHealthCheckTimeoutRef.current = null;
     }
     
     // Deactivate batching to prevent race conditions
@@ -253,6 +195,72 @@ export default function SearchInterface() {
     }
   }, [response, isLoadedFromHistory]);
 
+  // Mobile-specific complete response handling
+  const handleMobileSubmit = async () => {
+    const sessionKey = getSessionKey();
+    
+    // Convert agentModels to array format for API
+    const agentModelsArray = Object.entries(agentModels).map(([agent, model]) => ({
+      agent,
+      model
+    }));
+
+    const request: StreamingRequest = {
+      question: question.trim(),
+      type: selectedType,
+      sessionkey: sessionKey,
+      searching: searchMode,
+      aiModel: settings.default_ai_model, // Legacy field for backward compatibility
+      agentModels: agentModelsArray, // New field for multi-agent support
+      ...(selectedFile && { file: selectedFile }),
+    };
+
+    try {
+      console.log('Mobile client: sending complete response request');
+      
+      const response = await fetch('/api/submit-question-stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success === false) {
+        throw new Error(result.error || 'Request failed');
+      }
+
+      console.log(`Mobile complete response received: ${result.message.length} characters`);
+      
+      // Create ServiceNowResponse object
+      const mobileResponse: ServiceNowResponse = {
+        message: result.message,
+        type: selectedType,
+        timestamp: result.timestamp || new Date().toISOString(),
+        sessionkey: sessionKey,
+        status: 'done'
+      };
+
+      setResponse(mobileResponse);
+      setIsLoading(false);
+      setIsStreaming(false);
+      setStreamingContent('');
+
+    } catch (error) {
+      console.error('Mobile submit error:', error);
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+      setIsLoading(false);
+      setIsStreaming(false);
+    }
+  };
+
   // Scroll to results when streaming starts is now handled in onChunk callback
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -274,15 +282,21 @@ export default function SearchInterface() {
       clearTimeout(batchTimeout);
       setBatchTimeout(null);
     }
+    
+    // Mobile clients: Use complete response mode (no streaming)
+    if (isMobileDevice()) {
+      console.log('Mobile client detected: using complete response mode');
+      setIsStreaming(true); // Show loading animation
+      return handleMobileSubmit();
+    }
+    
+    // Desktop clients: Use streaming mode
+    console.log('Desktop client detected: using streaming mode');
     setIsStreaming(true);
     setHasScrolledToResults(false);
     
     // Reset streaming state tracking
     streamingCompletedRef.current = false;
-    lastChunkTimeRef.current = Date.now();
-    
-    // Set up mobile health check for connection monitoring
-    setupMobileHealthCheck();
     
     // Activate batching for race condition protection
     batchingActiveRef.current = true;
@@ -335,9 +349,6 @@ export default function SearchInterface() {
     try {
       const client = await submitQuestionStreaming(request, {
         onChunk: (chunk: StreamingChunk) => {
-          // Update last chunk timestamp for mobile health monitoring
-          lastChunkTimeRef.current = Date.now();
-          
           // Use batched chunk processing for better performance
           addChunkToBatch(chunk.content);
         },
