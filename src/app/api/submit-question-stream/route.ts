@@ -9,7 +9,7 @@ const API_BASE_URL = process.env.N8N_WEBHOOK_URL!;
 const API_KEY = process.env.N8N_API_KEY!;
 
 // Handle mobile clients with complete response buffering
-async function handleMobileCompleteResponse(response: { data: NodeJS.ReadableStream }): Promise<Response> {
+async function handleMobileCompleteResponse(response: { data: NodeJS.ReadableStream }, correlationId: string = 'unknown'): Promise<Response> {
   const textDecoder = new TextDecoder('utf-8');
   let partialJsonBuffer = '';
   let completeContent = '';
@@ -92,17 +92,30 @@ async function handleMobileCompleteResponse(response: { data: NodeJS.ReadableStr
       );
     }
 
-    console.log(`Mobile complete response: ${completeContent.length} characters`);
+    console.log(`🟢 MOBILE COMPLETE [${correlationId}]: Mobile complete response: ${completeContent.length} characters`);
+    
+    const responsePayload = {
+      message: completeContent,
+      type: 'complete',
+      timestamp: new Date().toISOString()
+    };
+    
+    console.log(`🔵 MOBILE RESPONSE [${correlationId}]: Sending mobile response payload`, {
+      messageLength: responsePayload.message.length,
+      type: responsePayload.type,
+      timestamp: responsePayload.timestamp,
+      payloadSize: JSON.stringify(responsePayload).length
+    });
     
     return new Response(
-      JSON.stringify({
-        message: completeContent,
-        type: 'complete',
-        timestamp: new Date().toISOString()
-      }),
+      JSON.stringify(responsePayload),
       { 
         status: 200, 
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Correlation-ID': correlationId,
+          'X-Response-Type': 'mobile-complete'
+        }
       }
     );
 
@@ -123,8 +136,28 @@ async function handleMobileCompleteResponse(response: { data: NodeJS.ReadableStr
 
 export async function POST(request: NextRequest) {
   try {
+    // Enhanced request logging for debugging
+    const requestTimestamp = new Date().toISOString();
+    const userAgent = request.headers.get('user-agent') || 'unknown';
+    const correlationId = request.headers.get('x-correlation-id') || `server_${Date.now()}`;
+    const isMobileRequest = request.headers.get('x-mobile-request') === 'true';
+    const attemptNumber = request.headers.get('x-attempt-number') || '1';
+    
+    console.log(`🔵 REQUEST DEBUG [${correlationId}]: Incoming request`, {
+      timestamp: requestTimestamp,
+      userAgent,
+      isMobileRequest,
+      attemptNumber,
+      method: request.method,
+      url: request.url,
+      headers: Object.fromEntries(request.headers.entries()),
+      origin: request.headers.get('origin'),
+      referer: request.headers.get('referer')
+    });
+
     const { isAuthenticated } = await getServerAuthState();
     if (!isAuthenticated) {
+      console.log(`🔴 AUTH ERROR [${correlationId}]: Not authenticated`);
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
         { 
@@ -134,7 +167,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log(`🟢 AUTH SUCCESS [${correlationId}]: User authenticated`);
+
     const body: StreamingRequest = await request.json();
+    console.log(`🔵 REQUEST DEBUG [${correlationId}]: Request body parsed`, {
+      questionLength: body.question?.length || 0,
+      type: body.type,
+      sessionkey: body.sessionkey,
+      correlationId: body.correlationId,
+      hasFile: !!body.file,
+      agentModelsCount: body.agentModels?.length || 0
+    });
 
     // Validate request body
     if (!body.question || !body.type) {
@@ -317,8 +360,15 @@ export async function POST(request: NextRequest) {
           };
 
           // Mobile and Desktop client detection for different response strategies
-          const userAgent = request.headers.get('user-agent') || '';
-          const isMobileClient = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+          const detectedUserAgent = request.headers.get('user-agent') || '';
+          const isMobileClient = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(detectedUserAgent);
+
+          console.log(`🔵 CLIENT DEBUG [${correlationId}]: Client detection`, {
+            userAgent: detectedUserAgent,
+            isMobileClient,
+            headerMobileRequest: isMobileRequest,
+            clientType: isMobileClient ? 'MOBILE' : 'DESKTOP'
+          });
 
           const timeoutMs = isMobileClient ? 480000 : 330000; // 8 min for mobile, 5.5 min for desktop
           
@@ -333,7 +383,14 @@ export async function POST(request: NextRequest) {
 
           // Mobile clients: Buffer complete response then send as single JSON response
           if (isMobileClient) {
-            return handleMobileCompleteResponse(response);
+            console.log(`🔵 MOBILE ROUTE [${correlationId}]: Routing to mobile complete response handler`);
+            const mobileResponse = await handleMobileCompleteResponse(response, correlationId);
+            console.log(`🟢 MOBILE RESPONSE [${correlationId}]: Mobile response completed`, {
+              status: mobileResponse.status,
+              statusText: mobileResponse.statusText,
+              headers: Object.fromEntries(mobileResponse.headers.entries())
+            });
+            return mobileResponse;
           }
 
           // Desktop clients: Continue with streaming response

@@ -199,10 +199,45 @@ export default function SearchInterface() {
   const handleMobileSubmit = async () => {
     const sessionKey = getSessionKey();
     const startTime = Date.now();
+    const correlationId = `mobile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     console.log('🔵 MOBILE DEBUG: Starting mobile submit process...');
+    console.log('🔵 MOBILE DEBUG: Correlation ID:', correlationId);
     console.log('🔵 MOBILE DEBUG: User agent:', navigator.userAgent);
     console.log('🔵 MOBILE DEBUG: Network status:', navigator.onLine ? 'online' : 'offline');
+    
+    // Enhanced network diagnostics
+    interface NetworkConnection {
+      effectiveType?: string;
+      downlink?: number;
+      rtt?: number;
+      saveData?: boolean;
+    }
+    const navWithConnection = navigator as { connection?: NetworkConnection };
+    const connection = navWithConnection.connection;
+    console.log('🔵 MOBILE DEBUG: Network diagnostics:', {
+      connection: connection ? {
+        effectiveType: connection.effectiveType,
+        downlink: connection.downlink,
+        rtt: connection.rtt,
+        saveData: connection.saveData
+      } : 'Connection API not available',
+      cookieEnabled: navigator.cookieEnabled,
+      doNotTrack: navigator.doNotTrack,
+      language: navigator.language,
+      platform: navigator.platform,
+      windowLocation: window.location.href,
+      windowOrigin: window.location.origin
+    });
+
+    // Test basic connectivity to the server
+    console.log('🔵 MOBILE DEBUG: Testing basic server connectivity...');
+    const baseUrl = window.location.origin;
+    const testUrl = `${baseUrl}/api/submit-question-stream`;
+    
+    console.log('🔵 MOBILE DEBUG: Target URL:', testUrl);
+    console.log('🔵 MOBILE DEBUG: Base URL:', baseUrl);
+    console.log('🔵 MOBILE DEBUG: Current page URL:', window.location.href);
     
     // Convert agentModels to array format for API
     const agentModelsArray = Object.entries(agentModels).map(([agent, model]) => ({
@@ -217,6 +252,7 @@ export default function SearchInterface() {
       searching: searchMode,
       aiModel: settings.default_ai_model, // Legacy field for backward compatibility
       agentModels: agentModelsArray, // New field for multi-agent support
+      correlationId, // Add correlation ID for debugging
       ...(selectedFile && { file: selectedFile }),
     };
 
@@ -224,43 +260,216 @@ export default function SearchInterface() {
       questionLength: request.question.length,
       type: request.type,
       sessionkey: request.sessionkey,
-      hasFile: !!selectedFile
+      correlationId: request.correlationId,
+      hasFile: !!selectedFile,
+      payloadSize: JSON.stringify(request).length
     });
 
-    // Implement fetch with timeout
+    // Enhanced fetch with detailed network debugging
     const fetchWithTimeout = (url: string, options: RequestInit, timeoutMs: number = 60000) => {
-      console.log(`🔵 MOBILE DEBUG: Creating fetch with ${timeoutMs}ms timeout`);
+      console.log(`🔵 MOBILE DEBUG: Creating fetch with ${timeoutMs}ms timeout for URL:`, url);
+      console.log('🔵 MOBILE DEBUG: Fetch options:', {
+        method: options.method,
+        headers: options.headers,
+        bodySize: options.body ? options.body.toString().length : 0,
+        credentials: options.credentials || 'default',
+        cache: options.cache || 'default',
+        redirect: options.redirect || 'follow'
+      });
       
-      return Promise.race([
-        fetch(url, options),
-        new Promise<Response>((_, reject) => {
-          setTimeout(() => {
-            console.log('🔴 MOBILE ERROR: Fetch timeout after', timeoutMs, 'ms');
-            reject(new Error(`Request timeout after ${timeoutMs}ms`));
-          }, timeoutMs);
+      const fetchPromise = fetch(url, options)
+        .then(response => {
+          console.log('🟢 MOBILE DEBUG: Fetch promise resolved with response:', {
+            status: response.status,
+            statusText: response.statusText,
+            ok: response.ok,
+            redirected: response.redirected,
+            type: response.type,
+            url: response.url,
+            headers: Object.fromEntries(response.headers.entries())
+          });
+          return response;
         })
-      ]);
+        .catch(fetchError => {
+          console.log('🔴 MOBILE DEBUG: Fetch promise rejected with error:', {
+            name: fetchError.name,
+            message: fetchError.message,
+            stack: fetchError.stack,
+            type: typeof fetchError
+          });
+          throw fetchError;
+        });
+
+      const timeoutPromise = new Promise<Response>((_, reject) => {
+        setTimeout(() => {
+          console.log('🔴 MOBILE ERROR: Fetch timeout after', timeoutMs, 'ms');
+          console.log('🔴 MOBILE DEBUG: Network status during timeout:', navigator.onLine ? 'online' : 'offline');
+          reject(new Error(`Request timeout after ${timeoutMs}ms`));
+        }, timeoutMs);
+      });
+
+      return Promise.race([fetchPromise, timeoutPromise]);
+    };
+
+    // Test basic server connectivity before making the main request
+    const testServerConnectivity = async () => {
+      console.log('🔵 MOBILE DEBUG: Testing server connectivity with HEAD request...');
+      try {
+        const headResponse = await fetch(baseUrl, {
+          method: 'HEAD',
+          cache: 'no-cache',
+          headers: {
+            'User-Agent': navigator.userAgent,
+            'X-Test-Request': 'mobile-connectivity-check'
+          }
+        });
+        
+        console.log('🟢 MOBILE DEBUG: HEAD request successful:', {
+          status: headResponse.status,
+          statusText: headResponse.statusText,
+          headers: Object.fromEntries(headResponse.headers.entries())
+        });
+        return true;
+      } catch (headError) {
+        console.log('🔴 MOBILE ERROR: HEAD request failed:', {
+          name: headError instanceof Error ? headError.name : 'Unknown',
+          message: headError instanceof Error ? headError.message : String(headError)
+        });
+        return false;
+      }
+    };
+
+    // XMLHttpRequest fallback for when fetch API fails on mobile
+    const xmlHttpRequestFallback = async (
+      url: string, 
+      options: { method?: string; headers?: Record<string, string>; body?: string }, 
+      timeoutMs: number = 60000
+    ): Promise<{ message: string; type: string; timestamp: string; success?: boolean; error?: string }> => {
+      console.log('🔄 MOBILE FALLBACK: Attempting XMLHttpRequest fallback...');
+      
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        const requestStartTime = Date.now();
+        
+        console.log('🔵 MOBILE FALLBACK: Creating XMLHttpRequest for URL:', url);
+        
+        // Set up timeout
+        let timeoutId: NodeJS.Timeout | null = null;
+        const cleanup = () => {
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+          }
+        };
+        
+        timeoutId = setTimeout(() => {
+          console.log('🔴 MOBILE FALLBACK: XMLHttpRequest timeout after', timeoutMs, 'ms');
+          xhr.abort();
+          cleanup();
+          reject(new Error(`XMLHttpRequest timeout after ${timeoutMs}ms`));
+        }, timeoutMs);
+        
+        xhr.onreadystatechange = () => {
+          console.log('🔵 MOBILE FALLBACK: ReadyState changed to:', xhr.readyState);
+          
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            cleanup();
+            const responseTime = Date.now() - requestStartTime;
+            
+            console.log('🔵 MOBILE FALLBACK: XMLHttpRequest completed in', responseTime, 'ms');
+            console.log('🔵 MOBILE FALLBACK: Response status:', xhr.status, xhr.statusText);
+            console.log('🔵 MOBILE FALLBACK: Response headers:', xhr.getAllResponseHeaders());
+            
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const result = JSON.parse(xhr.responseText);
+                console.log('🟢 MOBILE FALLBACK: Successfully parsed JSON response');
+                console.log('🔵 MOBILE FALLBACK: Response data:', {
+                  hasMessage: !!result.message,
+                  messageLength: result.message?.length || 0,
+                  type: result.type,
+                  success: result.success
+                });
+                resolve(result);
+              } catch (parseError) {
+                console.log('🔴 MOBILE FALLBACK: JSON parse error:', parseError);
+                reject(new Error('Failed to parse JSON response'));
+              }
+            } else {
+              console.log('🔴 MOBILE FALLBACK: HTTP error:', xhr.status, xhr.statusText);
+              reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
+            }
+          }
+        };
+        
+        xhr.onerror = (event) => {
+          cleanup();
+          console.log('🔴 MOBILE FALLBACK: XMLHttpRequest error event:', event);
+          reject(new Error('XMLHttpRequest network error'));
+        };
+        
+        xhr.onabort = () => {
+          cleanup();
+          console.log('🔴 MOBILE FALLBACK: XMLHttpRequest aborted');
+          reject(new Error('XMLHttpRequest aborted'));
+        };
+        
+        try {
+          xhr.open(options.method || 'POST', url, true);
+          
+          // Set headers
+          if (options.headers) {
+            Object.entries(options.headers).forEach(([key, value]) => {
+              xhr.setRequestHeader(key, value as string);
+            });
+          }
+          
+          console.log('🔵 MOBILE FALLBACK: Sending XMLHttpRequest...');
+          xhr.send(options.body || null);
+        } catch (setupError) {
+          cleanup();
+          console.log('🔴 MOBILE FALLBACK: XMLHttpRequest setup error:', setupError);
+          reject(setupError);
+        }
+      });
     };
 
     // Retry mechanism with exponential backoff
     const maxRetries = 3;
     const baseDelay = 1000; // 1 second
     
+    // Pre-test server connectivity
+    console.log('🔵 MOBILE DEBUG: Pre-testing server connectivity...');
+    const isConnected = await testServerConnectivity();
+    if (!isConnected) {
+      console.log('🔴 MOBILE ERROR: Server connectivity test failed, but proceeding anyway...');
+    } else {
+      console.log('🟢 MOBILE DEBUG: Server connectivity test passed');
+    }
+    
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log(`🔵 MOBILE DEBUG: Attempt ${attempt}/${maxRetries} - Updating UI status to STREAMING...`);
+        console.log(`🔵 MOBILE DEBUG: Network status check:`, navigator.onLine ? 'online' : 'offline');
         
         // Update status to show we're actively processing
         setStreamingStatus(StreamingStatus.STREAMING);
         
         console.log(`🔵 MOBILE DEBUG: Attempt ${attempt}/${maxRetries} - Starting fetch request...`);
+        console.log(`🔵 MOBILE DEBUG: Request timestamp:`, new Date().toISOString());
         
-        const response = await fetchWithTimeout('/api/submit-question-stream', {
+        const response = await fetchWithTimeout(testUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'X-Correlation-ID': correlationId,
+            'X-Mobile-Request': 'true',
+            'X-Attempt-Number': attempt.toString(),
+            'User-Agent': navigator.userAgent,
           },
           body: JSON.stringify(request),
+          credentials: 'same-origin',
+          cache: 'no-cache',
         });
 
         const fetchTime = Date.now() - startTime;
@@ -350,12 +559,65 @@ export default function SearchInterface() {
         console.log(`🔴 MOBILE ERROR: Attempt ${attempt}/${maxRetries} failed after`, errorTime, 'ms');
         console.error('🔴 MOBILE ERROR: Full error details:', error);
         
-        // If this was the last attempt, handle the error
+        // If this was the last attempt, try XMLHttpRequest fallback before giving up
         if (attempt === maxRetries) {
-          console.error('🔴 MOBILE FATAL: All retry attempts exhausted');
+          console.error('🔴 MOBILE FATAL: All fetch retry attempts exhausted');
           console.error('🔴 MOBILE ERROR: Error stack:', error instanceof Error ? error.stack : 'No stack trace');
           
-          // Set error and clean up state immediately for final errors
+          // Try XMLHttpRequest fallback as last resort
+          try {
+            console.log('🔄 MOBILE FALLBACK: Attempting XMLHttpRequest as last resort...');
+            
+            const fallbackOptions = {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Correlation-ID': correlationId,
+                'X-Mobile-Request': 'true',
+                'X-Attempt-Number': 'fallback',
+                'User-Agent': navigator.userAgent,
+              },
+              body: JSON.stringify(request)
+            };
+            
+            const fallbackResult = await xmlHttpRequestFallback(testUrl, fallbackOptions);
+            
+            if (fallbackResult.success === false) {
+              throw new Error(fallbackResult.error || 'Fallback request failed');
+            }
+
+            if (!fallbackResult.message) {
+              throw new Error('No message content received from fallback');
+            }
+
+            // Success with fallback!
+            console.log('🟢 MOBILE FALLBACK: Successfully received response via XMLHttpRequest!');
+            
+            const mobileResponse: ServiceNowResponse = {
+              message: fallbackResult.message,
+              type: selectedType,
+              timestamp: fallbackResult.timestamp || new Date().toISOString(),
+              sessionkey: sessionKey,
+              status: 'done'
+            };
+
+            setResponse(mobileResponse);
+            
+            setTimeout(() => {
+              setStreamingStatus(StreamingStatus.COMPLETE);
+              setIsLoading(false);
+              setIsStreaming(false);
+              setStreamingContent('');
+              console.log('🟢 MOBILE FALLBACK: Mobile submit completed successfully via XMLHttpRequest!');
+            }, 100);
+
+            return;
+
+          } catch (fallbackError) {
+            console.error('🔴 MOBILE FALLBACK: XMLHttpRequest fallback also failed:', fallbackError);
+          }
+          
+          // Both fetch and XMLHttpRequest failed - show error
           const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
           console.log('🔵 MOBILE DEBUG: Setting error state:', errorMessage);
           
