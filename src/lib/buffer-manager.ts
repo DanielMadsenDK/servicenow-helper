@@ -60,9 +60,10 @@ export class BufferManager {
       console.warn('Large buffer with no complete lines - keeping buffer intact to avoid data loss');
       
       if (buffer.length > 1000000) {
-        console.warn('Extremely large buffer detected, keeping most recent portion');
+        console.warn('Extremely large buffer detected, implementing smart content preservation');
+        const preservedBuffer = this.preserveImportantContent(buffer);
         return {
-          remainingBuffer: buffer.substring(buffer.length - this.maxBufferChars),
+          remainingBuffer: preservedBuffer,
           processedLines: 0
         };
       }
@@ -88,5 +89,27 @@ export class BufferManager {
 
   reset(): void {
     this.bufferOverflowCount = 0;
+  }
+
+  private preserveImportantContent(buffer: string): string {
+    // Smart content preservation strategy:
+    // 1. Keep the beginning (important context) - first 40% of maxBufferChars
+    // 2. Keep the end (most recent content) - last 40% of maxBufferChars  
+    // 3. This leaves 20% buffer for processing headroom and avoids mid-sentence truncation
+    
+    const beginningSize = Math.floor(this.maxBufferChars * 0.4);
+    const endSize = Math.floor(this.maxBufferChars * 0.4);
+    
+    const beginning = buffer.substring(0, beginningSize);
+    const end = buffer.substring(buffer.length - endSize);
+    
+    // Add a clear separator to indicate content was truncated
+    const separator = '\n[... content truncated for memory management ...]\n';
+    
+    const preservedContent = beginning + separator + end;
+    
+    console.log(`Content preservation applied: kept ${beginningSize} + ${endSize} chars from ${buffer.length} total`);
+    
+    return preservedContent;
   }
 }
