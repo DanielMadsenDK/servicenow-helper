@@ -263,6 +263,7 @@ export async function POST(request: NextRequest) {
           const processJsonLine = (jsonLine: string) => {
             try {
               const n8nChunk = JSON.parse(jsonLine);
+              console.log(`🔵 N8N CHUNK [${correlationId}]:`, n8nChunk); // Added logging
               
               // Simple processing based on N8N's actual format
               if (n8nChunk.type === 'begin') {
