@@ -120,10 +120,15 @@ export class StreamingClient {
         
         if (data) {
           try {
+            // Validate JSON before processing
             const chunk: StreamingChunk = JSON.parse(data);
             await this.handleChunk(chunk);
           } catch (error) {
-            console.error('Error parsing SSE data:', error);
+            console.log('Skipping invalid JSON chunk in SSE stream:', {
+              data: data.substring(0, 100) + '...', // First 100 chars for debugging
+              error: error instanceof Error ? error.message : String(error)
+            });
+            // Continue processing other chunks instead of failing
           }
         }
       }
