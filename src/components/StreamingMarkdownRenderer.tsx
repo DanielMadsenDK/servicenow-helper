@@ -35,41 +35,9 @@ export default function StreamingMarkdownRenderer({
   const shouldUseProgressiveRendering = enableProgressiveRendering && 
     content.length > progressiveRenderingThreshold;
 
-  // Enhanced approach: Progressive rendering based on device capabilities
+  // Unified streaming approach for all devices
   if (isStreaming) {
-    // Mobile-specific behavior: Always show loading animation when streaming
-    // No exceptions - wait for streaming to complete before showing content
-    if (isMobile) {
-      return (
-        <div className={className} data-testid="markdown-content">
-          <div className="flex flex-col items-center justify-center py-8 space-y-4">
-            {/* Loading animation */}
-            <div className="flex space-x-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full loading-dot loading-dot-1"></div>
-              <div className="w-3 h-3 bg-blue-500 rounded-full loading-dot loading-dot-2"></div>
-              <div className="w-3 h-3 bg-blue-500 rounded-full loading-dot loading-dot-3"></div>
-            </div>
-            
-            {/* Status text */}
-            <div className="text-center space-y-2">
-              <p className="text-blue-600 dark:text-blue-400 font-medium">AI is generating your response...</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Content will appear when complete for optimal mobile performance
-              </p>
-              {/* Show content length instead of misleading progress bar */}
-              {content.length > 0 && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  {content.length} characters received...
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    }
-    
-    // Desktop behavior: Show streaming content as before
-    // For very long content when progressive rendering is enabled,
+    // For long content when progressive rendering is enabled,
     // use ReactMarkdown even during streaming to provide better UX
     if (shouldUseProgressiveRendering && content.length > progressiveRenderingThreshold) {
       return (
@@ -99,7 +67,7 @@ export default function StreamingMarkdownRenderer({
       );
     }
     
-    // During streaming: Show optimized raw content with minimal DOM operations (desktop only)
+    // During streaming: Show optimized raw content with minimal DOM operations for all devices
     return (
       <div className={className}>
         <div className="streaming-raw-content" data-testid="markdown-content">

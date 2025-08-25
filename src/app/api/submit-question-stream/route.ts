@@ -8,131 +8,6 @@ import { BufferManager } from '@/lib/buffer-manager';
 const API_BASE_URL = process.env.N8N_WEBHOOK_URL!;
 const API_KEY = process.env.N8N_API_KEY!;
 
-// Handle mobile clients with complete response buffering
-async function handleMobileCompleteResponse(response: { data: NodeJS.ReadableStream }, correlationId: string = 'unknown'): Promise<Response> {
-  const textDecoder = new TextDecoder('utf-8');
-  let partialJsonBuffer = '';
-  let completeContent = '';
-  let hasError = false;
-  let errorMessage = '';
-
-  try {
-    const processJsonLine = (jsonLine: string) => {
-      try {
-        const n8nChunk = JSON.parse(jsonLine);
-        
-        if (n8nChunk.type === 'error') {
-          hasError = true;
-          errorMessage = n8nChunk.content || 'Unknown error occurred';
-          return;
-        }
-        
-        if (n8nChunk.content !== undefined && typeof n8nChunk.content === 'string') {
-          completeContent += n8nChunk.content;
-        }
-      } catch (parseError) {
-        console.error('JSON parsing error in mobile response:', {
-          line: jsonLine,
-          error: parseError instanceof Error ? parseError.message : String(parseError)
-        });
-      }
-    };
-
-    // Process the stream and buffer all content
-    response.data.on('data', (chunk: Buffer) => {
-      const chunkText = textDecoder.decode(chunk, { stream: true });
-      partialJsonBuffer += chunkText;
-      
-      // Process complete lines
-      let lineStart = 0;
-      let lineEnd = partialJsonBuffer.indexOf('\n', lineStart);
-      
-      while (lineEnd !== -1) {
-        const line = partialJsonBuffer.slice(lineStart, lineEnd).trim();
-        if (line) {
-          processJsonLine(line);
-        }
-        lineStart = lineEnd + 1;
-        lineEnd = partialJsonBuffer.indexOf('\n', lineStart);
-      }
-      
-      // Keep remaining partial line in buffer
-      partialJsonBuffer = lineStart < partialJsonBuffer.length 
-        ? partialJsonBuffer.slice(lineStart) 
-        : '';
-    });
-
-    // Wait for stream to complete
-    await new Promise((resolve, reject) => {
-      response.data.on('end', () => {
-        // Process any remaining content
-        if (partialJsonBuffer.trim()) {
-          processJsonLine(partialJsonBuffer.trim());
-        }
-        resolve(null);
-      });
-      
-      response.data.on('error', (error: Error) => {
-        console.error('Mobile response stream error:', error);
-        reject(error);
-      });
-    });
-
-    // Return complete response for mobile
-    if (hasError) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: errorMessage 
-        }),
-        { 
-          status: 500, 
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    console.log(`🟢 MOBILE COMPLETE [${correlationId}]: Mobile complete response: ${completeContent.length} characters`);
-    
-    const responsePayload = {
-      message: completeContent,
-      type: 'complete',
-      timestamp: new Date().toISOString()
-    };
-    
-    console.log(`🔵 MOBILE RESPONSE [${correlationId}]: Sending mobile response payload`, {
-      messageLength: responsePayload.message.length,
-      type: responsePayload.type,
-      timestamp: responsePayload.timestamp,
-      payloadSize: JSON.stringify(responsePayload).length
-    });
-    
-    return new Response(
-      JSON.stringify(responsePayload),
-      { 
-        status: 200, 
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-Correlation-ID': correlationId,
-          'X-Response-Type': 'mobile-complete'
-        }
-      }
-    );
-
-  } catch (error) {
-    console.error('Mobile response processing error:', error);
-    return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: 'Failed to process mobile response' 
-      }),
-      { 
-        status: 500, 
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -359,41 +234,21 @@ export async function POST(request: NextRequest) {
             }
           };
 
-          // Mobile and Desktop client detection for different response strategies
-          const detectedUserAgent = request.headers.get('user-agent') || '';
-          const isMobileClient = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(detectedUserAgent);
+          // Unified streaming implementation for all clients
+          console.log(`🔵 STREAMING [${correlationId}]: Using streaming response for all clients`);
 
-          console.log(`🔵 CLIENT DEBUG [${correlationId}]: Client detection`, {
-            userAgent: detectedUserAgent,
-            isMobileClient,
-            headerMobileRequest: isMobileRequest,
-            clientType: isMobileClient ? 'MOBILE' : 'DESKTOP'
-          });
-
-          const timeoutMs = isMobileClient ? 480000 : 330000; // 8 min for mobile, 5.5 min for desktop
+          const timeoutMs = 480000; // 8 minutes timeout for all clients
           
           const response = await axios.post(API_BASE_URL, n8nStreamingRequest, {
             headers: {
               ...headers,
-              'X-Client-Type': isMobileClient ? 'mobile' : 'desktop',
+              'X-Client-Type': 'streaming',
             },
             responseType: 'stream',
             timeout: timeoutMs,
           });
 
-          // Mobile clients: Buffer complete response then send as single JSON response
-          if (isMobileClient) {
-            console.log(`🔵 MOBILE ROUTE [${correlationId}]: Routing to mobile complete response handler`);
-            const mobileResponse = await handleMobileCompleteResponse(response, correlationId);
-            console.log(`🟢 MOBILE RESPONSE [${correlationId}]: Mobile response completed`, {
-              status: mobileResponse.status,
-              statusText: mobileResponse.statusText,
-              headers: Object.fromEntries(mobileResponse.headers.entries())
-            });
-            return mobileResponse;
-          }
-
-          // Desktop clients: Continue with streaming response
+          console.log(`🟢 STREAMING [${correlationId}]: Connected to N8N, starting stream processing`);
 
           // Handle streaming response from n8n with optimized buffer accumulation
           const textDecoder = new TextDecoder('utf-8');
@@ -402,7 +257,7 @@ export async function POST(request: NextRequest) {
           // Proper buffer size limits: convert to actual memory usage estimation
           // UTF-8 typically uses 1-2 bytes per character for most content, using 2x multiplier for safety
           // Only rare emoji/special characters use 3-4 bytes, making 4x overly conservative
-          const maxBufferChars = isMobileClient ? 512 * 1024 : 1024 * 1024; // 512K chars for mobile (≈1MB), 1M chars for desktop (≈2MB)
+          const maxBufferChars = 1024 * 1024; // 1M chars for all clients (≈2MB)
           const bufferManager = new BufferManager(maxBufferChars);
           
           const processJsonLine = (jsonLine: string) => {
