@@ -251,29 +251,27 @@ export default function SearchInterface() {
         status: 'done'
       };
 
-      // Set response first
+      // Set response first - this should trigger UI update
+      console.log('Mobile: Setting response...');
       setResponse(mobileResponse);
       
-      // Then update status and clean up streaming state
-      setStreamingStatus(StreamingStatus.COMPLETE);
-      setIsLoading(false);
-      setIsStreaming(false);
-      setStreamingContent('');
-      
-      // Clean up streaming state last
-      cleanupStreamingState(sessionKey);
+      // Use setTimeout to ensure response renders before cleaning up loading states
+      setTimeout(() => {
+        console.log('Mobile: Cleaning up loading states...');
+        setStreamingStatus(StreamingStatus.COMPLETE);
+        setIsLoading(false);
+        setIsStreaming(false);
+        setStreamingContent('');
+      }, 0);
 
     } catch (error) {
       console.error('Mobile submit error:', error);
       
-      // Set error and clean up state
+      // Set error and clean up state immediately for errors
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
       setStreamingStatus(StreamingStatus.ERROR);
       setIsLoading(false);
       setIsStreaming(false);
-      
-      // Clean up streaming state last
-      cleanupStreamingState(sessionKey);
     }
   };
 
