@@ -218,6 +218,9 @@ export default function SearchInterface() {
     try {
       console.log('Mobile client: sending complete response request');
       
+      // Update status to show we're actively processing
+      setStreamingStatus(StreamingStatus.STREAMING);
+      
       const response = await fetch('/api/submit-question-stream', {
         method: 'POST',
         headers: {
@@ -239,6 +242,9 @@ export default function SearchInterface() {
 
       console.log(`Mobile complete response received: ${result.message.length} characters`);
       
+      // Update status to complete before setting response
+      setStreamingStatus(StreamingStatus.COMPLETE);
+      
       // Create ServiceNowResponse object
       const mobileResponse: ServiceNowResponse = {
         message: result.message,
@@ -248,6 +254,9 @@ export default function SearchInterface() {
         status: 'done'
       };
 
+      // Clean up streaming state properly
+      cleanupStreamingState(sessionKey);
+      
       setResponse(mobileResponse);
       setIsLoading(false);
       setIsStreaming(false);
@@ -255,6 +264,13 @@ export default function SearchInterface() {
 
     } catch (error) {
       console.error('Mobile submit error:', error);
+      
+      // Set error status
+      setStreamingStatus(StreamingStatus.ERROR);
+      
+      // Clean up streaming state
+      cleanupStreamingState(sessionKey);
+      
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
       setIsLoading(false);
       setIsStreaming(false);
@@ -287,6 +303,7 @@ export default function SearchInterface() {
     if (isMobileDevice()) {
       console.log('Mobile client detected: using complete response mode');
       setIsStreaming(true); // Show loading animation
+      setStreamingStatus(StreamingStatus.CONNECTING); // Start with connecting status
       return handleMobileSubmit();
     }
     
