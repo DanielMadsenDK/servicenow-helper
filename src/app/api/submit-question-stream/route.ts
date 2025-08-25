@@ -3,501 +3,206 @@ import axios from 'axios';
 import { StreamingRequest } from '@/types';
 import { getServerAuthState } from '@/lib/server-auth';
 import { generateSessionId } from '@/lib/session-utils';
-import { BufferManager } from '@/lib/buffer-manager';
 
 const API_BASE_URL = process.env.N8N_WEBHOOK_URL!;
 const API_KEY = process.env.N8N_API_KEY!;
 
+interface N8nChunk {
+  type: 'begin' | 'chunk' | 'item' | 'end' | 'complete' | 'error';
+  content?: string | object | null;
+  timestamp?: string;
+}
 
-export async function POST(request: NextRequest) {
-  try {
-    // Enhanced request logging for debugging
-    const requestTimestamp = new Date().toISOString();
-    const userAgent = request.headers.get('user-agent') || 'unknown';
-    const correlationId = request.headers.get('x-correlation-id') || `server_${Date.now()}`;
-    const isMobileRequest = request.headers.get('x-mobile-request') === 'true';
-    const attemptNumber = request.headers.get('x-attempt-number') || '1';
+
+// Detect stream format and return appropriate parser
+async function* parseStream<T>(stream: NodeJS.ReadableStream): AsyncGenerator<T> {
+  const decoder = new TextDecoder('utf-8');
+  let buffer = '';
+  let isFirstChunkProcessed = false;
+  let useSSEParser = false;
+  
+  for await (const chunk of stream) {
+    let uint8Array: Uint8Array;
+    if (chunk instanceof Uint8Array) {
+      uint8Array = chunk;
+    } else if (typeof chunk === 'string') {
+      uint8Array = new TextEncoder().encode(chunk);
+    } else {
+      uint8Array = new Uint8Array(chunk);
+    }
     
-    console.log(`🔵 REQUEST DEBUG [${correlationId}]: Incoming request`, {
-      timestamp: requestTimestamp,
-      userAgent,
-      isMobileRequest,
-      attemptNumber,
-      method: request.method,
-      url: request.url,
-      headers: Object.fromEntries(request.headers.entries()),
-      origin: request.headers.get('origin'),
-      referer: request.headers.get('referer')
-    });
-
-    const { isAuthenticated } = await getServerAuthState();
-    if (!isAuthenticated) {
-      console.log(`🔴 AUTH ERROR [${correlationId}]: Not authenticated`);
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { 
-          status: 401, 
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
+    const chunkText = decoder.decode(uint8Array, { stream: true });
+    buffer += chunkText;
+    
+    // Detect format from first chunk
+    if (!isFirstChunkProcessed && buffer.trim().length > 0) {
+      useSSEParser = buffer.trim().startsWith('data: ');
+      console.log(`Stream format detected: ${useSSEParser ? 'SSE' : 'JSON'} (First chunk: ${buffer.substring(0, 100)}...)`);
+      isFirstChunkProcessed = true;
     }
-
-    console.log(`🟢 AUTH SUCCESS [${correlationId}]: User authenticated`);
-
-    const body: StreamingRequest = await request.json();
-    console.log(`🔵 REQUEST DEBUG [${correlationId}]: Request body parsed`, {
-      questionLength: body.question?.length || 0,
-      type: body.type,
-      sessionkey: body.sessionkey,
-      correlationId: body.correlationId,
-      hasFile: !!body.file,
-      agentModelsCount: body.agentModels?.length || 0
-    });
-
-    // Validate request body
-    if (!body.question || !body.type) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Missing required fields: question and type are required' 
-        }),
-        { 
-          status: 400, 
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    // Check that we have either legacy aiModel or new agentModels with valid configurations
-    if (!body.aiModel && (!body.agentModels || body.agentModels.length === 0)) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Either aiModel or agentModels with at least one agent configuration must be provided' 
-        }),
-        { 
-          status: 400, 
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    // Validate agentModels array if provided
-    if (body.agentModels && body.agentModels.length > 0) {
-      for (const agentModel of body.agentModels) {
-        if (!agentModel.agent || !agentModel.model) {
-          return new Response(
-            JSON.stringify({ 
-              success: false, 
-              error: 'Each agent configuration must have both agent and model properties' 
-            }),
-            { 
-              status: 400, 
-              headers: { 'Content-Type': 'application/json' }
+    
+    // Process based on detected format
+    if (useSSEParser) {
+      // SSE format: split by double newlines
+      const parts = buffer.split('\n\n');
+      buffer = parts.pop() || '';
+      
+      for (const part of parts) {
+        if (part.startsWith('data: ')) {
+          const jsonString = part.substring(6);
+          if (jsonString) {
+            try {
+              const parsed = JSON.parse(jsonString);
+              yield parsed;
+            } catch (error) {
+              console.error('Failed to parse SSE JSON chunk:', error, 'Raw data:', jsonString);
             }
-          );
+          }
         }
-        
-        // Validate agent names against allowed values
-        const allowedAgents = ['orchestration', 'business_rule', 'client_script'];
-        if (!allowedAgents.includes(agentModel.agent)) {
-          return new Response(
-            JSON.stringify({ 
-              success: false, 
-              error: `Invalid agent name: ${agentModel.agent}. Allowed agents: ${allowedAgents.join(', ')}` 
-            }),
-            { 
-              status: 400, 
-              headers: { 'Content-Type': 'application/json' }
-            }
-          );
+      }
+    } else {
+      // JSON format: split by newlines
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        if (trimmedLine) {
+          try {
+            const parsed = JSON.parse(trimmedLine);
+            yield parsed;
+          } catch (error) {
+            console.error('Failed to parse JSON chunk:', error, 'Raw data:', trimmedLine);
+          }
         }
       }
     }
+  }
+  
+  // Process any remaining data in buffer
+  if (buffer.trim()) {
+    if (useSSEParser && buffer.startsWith('data: ')) {
+      const jsonString = buffer.substring(6);
+      try {
+        const parsed = JSON.parse(jsonString);
+        yield parsed;
+      } catch (error) {
+        console.error('Failed to parse final SSE JSON chunk:', error, 'Raw data:', jsonString);
+      }
+    } else if (!useSSEParser) {
+      try {
+        const parsed = JSON.parse(buffer.trim());
+        yield parsed;
+      } catch (error) {
+        console.error('Failed to parse final JSON chunk:', error, 'Raw data:', buffer);
+      }
+    }
+  }
+}
 
-    // Validate file if provided
-    if (body.file && typeof body.file !== 'string') {
-      return new Response(
-        JSON.stringify({ success: false, error: 'File must be a base64 encoded string' }),
-        { 
-          status: 400, 
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
+
+export async function POST(request: NextRequest) {
+  try {
+    const { isAuthenticated } = await getServerAuthState();
+    if (!isAuthenticated) {
+      return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // Basic file size validation (base64 encoded, roughly 1.33x larger than original)
-    if (body.file && body.file.length > 10 * 1024 * 1024 * 1.33) { // ~10MB limit
-      return new Response(
-        JSON.stringify({ success: false, error: 'File too large (max 10MB)' }),
-        { 
-          status: 400, 
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
+    const body: StreamingRequest = await request.json();
+
+    // A single function for validation logic
+    const validationError = validateRequest(body);
+    if (validationError) {
+        return new Response(JSON.stringify({ success: false, error: validationError }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // Validate environment variables
     if (!API_BASE_URL || !API_KEY) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Server configuration error' }),
-        { 
-          status: 500, 
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
+      return new Response(JSON.stringify({ success: false, error: 'Server configuration error' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // Create streaming response
     const stream = new ReadableStream({
       async start(controller) {
-        // Controller state tracking to prevent duplicate closes (fixes premature stream termination)
-        let controllerClosed = false;
         let completionSent = false;
-        
-        // Safe completion message sender to prevent duplicates
-        const safeSendCompletion = (reason?: string) => {
-          if (!completionSent) {
+
+        const closeController = () => {
+            if (controller.desiredSize === null || controller.desiredSize <= 0) return;
             try {
-              controller.enqueue(
-                `data: ${JSON.stringify({
-                  content: '',
-                  type: 'complete',
-                  timestamp: new Date().toISOString()
-                })}\n\n`
-              );
-              completionSent = true;
-              console.log(`Completion message sent${reason ? ` (${reason})` : ''}`);
-            } catch (error) {
-              console.error('Failed to send completion message:', error);
+                controller.close();
+            } catch {
+                // Ignore errors from trying to close an already closed controller
             }
-          } else {
-            console.log(`Completion already sent${reason ? ` - ${reason}` : ''}`);
-          }
         };
 
-        // Safe controller closing wrapper to prevent "Controller is already closed" errors
-        const safeCloseController = (reason?: string) => {
-          if (!controllerClosed) {
-            try {
-              controller.close();
-              controllerClosed = true;
-              console.log(`Stream controller safely closed${reason ? ` (${reason})` : ''}`);
-            } catch (closeError) {
-              // Only log as error if it's not the expected "already closed" error
-              const errorMessage = closeError instanceof Error ? closeError.message : String(closeError);
-              if (!errorMessage.includes('Controller is already closed')) {
-                console.error('Unexpected error closing stream controller:', {
-                  error: errorMessage,
-                  stack: closeError instanceof Error ? closeError.stack : undefined,
-                  reason: reason || 'unknown'
-                });
-              } else {
-                console.log('Controller was already closed (race condition handled safely)');
-                controllerClosed = true; // Ensure state is consistent
-              }
-            }
-          } else {
-            console.log(`Controller close skipped - already closed${reason ? ` (${reason})` : ''}`);
-          }
+        const sendEvent = (type: string, content: string | object | null) => {
+            controller.enqueue(`data: ${JSON.stringify({ type, content, timestamp: new Date().toISOString() })}\n\n`);
         };
 
         try {
-          // Send initial connecting message
-          controller.enqueue(
-            `data: ${JSON.stringify({
-              content: '',
-              type: 'connecting',
-              timestamp: new Date().toISOString()
-            })}\n\n`
-          );
+          sendEvent('connecting', '');
 
-          // Call n8n webhook with streaming enabled
-          const headers: Record<string, string> = {
-            'Content-Type': 'application/json',
-            'apikey': API_KEY,
-            'Accept': 'text/event-stream',
-          };
-
-          // Transform request to n8n's expected streaming format
           const n8nStreamingRequest = {
             action: 'sendMessage',
             sessionId: body.sessionkey || generateSessionId(),
             chatInput: body.question,
             metadata: {
               type: body.type,
-              aiModel: body.aiModel, // Legacy field for backward compatibility
-              agentModels: body.agentModels, // New field for multi-agent support
+              aiModel: body.aiModel,
+              agentModels: body.agentModels,
               file: body.file,
               searching: body.searching,
               userId: 'streaming_user'
             }
           };
 
-          // Unified streaming implementation for all clients
-          console.log(`🔵 STREAMING [${correlationId}]: Using streaming response for all clients`);
-
-          const timeoutMs = 480000; // 8 minutes timeout for all clients
-          
           const response = await axios.post(API_BASE_URL, n8nStreamingRequest, {
             headers: {
-              ...headers,
+              'Content-Type': 'application/json',
+              'apikey': API_KEY,
+              'Accept': 'text/event-stream',
               'X-Client-Type': 'streaming',
             },
             responseType: 'stream',
-            timeout: timeoutMs,
+            timeout: 480000, // 8 minutes
           });
 
-          console.log(`🟢 STREAMING [${correlationId}]: Connected to N8N, starting stream processing`);
+          for await (const n8nChunk of parseStream<N8nChunk>(response.data)) {
+            // Validate chunk structure
+            if (!n8nChunk || typeof n8nChunk !== 'object' || !n8nChunk.type) {
+              console.error('Invalid N8N chunk received:', n8nChunk);
+              continue;
+            }
 
-          // Handle streaming response from n8n with optimized buffer accumulation
-          const textDecoder = new TextDecoder('utf-8');
-          let partialJsonBuffer = '';
-          
-          // Proper buffer size limits: convert to actual memory usage estimation
-          // UTF-8 typically uses 1-2 bytes per character for most content, using 2x multiplier for safety
-          // Only rare emoji/special characters use 3-4 bytes, making 4x overly conservative
-          const maxBufferChars = 1024 * 1024; // 1M chars for all clients (≈2MB)
-          const bufferManager = new BufferManager(maxBufferChars);
-          
-          const processJsonLine = (jsonLine: string) => {
-            try {
-              const n8nChunk = JSON.parse(jsonLine);
-              console.log(`🔵 N8N CHUNK [${correlationId}]:`, n8nChunk); // Added logging
-              
-              // Simple processing based on N8N's actual format
-              if (n8nChunk.type === 'begin') {
-                controller.enqueue(
-                  `data: ${JSON.stringify({
-                    content: '',
-                    type: 'connecting',
-                    timestamp: new Date().toISOString()
-                  })}\n\n`
-                );
-              } else if (n8nChunk.type === 'end' || n8nChunk.type === 'complete') {
-                console.log(`🟢 STREAMING [${correlationId}]: Received completion signal - type: ${n8nChunk.type}`);
-                safeSendCompletion(`n8n ${n8nChunk.type} signal`);
-                safeCloseController(`stream ${n8nChunk.type} signal from n8n`);
-                return;
-              } else if (n8nChunk.content !== undefined) {
-                // SIMPLE: Just extract the content property directly
-                
-                // Validate content type and handle appropriately
-                let contentToSend: string;
-                
-                if (typeof n8nChunk.content === 'string') {
-                  contentToSend = n8nChunk.content;
-                } else if (n8nChunk.content === null) {
-                  return;
-                } else if (typeof n8nChunk.content === 'object') {
-                  // If content is an object, serialize it properly
-                  contentToSend = JSON.stringify(n8nChunk.content);
-                } else {
-                  // For numbers, booleans, etc., convert safely
-                  contentToSend = String(n8nChunk.content);
-                }
-                
-                // Send the validated content
-                controller.enqueue(
-                  `data: ${JSON.stringify({
-                    content: contentToSend,
-                    type: 'chunk',
-                    timestamp: new Date().toISOString()
-                  })}\n\n`
-                );
-              } else {
+            if (n8nChunk.type === 'begin') {
+              console.log("N8N stream began.");
+              sendEvent('begin', '');
+            } else if (n8nChunk.type === 'end' || n8nChunk.type === 'complete') {
+              console.log('N8N stream completed');
+              if (!completionSent) {
+                sendEvent('complete', '');
+                completionSent = true;
               }
-            } catch (parseError) {
-              console.error('JSON parsing error for streaming line:', {
-                line: jsonLine,
-                error: parseError instanceof Error ? parseError.message : String(parseError),
-                stack: parseError instanceof Error ? parseError.stack : undefined
-              });
-              // Continue processing other lines instead of failing completely
+            } else if ((n8nChunk.type === 'chunk' || n8nChunk.type === 'item') && n8nChunk.content !== undefined) {
+              const content = typeof n8nChunk.content === 'object' ? JSON.stringify(n8nChunk.content) : String(n8nChunk.content);
+              sendEvent('chunk', content);
+            } else if (n8nChunk.type === 'error') {
+              console.log('N8N error:', n8nChunk.content);
+              sendEvent('error', n8nChunk.content || 'Unknown error occurred');
             }
-          };
-
-          response.data.on('data', (chunk: Buffer) => {
-            try {
-              // Enhanced buffer management using BufferManager class
-              if (bufferManager.shouldHandleOverflow(partialJsonBuffer.length)) {
-                const result = bufferManager.handleBufferOverflow(partialJsonBuffer, processJsonLine);
-                partialJsonBuffer = result.remainingBuffer;
-              }
-              
-              // Properly decode the buffer to UTF-8 text with optimized chunk processing
-              const chunkText = textDecoder.decode(chunk, { stream: true });
-              
-              // Efficient buffer accumulation with size monitoring
-              partialJsonBuffer += chunkText;
-              
-              // Optimized line splitting - avoid repeated splits on large buffers
-              let lineStart = 0;
-              let lineEnd = partialJsonBuffer.indexOf('\n', lineStart);
-              
-              // Process complete lines efficiently - only parse SSE data lines
-              while (lineEnd !== -1) {
-                const line = partialJsonBuffer.slice(lineStart, lineEnd).trim();
-                
-                // Only process lines that start with 'data: ' - these contain JSON
-                if (line.startsWith('data: ')) {
-                  const jsonPart = line.substring(6); // Remove 'data: ' prefix
-                  if (jsonPart) {
-                    try {
-                      // Validate that it's complete JSON before processing
-                      JSON.parse(jsonPart); // Test parse to validate JSON
-                      processJsonLine(jsonPart); // Process valid JSON
-                    } catch (validateError) {
-                      console.log('Skipping incomplete JSON chunk:', {
-                        line: line,
-                        jsonPart: jsonPart.substring(0, 100) + '...', // First 100 chars for debugging
-                        error: validateError instanceof Error ? validateError.message : String(validateError)
-                      });
-                    }
-                  }
-                }
-                // Ignore other SSE lines (empty lines, comments, etc.)
-                
-                lineStart = lineEnd + 1;
-                lineEnd = partialJsonBuffer.indexOf('\n', lineStart);
-              }
-              
-              // Keep remaining partial line in buffer
-              partialJsonBuffer = lineStart < partialJsonBuffer.length 
-                ? partialJsonBuffer.slice(lineStart) 
-                : '';
-              
-            } catch (bufferError) {
-              console.error('Buffer processing error in streaming:', {
-                error: bufferError instanceof Error ? bufferError.message : String(bufferError),
-                stack: bufferError instanceof Error ? bufferError.stack : undefined,
-                bufferLength: partialJsonBuffer.length,
-                overflowCount: bufferManager.getStats().overflowCount
-              });
-              
-              // Handle critical errors gracefully without terminating the stream
-              if (bufferError instanceof Error && bufferError.message.includes('Maximum call stack')) {
-                partialJsonBuffer = '';
-                console.warn('Buffer reset due to stack overflow');
-              } else if (bufferError instanceof Error && bufferError.message.includes('out of memory')) {
-                // Clear partial buffer in extreme memory situations
-                partialJsonBuffer = '';
-                console.warn('Buffer cleared due to memory pressure');
-              }
-              
-              // Don't close the stream here - let it continue processing
-              // The error might be temporary and related to a specific chunk
-            }
-          });
-
-          response.data.on('end', () => {
-            
-            // Process any remaining partial JSON in buffer
-            const remainingBuffer = partialJsonBuffer.trim();
-            if (remainingBuffer) {
-              console.log(`Processing final buffer: ${remainingBuffer.length} characters`);
-              
-              // Process remaining buffer as complete lines if possible using optimized indexOf approach
-              let processedLines = 0;
-              let lineStart = 0;
-              let lineEnd = remainingBuffer.indexOf('\n', lineStart);
-              
-              while (lineEnd !== -1) {
-                const line = remainingBuffer.slice(lineStart, lineEnd).trim();
-                if (line) {
-                  try {
-                    processJsonLine(line);
-                    processedLines++;
-                  } catch (lineError) {
-                    console.error('Error processing final buffer line:', {
-                      error: lineError instanceof Error ? lineError.message : String(lineError),
-                      lineLength: line.length
-                    });
-                    // Continue processing other lines instead of failing completely
-                  }
-                }
-                lineStart = lineEnd + 1;
-                lineEnd = remainingBuffer.indexOf('\n', lineStart);
-              }
-              
-              // Handle any remaining partial line without newline
-              if (lineStart < remainingBuffer.length) {
-                const finalLine = remainingBuffer.slice(lineStart).trim();
-                if (finalLine) {
-                  try {
-                    processJsonLine(finalLine);
-                    processedLines++;
-                  } catch (lineError) {
-                    console.error('Error processing final partial line:', {
-                      error: lineError instanceof Error ? lineError.message : String(lineError),
-                      lineLength: finalLine.length
-                    });
-                  }
-                }
-              }
-              
-              console.log(`Final buffer processing completed: ${processedLines} lines processed successfully`);
-            }
-            
-            // Log buffer performance stats
-            const bufferStats = bufferManager.getStats();
-            if (bufferStats.overflowCount > 0) {
-              console.log(`Stream processing completed with ${bufferStats.overflowCount} buffer overflows handled`);
-            }
-            
-            // Send fallback completion if n8n didn't send explicit completion
-            safeSendCompletion('fallback - stream end event');
-            
-            // Use safe close to prevent duplicate controller close errors
-            safeCloseController('stream end event');
-          });
-
-          response.data.on('error', (error: Error) => {
-            console.error('Stream data error:', {
-              message: error.message,
-              stack: error.stack,
-              bufferLength: partialJsonBuffer.length,
-              overflowCount: bufferManager.getStats().overflowCount
-            });
-            
-            if (!controllerClosed) {
-              controller.enqueue(
-                `data: ${JSON.stringify({
-                  content: error.message,
-                  type: 'error',
-                  timestamp: new Date().toISOString()
-                })}\n\n`
-              );
-            }
-            
-            // Use safe close to prevent duplicate controller close errors
-            safeCloseController('stream data error');
-          });
+          }
 
         } catch (error) {
-          console.error('Streaming initialization error:', {
-            error: error instanceof Error ? error.message : String(error),
-            stack: error instanceof Error ? error.stack : undefined
-          });
-          
-          if (!controllerClosed) {
-            controller.enqueue(
-              `data: ${JSON.stringify({
-                content: error instanceof Error ? error.message : 'An error occurred',
-                type: 'error',
-                timestamp: new Date().toISOString()
-              })}\n\n`
-            );
-          }
-          
-          // Use safe close to prevent duplicate controller close errors
-          safeCloseController('streaming initialization error');
+          console.error('Streaming error:', error);
+          const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+          sendEvent('error', errorMessage);
+        } finally {
+            if (!completionSent) {
+                sendEvent('complete', '');
+                completionSent = true;
+            }
+            // Use a small delay to ensure the client receives the last message
+            setTimeout(closeController, 50);
         }
       },
-
-      cancel() {
-        // Handle client disconnect
-      }
     });
 
     return new Response(stream, {
@@ -513,32 +218,41 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Streaming API Error:', error);
-    
-    if (axios.isAxiosError(error)) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: error.response?.data?.message || error.message || 'Network error occurred' 
-        }),
-        { 
-          status: error.response?.status || 500,
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
-    }
-    
-    return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'An unexpected error occurred' 
-      }),
-      { 
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+    const status = axios.isAxiosError(error) ? error.response?.status || 500 : 500;
+    const message = axios.isAxiosError(error) ? error.response?.data?.message || error.message : (error instanceof Error ? error.message : 'An unexpected error occurred');
+    return new Response(JSON.stringify({ success: false, error: message }), { status, headers: { 'Content-Type': 'application/json' } });
   }
 }
+
+function validateRequest(body: StreamingRequest): string | null {
+    if (!body.question || !body.type) {
+        return 'Missing required fields: question and type are required';
+    }
+    if (!body.aiModel && (!body.agentModels || body.agentModels.length === 0)) {
+        return 'Either aiModel or agentModels with at least one agent configuration must be provided';
+    }
+    if (body.agentModels) {
+        const allowedAgents = ['orchestration', 'business_rule', 'client_script'];
+        for (const agentModel of body.agentModels) {
+            if (!agentModel.agent || !agentModel.model) {
+                return 'Each agent configuration must have both agent and model properties';
+            }
+            if (!allowedAgents.includes(agentModel.agent)) {
+                return `Invalid agent name: ${agentModel.agent}. Allowed agents: ${allowedAgents.join(', ')}`;
+            }
+        }
+    }
+    if (body.file) {
+        if(typeof body.file !== 'string') {
+            return 'File must be a base64 encoded string';
+        }
+        if (body.file.length > 10 * 1024 * 1024 * 1.33) { // ~10MB limit
+            return 'File too large (max 10MB)';
+        }
+    }
+    return null;
+}
+
 
 export async function OPTIONS() {
   return new Response(null, {
