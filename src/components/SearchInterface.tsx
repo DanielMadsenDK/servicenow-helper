@@ -225,7 +225,7 @@ export default function SearchInterface() {
       
       if (currentContent.trim().length > 0) {
         // Force completion with current content
-        cleanupStreamingState(currentSessionKey);
+        cleanupStreamingState(currentSessionKey || undefined);
         
         const timeoutResponse: ServiceNowResponse = {
           message: currentContent,
@@ -239,7 +239,7 @@ export default function SearchInterface() {
         console.log(`Streaming forced completion with ${currentContent.length} characters due to timeout`);
       } else {
         // No content received, show error
-        cleanupStreamingState(currentSessionKey);
+        cleanupStreamingState(currentSessionKey || undefined);
         setError('Request timed out. Please try again.');
       }
     }, isMobileDevice() ? 450000 : 300000); // 7.5 minutes for mobile, 5 minutes for desktop
@@ -364,7 +364,7 @@ export default function SearchInterface() {
 
   const handleStop = async () => {
     // Clean up streaming state
-    cleanupStreamingState(currentSessionKey);
+    cleanupStreamingState(currentSessionKey || undefined);
     
     // Additional cleanup specific to stopping
     setAbortController(null);

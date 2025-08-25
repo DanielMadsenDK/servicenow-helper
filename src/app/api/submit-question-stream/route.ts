@@ -3,6 +3,7 @@ import axios from 'axios';
 import { StreamingRequest } from '@/types';
 import { getServerAuthState } from '@/lib/server-auth';
 import { generateSessionId } from '@/lib/session-utils';
+import { BufferManager } from '@/lib/buffer-manager';
 
 const API_BASE_URL = process.env.N8N_WEBHOOK_URL!;
 const API_KEY = process.env.N8N_API_KEY!;
@@ -119,6 +120,35 @@ export async function POST(request: NextRequest) {
     // Create streaming response
     const stream = new ReadableStream({
       async start(controller) {
+        // Controller state tracking to prevent duplicate closes (fixes premature stream termination)
+        let controllerClosed = false;
+        
+        // Safe controller closing wrapper to prevent "Controller is already closed" errors
+        const safeCloseController = (reason?: string) => {
+          if (!controllerClosed) {
+            try {
+              controller.close();
+              controllerClosed = true;
+              console.log(`Stream controller safely closed${reason ? ` (${reason})` : ''}`);
+            } catch (closeError) {
+              // Only log as error if it's not the expected "already closed" error
+              const errorMessage = closeError instanceof Error ? closeError.message : String(closeError);
+              if (!errorMessage.includes('Controller is already closed')) {
+                console.error('Unexpected error closing stream controller:', {
+                  error: errorMessage,
+                  stack: closeError instanceof Error ? closeError.stack : undefined,
+                  reason: reason || 'unknown'
+                });
+              } else {
+                console.log('Controller was already closed (race condition handled safely)');
+                controllerClosed = true; // Ensure state is consistent
+              }
+            }
+          } else {
+            console.log(`Controller close skipped - already closed${reason ? ` (${reason})` : ''}`);
+          }
+        };
+
         try {
           // Send initial connecting message
           controller.enqueue(
@@ -151,6 +181,10 @@ export async function POST(request: NextRequest) {
             }
           };
 
+          // Mobile-specific buffer limits to prevent performance issues and connection timeouts
+          const userAgent = request.headers.get('user-agent') || '';
+          const isMobileClient = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+
           // Mobile-specific timeout adjustments to prevent connection drops
           const timeoutMs = isMobileClient ? 480000 : 330000; // 8 min for mobile, 5.5 min for desktop
           
@@ -166,34 +200,12 @@ export async function POST(request: NextRequest) {
           // Handle streaming response from n8n with optimized buffer accumulation
           const textDecoder = new TextDecoder('utf-8');
           let partialJsonBuffer = '';
-          // Mobile-specific buffer limits to prevent performance issues and connection timeouts
-          const userAgent = request.headers.get('user-agent') || '';
-          const isMobileClient = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
           
-          // Controller state tracking to prevent duplicate closes (fixes premature stream termination)
-          let controllerClosed = false;
-          
-          // Safe controller closing wrapper to prevent "Controller is already closed" errors
-          const safeCloseController = () => {
-            if (!controllerClosed) {
-              try {
-                controller.close();
-                controllerClosed = true;
-                console.log('Stream controller safely closed');
-              } catch (error) {
-                console.error('Error closing stream controller:', {
-                  error: error instanceof Error ? error.message : String(error),
-                  stack: error instanceof Error ? error.stack : undefined
-                });
-              }
-            } else {
-              console.log('Controller close skipped - already closed');
-            }
-          };
-          
-          // Reduced buffer size for mobile devices - prevents memory issues and connection timeouts
-          const maxBufferSize = isMobileClient ? 512 * 1024 : 1024 * 1024; // 512KB for mobile, 1MB for desktop
-          let bufferOverflowCount = 0;
+          // Proper buffer size limits: convert to actual memory usage estimation
+          // UTF-8 typically uses 1-2 bytes per character for most content, using 2x multiplier for safety
+          // Only rare emoji/special characters use 3-4 bytes, making 4x overly conservative
+          const maxBufferChars = isMobileClient ? 512 * 1024 : 1024 * 1024; // 512K chars for mobile (≈1MB), 1M chars for desktop (≈2MB)
+          const bufferManager = new BufferManager(maxBufferChars);
           
           const processJsonLine = (jsonLine: string) => {
             try {
@@ -216,7 +228,7 @@ export async function POST(request: NextRequest) {
                     timestamp: new Date().toISOString()
                   })}\n\n`
                 );
-                safeCloseController(); // Use safe closing to prevent duplicate close errors
+                safeCloseController('stream end signal from n8n'); // Use safe closing to prevent duplicate close errors
                 return;
               } else if (n8nChunk.content !== undefined) {
                 // SIMPLE: Just extract the content property directly
@@ -258,80 +270,10 @@ export async function POST(request: NextRequest) {
 
           response.data.on('data', (chunk: Buffer) => {
             try {
-              // Check for buffer overflow (mobile safety) - but continue streaming instead of truncating
-              if (partialJsonBuffer.length > maxBufferSize) {
-                bufferOverflowCount++;
-                console.warn(`Buffer overflow detected (${bufferOverflowCount}), processing safe portion while preserving content`);
-                
-                // Find the last complete line boundary to avoid breaking JSON
-                const lastLineBreak = partialJsonBuffer.lastIndexOf('\n');
-                if (lastLineBreak > 0) {
-                  const safeBuffer = partialJsonBuffer.substring(0, lastLineBreak);
-                  const remainingPartial = partialJsonBuffer.substring(lastLineBreak + 1);
-                  
-                  // Process complete lines from safe buffer
-                  const lines = safeBuffer.split('\n');
-                  for (const line of lines) {
-                    const trimmedLine = line.trim();
-                    if (trimmedLine) {
-                      try {
-                        processJsonLine(trimmedLine);
-                      } catch (overflowError) {
-                        console.error('Error processing line from overflow buffer:', {
-                          line: trimmedLine.substring(0, 100) + '...', // Log first 100 chars for debugging
-                          error: overflowError instanceof Error ? overflowError.message : String(overflowError)
-                        });
-                      }
-                    }
-                  }
-                  
-                  // Keep only the remaining partial line - don't lose content
-                  partialJsonBuffer = remainingPartial;
-                } else {
-                  // If no line breaks, we need to process what we can without losing content
-                  // This is a critical fix: don't reset the buffer completely
-                  console.warn('No complete lines in overflow buffer, attempting to preserve partial content');
-                  
-                  // Try to find a safe processing point within the buffer
-                  let safeProcessingPoint = -1;
-                  const safeSearchLimit = Math.floor(maxBufferSize * 0.8); // Use 80% of buffer for safety
-                  
-                  // Look for JSON object boundaries
-                  for (let i = safeSearchLimit; i >= maxBufferSize * 0.5; i--) {
-                    if (partialJsonBuffer[i] === '}' || partialJsonBuffer[i] === ']') {
-                      safeProcessingPoint = i + 1;
-                      break;
-                    }
-                  }
-                  
-                  if (safeProcessingPoint > 0) {
-                    const safeBuffer = partialJsonBuffer.substring(0, safeProcessingPoint);
-                    const remainingBuffer = partialJsonBuffer.substring(safeProcessingPoint);
-                    
-                    // Try to process the safe portion
-                    const lines = safeBuffer.split('\n');
-                    for (const line of lines) {
-                      const trimmedLine = line.trim();
-                      if (trimmedLine) {
-                        try {
-                          processJsonLine(trimmedLine);
-                        } catch (safeBufferError) {
-                          console.error('Error processing safe buffer portion:', {
-                            error: safeBufferError instanceof Error ? safeBufferError.message : String(safeBufferError)
-                          });
-                        }
-                      }
-                    }
-                    
-                    partialJsonBuffer = remainingBuffer;
-                  } else {
-                    // As a last resort, keep a reasonable portion of the buffer
-                    const keepSize = Math.floor(maxBufferSize * 0.5);
-                    const discardedSize = partialJsonBuffer.length - keepSize;
-                    partialJsonBuffer = partialJsonBuffer.substring(partialJsonBuffer.length - keepSize);
-                    console.warn(`Emergency buffer management: discarded ${discardedSize} characters, kept ${keepSize}`);
-                  }
-                }
+              // Enhanced buffer management using BufferManager class
+              if (bufferManager.shouldHandleOverflow(partialJsonBuffer.length)) {
+                const result = bufferManager.handleBufferOverflow(partialJsonBuffer, processJsonLine);
+                partialJsonBuffer = result.remainingBuffer;
               }
               
               // Properly decode the buffer to UTF-8 text with optimized chunk processing
@@ -364,82 +306,77 @@ export async function POST(request: NextRequest) {
                 error: bufferError instanceof Error ? bufferError.message : String(bufferError),
                 stack: bufferError instanceof Error ? bufferError.stack : undefined,
                 bufferLength: partialJsonBuffer.length,
-                overflowCount: bufferOverflowCount
+                overflowCount: bufferManager.getStats().overflowCount
               });
-              // Emergency buffer reset on critical errors
+              
+              // Handle critical errors gracefully without terminating the stream
               if (bufferError instanceof Error && bufferError.message.includes('Maximum call stack')) {
                 partialJsonBuffer = '';
                 console.warn('Buffer reset due to stack overflow');
+              } else if (bufferError instanceof Error && bufferError.message.includes('out of memory')) {
+                // Clear partial buffer in extreme memory situations
+                partialJsonBuffer = '';
+                console.warn('Buffer cleared due to memory pressure');
               }
+              
+              // Don't close the stream here - let it continue processing
+              // The error might be temporary and related to a specific chunk
             }
           });
 
           response.data.on('end', () => {
             
-            // Process any remaining partial JSON in buffer with safety checks
+            // Process any remaining partial JSON in buffer
             const remainingBuffer = partialJsonBuffer.trim();
             if (remainingBuffer) {
-              // Safety check for buffer size before final processing
-              if (remainingBuffer.length > maxBufferSize) {
-                console.warn('Final buffer exceeds size limit, finding safe truncation point');
-                
-                // Find the last complete line boundary within the buffer limit
-                const truncationPoint = maxBufferSize;
-                let lastLineBreak = remainingBuffer.lastIndexOf('\n', truncationPoint);
-                
-                // If no line break found within limit, try to find a reasonable JSON boundary
-                if (lastLineBreak === -1) {
-                  // Look for common JSON delimiters as fallback
-                  const jsonDelimiters = ['}', ']', '"'];
-                  for (const delimiter of jsonDelimiters) {
-                    const delimiterIndex = remainingBuffer.lastIndexOf(delimiter, truncationPoint);
-                    if (delimiterIndex > truncationPoint * 0.5) { // Only use if reasonably close to limit
-                      lastLineBreak = delimiterIndex + 1;
-                      break;
-                    }
+              console.log(`Processing final buffer: ${remainingBuffer.length} characters`);
+              
+              // Process remaining buffer as complete lines if possible using optimized indexOf approach
+              let processedLines = 0;
+              let lineStart = 0;
+              let lineEnd = remainingBuffer.indexOf('\n', lineStart);
+              
+              while (lineEnd !== -1) {
+                const line = remainingBuffer.slice(lineStart, lineEnd).trim();
+                if (line) {
+                  try {
+                    processJsonLine(line);
+                    processedLines++;
+                  } catch (lineError) {
+                    console.error('Error processing final buffer line:', {
+                      error: lineError instanceof Error ? lineError.message : String(lineError),
+                      lineLength: line.length
+                    });
+                    // Continue processing other lines instead of failing completely
                   }
                 }
-                
-                if (lastLineBreak > 0) {
-                  const safeBuffer = remainingBuffer.substring(0, lastLineBreak);
-                  console.log(`Processing remaining buffer: ${safeBuffer.length} characters at safe boundary`);
-                  
-                  // Process each complete line in the safe buffer
-                  const lines = safeBuffer.split('\n');
-                  for (const line of lines) {
-                    const trimmedLine = line.trim();
-                    if (trimmedLine) {
-                      try {
-                        processJsonLine(trimmedLine);
-                      } catch (lineError) {
-                        console.error('Error processing line from remaining buffer:', {
-                          line: trimmedLine.substring(0, 100) + '...', // Log first 100 chars for debugging
-                          error: lineError instanceof Error ? lineError.message : String(lineError)
-                        });
-                      }
-                    }
+                lineStart = lineEnd + 1;
+                lineEnd = remainingBuffer.indexOf('\n', lineStart);
+              }
+              
+              // Handle any remaining partial line without newline
+              if (lineStart < remainingBuffer.length) {
+                const finalLine = remainingBuffer.slice(lineStart).trim();
+                if (finalLine) {
+                  try {
+                    processJsonLine(finalLine);
+                    processedLines++;
+                  } catch (lineError) {
+                    console.error('Error processing final partial line:', {
+                      error: lineError instanceof Error ? lineError.message : String(lineError),
+                      lineLength: finalLine.length
+                    });
                   }
-                } else {
-                  console.warn('Could not find safe processing point for oversized final buffer');
-                }
-              } else {
-                try {
-                  processJsonLine(remainingBuffer);
-                } catch (finalBufferError) {
-                  console.error('Error processing final buffer on stream end:', {
-                    error: finalBufferError instanceof Error ? finalBufferError.message : String(finalBufferError),
-                    stack: finalBufferError instanceof Error ? finalBufferError.stack : undefined,
-                    remainingBufferLength: remainingBuffer.length,
-                    overflowCount: bufferOverflowCount
-                  });
-                  // Continue processing instead of failing
                 }
               }
+              
+              console.log(`Final buffer processing completed: ${processedLines} lines processed successfully`);
             }
             
             // Log buffer performance stats
-            if (bufferOverflowCount > 0) {
-              console.log(`Stream processing completed with ${bufferOverflowCount} buffer overflows handled`);
+            const bufferStats = bufferManager.getStats();
+            if (bufferStats.overflowCount > 0) {
+              console.log(`Stream processing completed with ${bufferStats.overflowCount} buffer overflows handled`);
             }
             
             // Only send completion if we haven't already sent it via n8n 'end' signal
@@ -457,10 +394,17 @@ export async function POST(request: NextRequest) {
             }
             
             // Use safe close to prevent duplicate controller close errors
-            safeCloseController();
+            safeCloseController('stream end event');
           });
 
           response.data.on('error', (error: Error) => {
+            console.error('Stream data error:', {
+              message: error.message,
+              stack: error.stack,
+              bufferLength: partialJsonBuffer.length,
+              overflowCount: bufferManager.getStats().overflowCount
+            });
+            
             if (!controllerClosed) {
               controller.enqueue(
                 `data: ${JSON.stringify({
@@ -472,11 +416,14 @@ export async function POST(request: NextRequest) {
             }
             
             // Use safe close to prevent duplicate controller close errors
-            safeCloseController();
+            safeCloseController('stream data error');
           });
 
         } catch (error) {
-          console.error('Streaming error:', error);
+          console.error('Streaming initialization error:', {
+            error: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined
+          });
           
           if (!controllerClosed) {
             controller.enqueue(
@@ -489,7 +436,7 @@ export async function POST(request: NextRequest) {
           }
           
           // Use safe close to prevent duplicate controller close errors
-          safeCloseController();
+          safeCloseController('streaming initialization error');
         }
       },
 
