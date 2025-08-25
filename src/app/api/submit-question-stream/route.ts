@@ -122,7 +122,29 @@ export async function POST(request: NextRequest) {
       async start(controller) {
         // Controller state tracking to prevent duplicate closes (fixes premature stream termination)
         let controllerClosed = false;
+        let completionSent = false;
         
+        // Safe completion message sender to prevent duplicates
+        const safeSendCompletion = (reason?: string) => {
+          if (!completionSent) {
+            try {
+              controller.enqueue(
+                `data: ${JSON.stringify({
+                  content: '',
+                  type: 'complete',
+                  timestamp: new Date().toISOString()
+                })}\n\n`
+              );
+              completionSent = true;
+              console.log(`Completion message sent${reason ? ` (${reason})` : ''}`);
+            } catch (error) {
+              console.error('Failed to send completion message:', error);
+            }
+          } else {
+            console.log(`Completion already sent${reason ? ` - ${reason}` : ''}`);
+          }
+        };
+
         // Safe controller closing wrapper to prevent "Controller is already closed" errors
         const safeCloseController = (reason?: string) => {
           if (!controllerClosed) {
@@ -221,14 +243,8 @@ export async function POST(request: NextRequest) {
                   })}\n\n`
                 );
               } else if (n8nChunk.type === 'end') {
-                controller.enqueue(
-                  `data: ${JSON.stringify({
-                    content: '',
-                    type: 'complete',
-                    timestamp: new Date().toISOString()
-                  })}\n\n`
-                );
-                safeCloseController('stream end signal from n8n'); // Use safe closing to prevent duplicate close errors
+                safeSendCompletion('n8n end signal');
+                safeCloseController('stream end signal from n8n');
                 return;
               } else if (n8nChunk.content !== undefined) {
                 // SIMPLE: Just extract the content property directly
@@ -379,19 +395,8 @@ export async function POST(request: NextRequest) {
               console.log(`Stream processing completed with ${bufferStats.overflowCount} buffer overflows handled`);
             }
             
-            // Only send completion if we haven't already sent it via n8n 'end' signal
-            // The completion should be handled by the explicit 'end' message from n8n
-            // This prevents duplicate completion signals that cause premature content display
-            if (!controllerClosed) {
-              console.log('Stream ended without explicit n8n completion signal, sending fallback completion');
-              controller.enqueue(
-                `data: ${JSON.stringify({
-                  content: '',
-                  type: 'complete',
-                  timestamp: new Date().toISOString()
-                })}\n\n`
-              );
-            }
+            // Send fallback completion if n8n didn't send explicit completion
+            safeSendCompletion('fallback - stream end event');
             
             // Use safe close to prevent duplicate controller close errors
             safeCloseController('stream end event');

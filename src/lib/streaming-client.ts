@@ -14,6 +14,7 @@ export class StreamingClient {
   private totalContent: string = '';
   private status: StreamingStatus = StreamingStatus.CONNECTING;
   private callbacks: StreamingCallbacks;
+  private completionReceived: boolean = false;
 
   constructor(callbacks: StreamingCallbacks) {
     this.callbacks = callbacks;
@@ -77,6 +78,8 @@ export class StreamingClient {
         const { done, value } = await reader.read();
         
         if (done) {
+          // Stream ended - check if we received proper completion
+          await this.handleStreamEnd();
           break;
         }
 
@@ -86,6 +89,25 @@ export class StreamingClient {
       }
     } finally {
       reader.releaseLock();
+    }
+  }
+
+  private async handleStreamEnd(): Promise<void> {
+    if (!this.completionReceived) {
+      // Stream ended without proper completion signal
+      console.warn('Stream ended without completion signal');
+      
+      if (this.totalContent.trim().length > 0) {
+        // We have content, so complete the stream gracefully
+        console.log(`Auto-completing stream with ${this.totalContent.length} characters of content`);
+        this.updateStatus(StreamingStatus.COMPLETE);
+        this.callbacks.onComplete(this.totalContent);
+      } else {
+        // No content received - treat as error
+        console.error('Stream ended with no content and no completion signal');
+        this.updateStatus(StreamingStatus.ERROR);
+        this.callbacks.onError('Connection closed without receiving content');
+      }
     }
   }
 
@@ -126,6 +148,7 @@ export class StreamingClient {
         break;
 
       case 'complete':
+        this.completionReceived = true;
         this.updateStatus(StreamingStatus.COMPLETE);
         this.callbacks.onComplete(this.totalContent);
         break;
@@ -146,6 +169,7 @@ export class StreamingClient {
     this.chunks = [];
     this.totalContent = '';
     this.status = StreamingStatus.CONNECTING;
+    this.completionReceived = false;
   }
 
   public cancel(): void {

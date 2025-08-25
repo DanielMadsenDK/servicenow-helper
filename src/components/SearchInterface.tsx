@@ -43,6 +43,7 @@ export default function SearchInterface() {
   const [streamingClient, setStreamingClient] = useState<StreamingClient | null>(null);
   const [streamingContent, setStreamingContent] = useState<string>('');
   const streamingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const mobileHealthCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [batchTimeout, setBatchTimeout] = useState<NodeJS.Timeout | null>(null);
   const streamingBufferRef = useRef<StreamingBuffer>(new StreamingBuffer());
   const performanceMonitorRef = useRef<StreamingPerformanceMonitor>(new StreamingPerformanceMonitor());
@@ -60,12 +61,49 @@ export default function SearchInterface() {
   const { continueMode, setContinueMode, getSessionKey, currentSessionKey } = useSessionManager();
   const currentPlaceholder = usePlaceholderRotation({ textareaRef, question });
 
+  // Mobile health check for dead connection detection
+  const setupMobileHealthCheck = () => {
+    if (!isMobileDevice()) return;
+    
+    // Clear any existing timeout
+    if (mobileHealthCheckTimeoutRef.current) {
+      clearTimeout(mobileHealthCheckTimeoutRef.current);
+    }
+    
+    // Set up new timeout - shorter than main timeout for faster dead connection detection
+    mobileHealthCheckTimeoutRef.current = setTimeout(() => {
+      const currentContent = streamingBufferRef.current.getContent();
+      const currentSessionKey = getSessionKey();
+      
+      if (currentContent.trim().length > 0) {
+        // We have content but stream appears dead - force completion for mobile users
+        console.warn('Mobile connection health check: stream appears dead, auto-completing with existing content');
+        cleanupStreamingState(currentSessionKey || undefined);
+        
+        const timeoutResponse: ServiceNowResponse = {
+          message: currentContent,
+          type: selectedType,
+          timestamp: new Date().toISOString()
+        };
+        
+        setResponse(timeoutResponse);
+        console.log(`Mobile auto-completion with ${currentContent.length} characters due to connection timeout`);
+      }
+    }, 60000); // 1 minute timeout for mobile dead connection detection
+  };
+
   // Helper function to clean up streaming state
   const cleanupStreamingState = (sessionKey?: string) => {
     // Clear streaming timeout if it exists
     if (streamingTimeoutRef.current) {
       clearTimeout(streamingTimeoutRef.current);
       streamingTimeoutRef.current = null;
+    }
+    
+    // Clear mobile health check timeout if it exists
+    if (mobileHealthCheckTimeoutRef.current) {
+      clearTimeout(mobileHealthCheckTimeoutRef.current);
+      mobileHealthCheckTimeoutRef.current = null;
     }
     
     // Deactivate batching to prevent race conditions
@@ -214,6 +252,9 @@ export default function SearchInterface() {
     setIsStreaming(true);
     setHasScrolledToResults(false);
     
+    // Set up mobile health check for connection monitoring
+    setupMobileHealthCheck();
+    
     // Activate batching for race condition protection
     batchingActiveRef.current = true;
 
@@ -267,6 +308,9 @@ export default function SearchInterface() {
         onChunk: (chunk: StreamingChunk) => {
           // Use batched chunk processing for better performance
           addChunkToBatch(chunk.content);
+          
+          // Reset mobile health check timeout since we received data
+          setupMobileHealthCheck();
         },
         
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

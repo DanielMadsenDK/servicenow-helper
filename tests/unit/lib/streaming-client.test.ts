@@ -252,7 +252,12 @@ describe('StreamingClient', () => {
         headers: new Map([['content-type', 'text/event-stream']]),
         body: {
           getReader: jest.fn(() => ({
-            read: jest.fn().mockResolvedValueOnce({ done: true }),
+            read: jest.fn()
+              .mockResolvedValueOnce({ 
+                done: false, 
+                value: new TextEncoder().encode('data: {"type":"complete","content":"","timestamp":"2023-01-01T00:00:00.000Z"}\n\n')
+              })
+              .mockResolvedValueOnce({ done: true }),
             releaseLock: jest.fn(),
           })),
         },
