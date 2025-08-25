@@ -202,8 +202,9 @@ export async function POST(request: NextRequest) {
           let partialJsonBuffer = '';
           
           // Proper buffer size limits: convert to actual memory usage estimation
-          // UTF-8 can use 1-4 bytes per character, so we use a 4x safety multiplier
-          const maxBufferChars = isMobileClient ? 256 * 1024 : 512 * 1024; // 256K chars for mobile (≈1MB), 512K chars for desktop (≈2MB)
+          // UTF-8 typically uses 1-2 bytes per character for most content, using 2x multiplier for safety
+          // Only rare emoji/special characters use 3-4 bytes, making 4x overly conservative
+          const maxBufferChars = isMobileClient ? 512 * 1024 : 1024 * 1024; // 512K chars for mobile (≈1MB), 1M chars for desktop (≈2MB)
           const bufferManager = new BufferManager(maxBufferChars);
           
           const processJsonLine = (jsonLine: string) => {
