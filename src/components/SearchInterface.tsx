@@ -341,17 +341,7 @@ export default function SearchInterface() {
             streamingBufferRef.current.clear();
           };
           
-          // Simple validation: Ensure we have some content before completing
-          // This prevents displaying completely empty responses
           const contentLength = finalContent.trim().length;
-          const minimumContentLength = 5; // Reduced from 10 - just check for some content
-          
-          if (contentLength < minimumContentLength) {
-            console.warn(`Completion called with insufficient content (${contentLength} chars). Waiting for more content...`);
-            // Don't complete yet - wait for more content or explicit error
-            return;
-          }
-          
           console.log(`Streaming completion triggered with ${contentLength} characters of content`);
           
           // Proceed with completion - trust the API completion signal
