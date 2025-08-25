@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
                 sendEvent('complete', '');
                 completionSent = true;
               }
-            } else if ((n8nChunk.type === 'chunk' || n8nChunk.type === 'item') && n8nChunk.hasOwnProperty('content')) {
+            } else if ((n8nChunk.type === 'chunk' || n8nChunk.type === 'item') && n8nChunk.content !== undefined) {
               const content = typeof n8nChunk.content === 'object' ? JSON.stringify(n8nChunk.content) : String(n8nChunk.content);
               sendEvent('chunk', content);
             } else if (n8nChunk.type === 'error') {
