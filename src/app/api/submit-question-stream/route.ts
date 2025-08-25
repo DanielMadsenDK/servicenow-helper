@@ -330,27 +330,46 @@ export async function POST(request: NextRequest) {
             if (remainingBuffer) {
               console.log(`Processing final buffer: ${remainingBuffer.length} characters`);
               
-              // Process remaining buffer as complete lines if possible
-              const lines = remainingBuffer.split('\n');
+              // Process remaining buffer as complete lines if possible using optimized indexOf approach
               let processedLines = 0;
+              let lineStart = 0;
+              let lineEnd = remainingBuffer.indexOf('\n', lineStart);
               
-              for (const line of lines) {
-                const trimmedLine = line.trim();
-                if (trimmedLine) {
+              while (lineEnd !== -1) {
+                const line = remainingBuffer.slice(lineStart, lineEnd).trim();
+                if (line) {
                   try {
-                    processJsonLine(trimmedLine);
+                    processJsonLine(line);
                     processedLines++;
                   } catch (lineError) {
                     console.error('Error processing final buffer line:', {
                       error: lineError instanceof Error ? lineError.message : String(lineError),
-                      lineLength: trimmedLine.length
+                      lineLength: line.length
                     });
                     // Continue processing other lines instead of failing completely
                   }
                 }
+                lineStart = lineEnd + 1;
+                lineEnd = remainingBuffer.indexOf('\n', lineStart);
               }
               
-              console.log(`Final buffer processing completed: ${processedLines}/${lines.length} lines processed successfully`);
+              // Handle any remaining partial line without newline
+              if (lineStart < remainingBuffer.length) {
+                const finalLine = remainingBuffer.slice(lineStart).trim();
+                if (finalLine) {
+                  try {
+                    processJsonLine(finalLine);
+                    processedLines++;
+                  } catch (lineError) {
+                    console.error('Error processing final partial line:', {
+                      error: lineError instanceof Error ? lineError.message : String(lineError),
+                      lineLength: finalLine.length
+                    });
+                  }
+                }
+              }
+              
+              console.log(`Final buffer processing completed: ${processedLines} lines processed successfully`);
             }
             
             // Log buffer performance stats

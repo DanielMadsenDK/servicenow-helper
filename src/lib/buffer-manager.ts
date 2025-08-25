@@ -30,14 +30,15 @@ export class BufferManager {
       const completeLines = buffer.substring(0, lastLineBreak);
       const remainingPartial = buffer.substring(lastLineBreak + 1);
       
-      const lines = completeLines.split('\n');
       let processedCount = 0;
+      let lineStart = 0;
+      let lineEnd = completeLines.indexOf('\n', lineStart);
       
-      for (const line of lines) {
-        const trimmedLine = line.trim();
-        if (trimmedLine) {
+      while (lineEnd !== -1) {
+        const line = completeLines.slice(lineStart, lineEnd).trim();
+        if (line) {
           try {
-            processJsonLine(trimmedLine);
+            processJsonLine(line);
             processedCount++;
           } catch (lineError) {
             console.error('Error processing line from buffer:', {
@@ -45,6 +46,8 @@ export class BufferManager {
             });
           }
         }
+        lineStart = lineEnd + 1;
+        lineEnd = completeLines.indexOf('\n', lineStart);
       }
       
       console.log(`Processed ${processedCount} lines, buffer reduced to ${remainingPartial.length} chars`);
