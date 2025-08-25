@@ -3,6 +3,7 @@ import axios from 'axios';
 import { StreamingRequest } from '@/types';
 import { getServerAuthState } from '@/lib/server-auth';
 import { generateSessionId } from '@/lib/session-utils';
+import { BufferManager } from '@/lib/buffer-manager';
 
 const API_BASE_URL = process.env.N8N_WEBHOOK_URL!;
 const API_KEY = process.env.N8N_API_KEY!;
@@ -203,7 +204,7 @@ export async function POST(request: NextRequest) {
           // Proper buffer size limits: convert to actual memory usage estimation
           // UTF-8 can use 1-4 bytes per character, so we use a 4x safety multiplier
           const maxBufferChars = isMobileClient ? 256 * 1024 : 512 * 1024; // 256K chars for mobile (≈1MB), 512K chars for desktop (≈2MB)
-          let bufferOverflowCount = 0;
+          const bufferManager = new BufferManager(maxBufferChars);
           
           const processJsonLine = (jsonLine: string) => {
             try {
@@ -268,48 +269,10 @@ export async function POST(request: NextRequest) {
 
           response.data.on('data', (chunk: Buffer) => {
             try {
-              // Enhanced buffer management - process chunks incrementally to prevent overflow
-              // Only trigger overflow handling when we have a very large buffer with no progress
-              if (partialJsonBuffer.length > maxBufferChars) {
-                bufferOverflowCount++;
-                console.warn(`Large buffer detected (${partialJsonBuffer.length} chars), processing incrementally to prevent memory issues`);
-                
-                // Find complete lines to process and keep partial content
-                const lastLineBreak = partialJsonBuffer.lastIndexOf('\n');
-                if (lastLineBreak > 0) {
-                  // Process all complete lines
-                  const completeLines = partialJsonBuffer.substring(0, lastLineBreak);
-                  const remainingPartial = partialJsonBuffer.substring(lastLineBreak + 1);
-                  
-                  // Process complete lines incrementally
-                  const lines = completeLines.split('\n');
-                  for (const line of lines) {
-                    const trimmedLine = line.trim();
-                    if (trimmedLine) {
-                      try {
-                        processJsonLine(trimmedLine);
-                      } catch (lineError) {
-                        console.error('Error processing line from buffer:', {
-                          error: lineError instanceof Error ? lineError.message : String(lineError)
-                        });
-                        // Continue processing other lines instead of failing
-                      }
-                    }
-                  }
-                  
-                  // Keep only the incomplete line for next iteration
-                  partialJsonBuffer = remainingPartial;
-                  console.log(`Processed ${lines.length} lines, buffer reduced to ${partialJsonBuffer.length} chars`);
-                } else {
-                  // No complete lines found - this is unusual but handle gracefully
-                  console.warn('Large buffer with no complete lines - keeping buffer intact to avoid data loss');
-                  
-                  // Only in extreme cases (>1M chars) should we consider any trimming
-                  if (partialJsonBuffer.length > 1000000) {
-                    console.warn('Extremely large buffer detected, keeping most recent portion');
-                    partialJsonBuffer = partialJsonBuffer.substring(partialJsonBuffer.length - maxBufferChars);
-                  }
-                }
+              // Enhanced buffer management using BufferManager class
+              if (bufferManager.shouldHandleOverflow(partialJsonBuffer.length)) {
+                const result = bufferManager.handleBufferOverflow(partialJsonBuffer, processJsonLine);
+                partialJsonBuffer = result.remainingBuffer;
               }
               
               // Properly decode the buffer to UTF-8 text with optimized chunk processing
@@ -342,7 +305,7 @@ export async function POST(request: NextRequest) {
                 error: bufferError instanceof Error ? bufferError.message : String(bufferError),
                 stack: bufferError instanceof Error ? bufferError.stack : undefined,
                 bufferLength: partialJsonBuffer.length,
-                overflowCount: bufferOverflowCount
+                overflowCount: bufferManager.getStats().overflowCount
               });
               
               // Handle critical errors gracefully without terminating the stream
@@ -391,8 +354,9 @@ export async function POST(request: NextRequest) {
             }
             
             // Log buffer performance stats
-            if (bufferOverflowCount > 0) {
-              console.log(`Stream processing completed with ${bufferOverflowCount} buffer overflows handled`);
+            const bufferStats = bufferManager.getStats();
+            if (bufferStats.overflowCount > 0) {
+              console.log(`Stream processing completed with ${bufferStats.overflowCount} buffer overflows handled`);
             }
             
             // Only send completion if we haven't already sent it via n8n 'end' signal
@@ -418,7 +382,7 @@ export async function POST(request: NextRequest) {
               message: error.message,
               stack: error.stack,
               bufferLength: partialJsonBuffer.length,
-              overflowCount: bufferOverflowCount
+              overflowCount: bufferManager.getStats().overflowCount
             });
             
             if (!controllerClosed) {
