@@ -11,6 +11,7 @@ export interface ServiceNowRequest {
   aiModel: string; // Legacy field for backward compatibility
   agentModels?: AgentModel[]; // New field for multi-agent support
   file?: string; // base64 encoded file data
+  correlationId?: string; // For debugging and request tracking
 }
 
 export interface ServiceNowResponse {
