@@ -195,9 +195,14 @@ export default function SearchInterface() {
     }
   }, [response, isLoadedFromHistory]);
 
-  // Mobile-specific complete response handling
+  // Mobile-specific complete response handling with comprehensive debugging
   const handleMobileSubmit = async () => {
     const sessionKey = getSessionKey();
+    const startTime = Date.now();
+    
+    console.log('🔵 MOBILE DEBUG: Starting mobile submit process...');
+    console.log('🔵 MOBILE DEBUG: User agent:', navigator.userAgent);
+    console.log('🔵 MOBILE DEBUG: Network status:', navigator.onLine ? 'online' : 'offline');
     
     // Convert agentModels to array format for API
     const agentModelsArray = Object.entries(agentModels).map(([agent, model]) => ({
@@ -215,63 +220,161 @@ export default function SearchInterface() {
       ...(selectedFile && { file: selectedFile }),
     };
 
-    try {
-      console.log('Mobile client: sending complete response request');
-      
-      // Update status to show we're actively processing
-      setStreamingStatus(StreamingStatus.STREAMING);
-      
-      const response = await fetch('/api/submit-question-stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-      });
+    console.log('🔵 MOBILE DEBUG: Request payload prepared:', {
+      questionLength: request.question.length,
+      type: request.type,
+      sessionkey: request.sessionkey,
+      hasFile: !!selectedFile
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    // Implement fetch with timeout
+    const fetchWithTimeout = (url: string, options: RequestInit, timeoutMs: number = 60000) => {
+      console.log(`🔵 MOBILE DEBUG: Creating fetch with ${timeoutMs}ms timeout`);
+      
+      return Promise.race([
+        fetch(url, options),
+        new Promise<Response>((_, reject) => {
+          setTimeout(() => {
+            console.log('🔴 MOBILE ERROR: Fetch timeout after', timeoutMs, 'ms');
+            reject(new Error(`Request timeout after ${timeoutMs}ms`));
+          }, timeoutMs);
+        })
+      ]);
+    };
+
+    // Retry mechanism with exponential backoff
+    const maxRetries = 3;
+    const baseDelay = 1000; // 1 second
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`🔵 MOBILE DEBUG: Attempt ${attempt}/${maxRetries} - Updating UI status to STREAMING...`);
+        
+        // Update status to show we're actively processing
+        setStreamingStatus(StreamingStatus.STREAMING);
+        
+        console.log(`🔵 MOBILE DEBUG: Attempt ${attempt}/${maxRetries} - Starting fetch request...`);
+        
+        const response = await fetchWithTimeout('/api/submit-question-stream', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(request),
+        });
+
+        const fetchTime = Date.now() - startTime;
+        console.log(`🟢 MOBILE SUCCESS: Attempt ${attempt} - Fetch completed in`, fetchTime, 'ms');
+        console.log('🔵 MOBILE DEBUG: Response status:', response.status, response.statusText);
+        console.log('🔵 MOBILE DEBUG: Response headers:', Object.fromEntries(response.headers.entries()));
+
+        if (!response.ok) {
+          console.log(`🔴 MOBILE ERROR: Attempt ${attempt} - HTTP error response, status:`, response.status);
+          let errorData;
+          try {
+            errorData = await response.json();
+            console.log('🔵 MOBILE DEBUG: Error response data:', errorData);
+          } catch (jsonError) {
+            console.log('🔴 MOBILE ERROR: Failed to parse error response as JSON:', jsonError);
+            errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
+          }
+          
+          // For 5xx errors, retry; for 4xx errors, don't retry
+          const shouldRetry = response.status >= 500 && attempt < maxRetries;
+          if (shouldRetry) {
+            console.log(`🔄 MOBILE RETRY: HTTP ${response.status} error, will retry after delay...`);
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+          } else {
+            console.log(`❌ MOBILE FINAL ERROR: HTTP ${response.status} error, no more retries`);
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+          }
+        }
+
+        console.log(`🔵 MOBILE DEBUG: Attempt ${attempt} - Parsing response JSON...`);
+        const result = await response.json();
+        console.log('🟢 MOBILE SUCCESS: JSON parsed successfully');
+        console.log('🔵 MOBILE DEBUG: Response structure:', {
+          hasMessage: !!result.message,
+          messageLength: result.message?.length || 0,
+          type: result.type,
+          timestamp: result.timestamp,
+          success: result.success
+        });
+        
+        if (result.success === false) {
+          console.log(`🔴 MOBILE ERROR: Attempt ${attempt} - Response indicates failure:`, result.error);
+          // Don't retry application-level failures
+          throw new Error(result.error || 'Request failed');
+        }
+
+        if (!result.message) {
+          console.log(`🔴 MOBILE ERROR: Attempt ${attempt} - No message in response`);
+          // Don't retry missing message - likely a backend issue
+          throw new Error('No message content received');
+        }
+
+        const totalTime = Date.now() - startTime;
+        console.log(`🟢 MOBILE SUCCESS: Attempt ${attempt} - Complete response received in`, totalTime, 'ms');
+        console.log('🟢 MOBILE SUCCESS: Message length:', result.message.length, 'characters');
+        
+        // Create ServiceNowResponse object
+        const mobileResponse: ServiceNowResponse = {
+          message: result.message,
+          type: selectedType,
+          timestamp: result.timestamp || new Date().toISOString(),
+          sessionkey: sessionKey,
+          status: 'done'
+        };
+
+        console.log('🔵 MOBILE DEBUG: Setting response in state...');
+        setResponse(mobileResponse);
+        
+        // Use setTimeout to ensure response renders before cleaning up loading states
+        setTimeout(() => {
+          console.log('🔵 MOBILE DEBUG: Cleaning up loading states...');
+          console.log('🔵 MOBILE DEBUG: Current state before cleanup - isLoading:', true, 'isStreaming:', true);
+          
+          setStreamingStatus(StreamingStatus.COMPLETE);
+          setIsLoading(false);
+          setIsStreaming(false);
+          setStreamingContent('');
+          
+          console.log(`🟢 MOBILE SUCCESS: Mobile submit completed successfully on attempt ${attempt}!`);
+        }, 100); // Slightly longer timeout for better reliability
+
+        // Success! Break out of retry loop
+        return;
+
+      } catch (error) {
+        const errorTime = Date.now() - startTime;
+        console.log(`🔴 MOBILE ERROR: Attempt ${attempt}/${maxRetries} failed after`, errorTime, 'ms');
+        console.error('🔴 MOBILE ERROR: Full error details:', error);
+        
+        // If this was the last attempt, handle the error
+        if (attempt === maxRetries) {
+          console.error('🔴 MOBILE FATAL: All retry attempts exhausted');
+          console.error('🔴 MOBILE ERROR: Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+          
+          // Set error and clean up state immediately for final errors
+          const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+          console.log('🔵 MOBILE DEBUG: Setting error state:', errorMessage);
+          
+          setError(errorMessage);
+          setStreamingStatus(StreamingStatus.ERROR);
+          setIsLoading(false);
+          setIsStreaming(false);
+          
+          console.log('🔴 MOBILE ERROR: Error state cleanup completed');
+          return;
+        }
+        
+        // Calculate delay with exponential backoff
+        const delay = baseDelay * Math.pow(2, attempt - 1);
+        console.log(`🔄 MOBILE RETRY: Waiting ${delay}ms before attempt ${attempt + 1}...`);
+        
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
-
-      const result = await response.json();
-      
-      if (result.success === false) {
-        throw new Error(result.error || 'Request failed');
-      }
-
-      console.log(`Mobile complete response received: ${result.message.length} characters`);
-      
-      // Create ServiceNowResponse object
-      const mobileResponse: ServiceNowResponse = {
-        message: result.message,
-        type: selectedType,
-        timestamp: result.timestamp || new Date().toISOString(),
-        sessionkey: sessionKey,
-        status: 'done'
-      };
-
-      // Set response first - this should trigger UI update
-      console.log('Mobile: Setting response...');
-      setResponse(mobileResponse);
-      
-      // Use setTimeout to ensure response renders before cleaning up loading states
-      setTimeout(() => {
-        console.log('Mobile: Cleaning up loading states...');
-        setStreamingStatus(StreamingStatus.COMPLETE);
-        setIsLoading(false);
-        setIsStreaming(false);
-        setStreamingContent('');
-      }, 0);
-
-    } catch (error) {
-      console.error('Mobile submit error:', error);
-      
-      // Set error and clean up state immediately for errors
-      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
-      setStreamingStatus(StreamingStatus.ERROR);
-      setIsLoading(false);
-      setIsStreaming(false);
     }
   };
 
