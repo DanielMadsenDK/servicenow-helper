@@ -242,9 +242,6 @@ export default function SearchInterface() {
 
       console.log(`Mobile complete response received: ${result.message.length} characters`);
       
-      // Update status to complete before setting response
-      setStreamingStatus(StreamingStatus.COMPLETE);
-      
       // Create ServiceNowResponse object
       const mobileResponse: ServiceNowResponse = {
         message: result.message,
@@ -254,26 +251,29 @@ export default function SearchInterface() {
         status: 'done'
       };
 
-      // Clean up streaming state properly
-      cleanupStreamingState(sessionKey);
-      
+      // Set response first
       setResponse(mobileResponse);
+      
+      // Then update status and clean up streaming state
+      setStreamingStatus(StreamingStatus.COMPLETE);
       setIsLoading(false);
       setIsStreaming(false);
       setStreamingContent('');
+      
+      // Clean up streaming state last
+      cleanupStreamingState(sessionKey);
 
     } catch (error) {
       console.error('Mobile submit error:', error);
       
-      // Set error status
-      setStreamingStatus(StreamingStatus.ERROR);
-      
-      // Clean up streaming state
-      cleanupStreamingState(sessionKey);
-      
+      // Set error and clean up state
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+      setStreamingStatus(StreamingStatus.ERROR);
       setIsLoading(false);
       setIsStreaming(false);
+      
+      // Clean up streaming state last
+      cleanupStreamingState(sessionKey);
     }
   };
 
