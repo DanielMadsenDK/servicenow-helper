@@ -35,7 +35,7 @@ export class N8NStreamingClient {
       chatInput: body.question,
       metadata: {
         type: body.type,
-        aiModel: body.aiModel,
+        aiModel: body.aiModel || '',
         agentModels: body.agentModels,
         file: body.file,
         searching: body.searching,
