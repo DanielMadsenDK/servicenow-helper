@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_security_acl_role">
+    <sys_security_acl_role action="INSERT_OR_UPDATE">
+        <sys_class_name>sys_security_acl_role</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-08-26 12:28:11</sys_created_on>
+        <sys_id>c48ed39e53abe210030191e0a0490e47</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_1118332_servic_0_integration_task.x_1118332_servic_0.servicenow helper user</sys_name>
+        <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+        <sys_security_acl display_value="x_1118332_servic_0_integration_task">088ed39e53abe210030191e0a0490e35</sys_security_acl>
+        <sys_update_name>sys_security_acl_role_c48ed39e53abe210030191e0a0490e47</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-08-26 12:28:11</sys_updated_on>
+        <sys_user_role display_value="x_1118332_servic_0.servicenow helper user" name="x_1118332_servic_0.servicenow helper user">988290f153632210030191e0a0490e0b</sys_user_role>
+    </sys_security_acl_role>
+</record_update>
