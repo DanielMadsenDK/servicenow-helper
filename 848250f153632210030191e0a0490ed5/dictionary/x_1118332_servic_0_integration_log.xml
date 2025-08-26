@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><database>
-    <element db_object_id="41422bd253ebe210030191e0a0490e7a" label="Integration Log" max_length="40" name="x_1118332_servic_0_integration_log" type="collection">
+    <element db_object_id="41422bd253ebe210030191e0a0490e7a" label="Integration Log" max_length="40" name="x_1118332_servic_0_integration_log" text_index="true" type="collection">
         <element label="Payload" max_length="40" name="payload" type="document_id"/>
         <element choice="3" label="Action" max_length="40" name="action" type="choice">
             <choice>

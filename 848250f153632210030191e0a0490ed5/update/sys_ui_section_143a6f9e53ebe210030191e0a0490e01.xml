@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="" section_id="143a6f9e53ebe210030191e0a0490e01" sys_domain="global" table="x_1118332_servic_0_integration_task" version="3" view="workspace-servicenow-helper-0">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>number</element>
+            <position>0</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_id>503a6f9e53ebe210030191e0a0490e03</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_1118332_servic_0_integration_task" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">143a6f9e53ebe210030191e0a0490e01</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>assigned_to</element>
+            <position>1</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_id>983a6f9e53ebe210030191e0a0490e05</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_1118332_servic_0_integration_task" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">143a6f9e53ebe210030191e0a0490e01</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>cmdb_ci</element>
+            <position>2</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_id>183a6f9e53ebe210030191e0a0490e04</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_1118332_servic_0_integration_task" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">143a6f9e53ebe210030191e0a0490e01</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>active</element>
+            <position>3</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_id>903a6f9e53ebe210030191e0a0490e04</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_1118332_servic_0_integration_task" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">143a6f9e53ebe210030191e0a0490e01</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.split</element>
+            <position>4</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_id>503aaf9e53ebe210030191e0a0490e3e</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_1118332_servic_0_integration_task" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">143a6f9e53ebe210030191e0a0490e01</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <type>.split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>priority</element>
+            <position>5</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_id>d83aaf9e53ebe210030191e0a0490e3d</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_1118332_servic_0_integration_task" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">143a6f9e53ebe210030191e0a0490e01</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>state</element>
+            <position>6</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_id>1c3a6f9e53ebe210030191e0a0490e03</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_1118332_servic_0_integration_task" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">143a6f9e53ebe210030191e0a0490e01</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>parent</element>
+            <position>7</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_id>543aaf9e53ebe210030191e0a0490e3d</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_1118332_servic_0_integration_task" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">143a6f9e53ebe210030191e0a0490e01</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.end_split</element>
+            <position>8</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_id>143a6f9e53ebe210030191e0a0490e05</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_1118332_servic_0_integration_task" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">143a6f9e53ebe210030191e0a0490e01</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <type>.end_split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>short_description</element>
+            <position>9</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_id>103a6f9e53ebe210030191e0a0490e06</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_1118332_servic_0_integration_task" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">143a6f9e53ebe210030191e0a0490e01</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>description</element>
+            <position>10</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_id>9c3a6f9e53ebe210030191e0a0490e04</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_1118332_servic_0_integration_task" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">143a6f9e53ebe210030191e0a0490e01</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>work_notes</element>
+            <position>11</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_id>d43aaf9e53ebe210030191e0a0490e3e</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_1118332_servic_0_integration_task" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">143a6f9e53ebe210030191e0a0490e01</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption/>
+            <header>false</header>
+            <name>x_1118332_servic_0_integration_task</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:16</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>143a6f9e53ebe210030191e0a0490e01</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_1118332_servic_0_integration_task</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+            <sys_update_name>sys_ui_section_143a6f9e53ebe210030191e0a0490e01</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:16</sys_updated_on>
+            <sys_user/>
+            <title>true</title>
+            <view display_value="Workspace Servicenow Helper 0" name="workspace-servicenow-helper-0">f82a2b9ee9ebe2108e6afc2b6d4afaa8</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

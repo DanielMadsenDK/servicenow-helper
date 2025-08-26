@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_view">
+    <sys_ui_view action="INSERT_OR_UPDATE">
+        <group/>
+        <hidden>false</hidden>
+        <name>workspace-servicenow-helper-0</name>
+        <roles/>
+        <sys_class_name>sys_ui_view</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-08-26 13:19:04</sys_created_on>
+        <sys_id>f82a2b9ee9ebe2108e6afc2b6d4afaa8</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Workspace Servicenow Helper 0</sys_name>
+        <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+        <sys_update_name>sys_ui_view_f82a2b9ee9ebe2108e6afc2b6d4afaa8</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-08-26 13:19:04</sys_updated_on>
+        <title>Workspace Servicenow Helper 0</title>
+        <user/>
+    </sys_ui_view>
+</record_update>

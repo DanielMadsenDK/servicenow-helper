@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ux_applicability_m2m_list">
+    <sys_ux_applicability_m2m_list action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <applicability display_value="Audience for app servicenow-helper">bd2a6b9e53ebe210030191e0a0490ec7</applicability>
+        <list display_value="Unassigned">792aab9e53ebe210030191e0a0490e08</list>
+        <order>100</order>
+        <sys_class_name>sys_ux_applicability_m2m_list</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-08-26 13:19:06</sys_created_on>
+        <sys_id>7d2aab9e53ebe210030191e0a0490e0a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+        <sys_update_name>sys_ux_applicability_m2m_list_7d2aab9e53ebe210030191e0a0490e0a</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-08-26 13:19:06</sys_updated_on>
+    </sys_ux_applicability_m2m_list>
+</record_update>

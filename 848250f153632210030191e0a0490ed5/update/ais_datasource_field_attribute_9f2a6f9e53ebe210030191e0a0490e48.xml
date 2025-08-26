@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="ais_datasource_field_attribute">
+    <ais_datasource_field_attribute action="INSERT_OR_UPDATE">
+        <attribute display_value="map_to">f734a634c7320010d1cfd9795cc26094</attribute>
+        <datasource display_value="Integration Log Table">df2a6f9e53ebe210030191e0a0490e2a</datasource>
+        <field>number</field>
+        <source>x_1118332_servic_0_integration_log</source>
+        <sys_class_name>ais_datasource_field_attribute</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-08-26 13:19:12</sys_created_on>
+        <sys_id>9f2a6f9e53ebe210030191e0a0490e48</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_1118332_servic_0_integration_log.number</sys_name>
+        <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+        <sys_update_name>ais_datasource_field_attribute_9f2a6f9e53ebe210030191e0a0490e48</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-08-26 13:19:12</sys_updated_on>
+        <value>title</value>
+    </ais_datasource_field_attribute>
+</record_update>
