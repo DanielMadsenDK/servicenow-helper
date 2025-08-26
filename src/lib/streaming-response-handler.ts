@@ -9,7 +9,7 @@ export class StreamingResponseHandler {
         let completionSent = false;
 
         const closeController = () => {
-            if (controller.desiredSize === null || controller.desiredSize <= 0) return;
+            if (controller.desiredSize === null) return;
             try {
                 controller.close();
             } catch {
