@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_kmf_crypto_caller_policy">
+    <sys_kmf_crypto_caller_policy action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <approval_type/>
+        <check_script_hash>false</check_script_hash>
+        <crypto_module display_value="global.com_snc_platform_security_oauth_glideencrypter">8e4dffa067331010b28becccb585efc1</crypto_module>
+        <crypto_spec display_value="com_snc_platform_security_oauth_glideencrypter --- Symmetric Key Wrapping/Unwrapping">0a4d33e067331010b28becccb585ef96</crypto_spec>
+        <granular_operation/>
+        <identity_group_alias/>
+        <impersonation>false</impersonation>
+        <instance_recipient/>
+        <owner>9e4b0b66dbf5f55002d91729139619e1</owner>
+        <policy_name>AutoGen-scope-x_1118332_servic_0-global.com_snc_platform_security_oauth_glideencrypter</policy_name>
+        <result>track</result>
+        <script_hash/>
+        <script_table/>
+        <signature_data/>
+        <specify_purpose>false</specify_purpose>
+        <sys_class_name>sys_kmf_crypto_caller_policy</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-08-28 09:45:58</sys_created_on>
+        <sys_id>578c8907536fa610030191e0a0490e58</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+        <sys_update_name>sys_kmf_crypto_caller_policy_578c8907536fa610030191e0a0490e58</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-08-28 09:45:58</sys_updated_on>
+        <target_role/>
+        <target_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</target_scope>
+        <target_script/>
+        <type>3</type>
+        <used>false</used>
+    </sys_kmf_crypto_caller_policy>
+</record_update>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="41422bd253ebe210030191e0a0490e7a" label="Integration Log" max_length="40" name="x_1118332_servic_0_integration_log" text_index="true" type="collection">
+        <element label="Payload" max_length="40" name="payload" type="document_id"/>
+        <element choice="3" label="Action" max_length="40" name="action" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="AutoApproved" sequence="3" value="autoapproved"/>
+                <element inactive_on_update="false" label="Deployed" sequence="4" value="deployed"/>
+                <element inactive_on_update="false" label="Error" sequence="5" value="error"/>
+                <element inactive_on_update="false" label="Recieved" sequence="0" value="recieved"/>
+                <element inactive_on_update="false" label="Parsed" sequence="1" value="parsed"/>
+                <element inactive_on_update="false" label="Approved" sequence="2" value="approved"/>
+                <element inactive_on_update="false" label="SentToClient" sequence="6" value="senttoclient"/>
+            </choice>
+        </element>
+        <element label="Payload count" max_length="40" name="payload_count" type="integer"/>
+        <element label="Client" max_length="100" name="client" type="string"/>
+        <element attributes="edge_encryption_enabled=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <element label="Details" max_length="1000" name="details" type="string"/>
+        <index name="index">
+            <element name="payload"/>
+        </index>
+    </element>
+</database>

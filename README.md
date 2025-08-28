@@ -47,6 +47,7 @@ Enjoy a responsive design built with TailwindCSS, progressive web app support fo
 | **Search Enhancement** | ServiceNow KB integration | API Connections |
 | **Agent Model Configuration** | Individual model selection per AI agent | Persistent Agent Settings |
 | **Knowledge Store Management** | Comprehensive Q&A management interface | React Components + PostgreSQL |
+| **Script Deployment** | Send generated scripts directly to ServiceNow | N8N Client + ServiceNow API |
 
 ## Architecture
 
@@ -266,9 +267,10 @@ Configure different AI models for specialized agents to optimize performance:
 2. **Submit Query** using the intuitive search interface
 3. **Watch Live Responses** stream in real-time as the AI generates answers
 4. **Enjoy Enhanced UX** with automatic scrolling to responses when streaming starts
-5. **Access History** through the conversation panel with advanced filtering
-6. **Save to Knowledge Store** by clicking the "Add to knowledge base" button on helpful responses
-7. **Manage Knowledge Store** through the dedicated management interface accessible via the hamburger menu
+5. **Deploy Scripts** directly to ServiceNow using the "Send to ServiceNow" button on script code blocks
+6. **Access History** through the conversation panel with advanced filtering
+7. **Save to Knowledge Store** by clicking the "Add to knowledge base" button on helpful responses
+8. **Manage Knowledge Store** through the dedicated management interface accessible via the hamburger menu
 
 ### **File Attachments (Multimodal Support)**
 
@@ -289,6 +291,36 @@ Enhance your questions with file attachments when using multimodal AI models:
 3. The attachment button will appear automatically in the search interface
 
 > **Note:** File attachment functionality is only visible when a multimodal AI model is selected. Models become multimodal when you configure them with image, text, or audio capabilities in the settings menu.
+
+### **Script Deployment to ServiceNow**
+
+Deploy AI-generated scripts directly to your ServiceNow instance with seamless integration:
+
+| Feature | Description | Script Types |
+|---------|-------------|--------------|
+| **One-Click Deployment** | Send scripts directly from code blocks | Business Rules, Script Includes, Client Scripts |
+| **Type Selection Modal** | Choose the correct ServiceNow script type | Automated table targeting |
+| **Real-time Feedback** | Instant success/failure notifications | User-friendly error messages |
+| **Secure Integration** | Authentication-protected API endpoints | N8N workflow processing |
+
+**How to deploy scripts:**
+1. **Generate Scripts** by asking AI for ServiceNow code solutions
+2. **Identify Code Blocks** with syntax highlighting in responses
+3. **Click Send Button** located next to Copy and Fullscreen buttons on code blocks
+4. **Select Script Type** from the modal (Business Rule, Script Include, Client Script)
+5. **Confirm Deployment** and receive success confirmation with sys_id
+6. **View in ServiceNow** - scripts are created directly in your ServiceNow instance
+
+**Supported Script Types:**
+- **Business Rules** → `sys_script` table
+- **Script Includes** → `sys_script_include` table  
+- **Client Scripts** → `sys_script_client` table
+
+**Integration Benefits:**
+- **Seamless Workflow**: No copy-paste needed between ServiceNow Helper and ServiceNow
+- **Error Prevention**: Automated table targeting prevents deployment mistakes
+- **Audit Trail**: All deployments tracked through ServiceNow's standard audit system
+- **Security**: Authentication required and processed through secure N8N workflows
 
 ### **Knowledge Store Management**
 
@@ -404,13 +436,17 @@ servicenow-helper/
 │   ├── app/                             # Next.js App Router
 │   │   ├── api/agent-models/           # Agent model configuration API
 │   │   ├── api/knowledge-store/        # Knowledge store management API
+│   │   ├── api/send-script/            # Script deployment API
 │   │   ├── api/settings/               # Settings API
 │   │   ├── api/submit-question-stream/ # Streaming API
 │   │   ├── knowledge-store/            # Knowledge store management page
 │   │   └── settings/                   # Settings page
 │   ├── components/                      # React components
+│   │   ├── CodeBlock.tsx                  # Enhanced code blocks with send functionality
 │   │   ├── KnowledgeStorePanel.tsx        # Knowledge store management interface
 │   │   ├── KnowledgeStoreItem.tsx         # Individual knowledge store entry display
+│   │   ├── SendScriptButton.tsx           # Script deployment button component
+│   │   ├── SendScriptModal.tsx            # Script type selection modal
 │   │   ├── Settings.tsx                   # Settings component
 │   │   └── SearchInterface.tsx            # Main interface (streaming)
 │   ├── contexts/                        # React contexts

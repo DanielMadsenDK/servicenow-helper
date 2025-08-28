@@ -293,6 +293,14 @@ if [ -f /.dockerenv ]; then
         echo "⚠️ Agent models migration script not found, skipping..."
     fi
     
+    # Create ServiceNow integration table
+    echo "Creating ServiceNow integration table..."
+    if [ -f scripts/create-servicenow-integration-table.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/create-servicenow-integration-table.sql > /dev/null 2>&1 && echo "✅ ServiceNow integration table created" || echo "⚠️ ServiceNow integration table creation failed"
+    else
+        echo "⚠️ ServiceNow integration table migration script not found, skipping..."
+    fi
+    
     # Mark as initialized inside container
     docker exec $N8N_CONTAINER touch /home/node/.n8n/.initialized > /dev/null 2>&1
 else
@@ -396,6 +404,14 @@ else
         docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/migrate-to-agent-models.sql > /dev/null 2>&1 && echo "✅ Agent models migration completed" || echo "⚠️ Agent models migration failed"
     else
         echo "⚠️ Agent models migration script not found, skipping..."
+    fi
+    
+    # Create ServiceNow integration table
+    echo "Creating ServiceNow integration table..."
+    if [ -f scripts/create-servicenow-integration-table.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/create-servicenow-integration-table.sql > /dev/null 2>&1 && echo "✅ ServiceNow integration table created" || echo "⚠️ ServiceNow integration table creation failed"
+    else
+        echo "⚠️ ServiceNow integration table migration script not found, skipping..."
     fi
     
     # Mark as initialized inside container

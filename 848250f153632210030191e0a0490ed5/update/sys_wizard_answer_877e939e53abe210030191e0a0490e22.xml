@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_wizard_answer">
+    <sys_wizard_answer action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <answer>New integration_task</answer>
+        <button_label/>
+        <dependent_value/>
+        <element/>
+        <name>integration_task</name>
+        <next_question/>
+        <order>100</order>
+        <payload_name/>
+        <question display_value="Task" name="Task">f13ab358310212108a7c7b974a26f252</question>
+        <roles/>
+        <script/>
+        <sys_class_name>sys_wizard_answer</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-08-26 12:28:07</sys_created_on>
+        <sys_id>877e939e53abe210030191e0a0490e22</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>integration_task</sys_name>
+        <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+        <sys_update_name>sys_wizard_answer_877e939e53abe210030191e0a0490e22</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-08-26 12:28:07</sys_updated_on>
+        <table/>
+        <target_url>x_1118332_servic_0_integration_task.do</target_url>
+        <type>1</type>
+    </sys_wizard_answer>
+</record_update>

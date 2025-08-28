@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="7a7e939e53abe210030191e0a0490e05" extends="task" label="Integration Task" max_length="40" name="x_1118332_servic_0_integration_task" text_index="true" type="collection">
+        <element label="Error details" max_length="1000" name="error_details" type="string"/>
+        <element choice="3" default="new" label="Validation status" max_length="40" name="validation_status" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="New" sequence="0" value="new"/>
+                <element inactive_on_update="false" label="Failed" sequence="3" value="failed"/>
+                <element inactive_on_update="false" label="Passed" sequence="2" value="passed"/>
+                <element inactive_on_update="false" label="Processing" sequence="1" value="processing"/>
+            </choice>
+        </element>
+        <element choice="3" default="new" label="Processing status" max_length="40" name="processing_status" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="New" sequence="0" value="new"/>
+                <element inactive_on_update="false" label="Processing" sequence="1" value="processing"/>
+                <element inactive_on_update="false" label="Passed" sequence="2" value="passed"/>
+                <element inactive_on_update="false" label="Failed" sequence="3" value="failed"/>
+            </choice>
+        </element>
+        <element label="Summary" max_length="100" name="summary" type="string"/>
+        <element label="Result reference" max_length="255" name="result_reference" type="document_id"/>
+        <element label="Target table" max_length="100" name="target_table" type="string"/>
+        <element label="Payload" max_length="4000" name="payload" type="string_full_utf8"/>
+        <element label="Superseeds" max_length="255" name="superseeds" type="document_id"/>
+        <element label="Source Metadata" max_length="1000" name="source_metadata" type="string"/>
+        <element choice="3" display="true" label="Type" max_length="40" name="type" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Client Script" sequence="1" value="client_script"/>
+                <element inactive_on_update="false" label="Script Include" sequence="2" value="script_include"/>
+                <element inactive_on_update="false" label="Business Rule" sequence="0" value="business_rule"/>
+            </choice>
+        </element>
+    </element>
+</database>

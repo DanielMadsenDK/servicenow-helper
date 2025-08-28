@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_documentation element="target_table" label="Target table" language="en" table="x_1118332_servic_0_integration_task">
+        <sys_documentation action="INSERT_OR_UPDATE">
+            <element>target_table</element>
+            <help/>
+            <hint/>
+            <label>Target table</label>
+            <language>en</language>
+            <name>x_1118332_servic_0_integration_task</name>
+            <plural/>
+            <sys_class_name>sys_documentation</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 12:42:54</sys_created_on>
+            <sys_mod_count>3</sys_mod_count>
+            <sys_name>Target table</sys_name>
+            <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+            <sys_update_name>sys_documentation_x_1118332_servic_0_integration_task_target_table_en</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 12:42:57</sys_updated_on>
+            <url/>
+            <url_target/>
+        </sys_documentation>
+    </sys_documentation>
+</record_update>

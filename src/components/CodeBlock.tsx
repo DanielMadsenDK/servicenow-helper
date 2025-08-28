@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Copy, Check, Maximize2, X } from 'lucide-react';
+import SendScriptButton from './SendScriptButton';
 
 interface CodeBlockProps {
   children: React.ReactNode;
@@ -125,6 +126,12 @@ const CodeBlock = React.memo(function CodeBlock({ children, className, ...props 
             <span className="text-white text-sm font-medium">Code Viewer</span>
           </div>
           <div className="flex items-center gap-2">
+            <SendScriptButton 
+              scriptContent={extractTextContent(children)}
+              size="sm"
+              className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+            />
+            
             <button
               onClick={handleCopy}
               className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm transition-colors"
@@ -295,6 +302,11 @@ const CodeBlock = React.memo(function CodeBlock({ children, className, ...props 
               <div className="p-3 sm:p-4">
                 {/* Action buttons - positioned at top right */}
                 <div className="flex items-center justify-end gap-1 sm:gap-2 mb-2 sm:mb-3">
+                  <SendScriptButton 
+                    scriptContent={extractTextContent(children)}
+                    size="sm"
+                  />
+                  
                   <button
                     onClick={handleFullscreen}
                     className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"

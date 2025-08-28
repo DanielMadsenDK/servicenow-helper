@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_search_filter">
+    <sys_search_filter action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <ais_search_source display_value="Integration Task">d32a2f9e53ebe210030191e0a0490ede</ais_search_source>
+        <label>Integration Task</label>
+        <name>Integration Task</name>
+        <order>100</order>
+        <search_context_config display_value="Servicenow Helper AI Search Configuration">7c2a2b9ea1ebe2101a3ce283c9b7e8a9</search_context_config>
+        <sys_class_name>sys_search_filter</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-08-26 13:19:12</sys_created_on>
+        <sys_id>172a6f9e53ebe210030191e0a0490e14</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Integration Task</sys_name>
+        <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+        <sys_update_name>sys_search_filter_172a6f9e53ebe210030191e0a0490e14</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-08-26 13:19:12</sys_updated_on>
+    </sys_search_filter>
+</record_update>

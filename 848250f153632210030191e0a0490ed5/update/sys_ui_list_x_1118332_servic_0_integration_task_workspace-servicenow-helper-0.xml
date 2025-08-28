@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_list parent="" relationship="" sys_domain="global" table="x_1118332_servic_0_integration_task" version="2" view="workspace-servicenow-helper-0">
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>number</element>
+            <list_id display_value="x_1118332_servic_0_integration_task" element="NULL" name="x_1118332_servic_0_integration_task" parent="NULL" relationship="NULL" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">b72a6f9e53ebe210030191e0a0490e89</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>0</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:14</sys_created_on>
+            <sys_id>3b2a6f9e53ebe210030191e0a0490e8a</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:14</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>priority</element>
+            <list_id display_value="x_1118332_servic_0_integration_task" element="NULL" name="x_1118332_servic_0_integration_task" parent="NULL" relationship="NULL" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">b72a6f9e53ebe210030191e0a0490e89</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>1</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:14</sys_created_on>
+            <sys_id>bf2a6f9e53ebe210030191e0a0490e8a</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:14</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>state</element>
+            <list_id display_value="x_1118332_servic_0_integration_task" element="NULL" name="x_1118332_servic_0_integration_task" parent="NULL" relationship="NULL" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">b72a6f9e53ebe210030191e0a0490e89</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>2</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:14</sys_created_on>
+            <sys_id>332a6f9e53ebe210030191e0a0490e8b</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:14</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>assigned_to</element>
+            <list_id display_value="x_1118332_servic_0_integration_task" element="NULL" name="x_1118332_servic_0_integration_task" parent="NULL" relationship="NULL" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">b72a6f9e53ebe210030191e0a0490e89</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>3</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:14</sys_created_on>
+            <sys_id>b32a6f9e53ebe210030191e0a0490e8b</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:14</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>short_description</element>
+            <list_id display_value="x_1118332_servic_0_integration_task" element="NULL" name="x_1118332_servic_0_integration_task" parent="NULL" relationship="NULL" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">b72a6f9e53ebe210030191e0a0490e89</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>4</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:14</sys_created_on>
+            <sys_id>372a6f9e53ebe210030191e0a0490e8b</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:14</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>sys_class_name</element>
+            <list_id display_value="x_1118332_servic_0_integration_task" element="NULL" name="x_1118332_servic_0_integration_task" parent="NULL" relationship="NULL" sys_domain="global" view="f82a2b9ee9ebe2108e6afc2b6d4afaa8">b72a6f9e53ebe210030191e0a0490e89</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>5</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:14</sys_created_on>
+            <sys_id>b72a6f9e53ebe210030191e0a0490e8b</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:14</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element/>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <name>x_1118332_servic_0_integration_task</name>
+            <parent/>
+            <position/>
+            <relationship/>
+            <sum>false</sum>
+            <sys_class_name>sys_ui_list</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-08-26 13:19:14</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>b72a6f9e53ebe210030191e0a0490e89</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_1118332_servic_0_integration_task</sys_name>
+            <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+            <sys_update_name>sys_ui_list_x_1118332_servic_0_integration_task_workspace-servicenow-helper-0</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-08-26 13:19:14</sys_updated_on>
+            <sys_user/>
+            <view display_value="Workspace Servicenow Helper 0" name="workspace-servicenow-helper-0">f82a2b9ee9ebe2108e6afc2b6d4afaa8</view>
+            <view_name/>
+        </sys_ui_list>
+    </sys_ui_list>
+</record_update>

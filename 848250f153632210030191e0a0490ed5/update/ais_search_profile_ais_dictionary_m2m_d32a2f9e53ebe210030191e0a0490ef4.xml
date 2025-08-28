@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="ais_search_profile_ais_dictionary_m2m">
+    <ais_search_profile_ais_dictionary_m2m action="INSERT_OR_UPDATE">
+        <dictionary display_value="x_1118332_servic_0_servicenow_helper_search_profile_default_spell_check_dictionary">9f2a2f9e53ebe210030191e0a0490ef0</dictionary>
+        <dictionary_reference_qualifier/>
+        <marked_for_deletion>false</marked_for_deletion>
+        <profile display_value="servicenow-helper Search Profile">7c2a2b9ec7ebe21066f6d3deac738ab0</profile>
+        <sys_class_name>ais_search_profile_ais_dictionary_m2m</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-08-26 13:19:12</sys_created_on>
+        <sys_id>d32a2f9e53ebe210030191e0a0490ef4</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_1118332_servic_0_servicenow_helper_search_profile_default_spell_check_dictionary.servicenow-helper Search Profile</sys_name>
+        <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+        <sys_update_name>ais_search_profile_ais_dictionary_m2m_d32a2f9e53ebe210030191e0a0490ef4</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-08-26 13:19:12</sys_updated_on>
+    </ais_search_profile_ais_dictionary_m2m>
+</record_update>
