@@ -44,6 +44,7 @@ The application follows a containerized, multi-service architecture orchestrated
 4.  **Real-time streaming**: Response chunks are streamed back immediately as n8n generates them using configured agent models (Orchestration, Business Rule, Client Script).
 5.  The UI updates in real-time, displaying content as it streams, similar to ChatGPT/Claude interfaces.
 6.  Enhanced cancellation system allows users to stop streaming requests at any time.
+7.  **Script Deployment**: Users can deploy generated scripts directly to ServiceNow via `/api/send-script` endpoint, which uses the N8NClient server-side to communicate with N8N workflows.
 
 ### Settings System
 - **User Settings Management**: Persistent user preferences stored in PostgreSQL database
@@ -88,6 +89,9 @@ The application follows a containerized, multi-service architecture orchestrated
 - `StreamingMarkdownRenderer` - Real-time markdown rendering with streaming support
 - `UserManual` - User manual and documentation component
 - `ThemeToggle` - Dark/light theme switching component
+- `CodeBlock` - Enhanced code blocks with Send to ServiceNow functionality
+- `SendScriptButton` - Button component for script deployment with modal integration
+- `SendScriptModal` - Modal for script type selection (Business Rule, Script Include, Client Script)
 
 ### Streaming Infrastructure
 - `StreamingClient` (`src/lib/streaming-client.ts`) - Core streaming connection management
@@ -98,6 +102,7 @@ The application follows a containerized, multi-service architecture orchestrated
 - `/api/ai-models` - AI model management API endpoints
 - `/api/capabilities` - AI model capabilities API
 - `/api/knowledge-store` - Knowledge store management API
+- `/api/send-script` - Script deployment API endpoint using N8NClient
 - `/api/cancel-request` - Request cancellation API
 - Custom streaming animations and CSS in `src/styles/streaming-animations.css`
 
@@ -106,6 +111,7 @@ The application follows a containerized, multi-service architecture orchestrated
 - `AIModelContext` (`src/contexts/AIModelContext.tsx`) - AI model state management
 - `AgentModelManager` (`src/lib/database.ts`) - Database operations for agent models
 - `ai-models.ts` (`src/lib/`) - AI model utilities and management
+- `N8NClient` (`src/lib/n8n-client.ts`) - Enhanced N8N client with createTask method for script deployment
 - Database migration scripts in `scripts/`:
   - `migrate-to-agent-models.sql` - Agent model migration
   - `add-multimodal-capabilities.sql` - Multimodal capabilities
