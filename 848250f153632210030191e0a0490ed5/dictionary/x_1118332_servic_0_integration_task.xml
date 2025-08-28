@@ -20,7 +20,7 @@
         <element label="Summary" max_length="100" name="summary" type="string"/>
         <element label="Result reference" max_length="255" name="result_reference" type="document_id"/>
         <element label="Target table" max_length="100" name="target_table" type="string"/>
-        <element label="Payload" max_length="4000" name="payload" type="string"/>
+        <element label="Payload" max_length="4000" name="payload" type="string_full_utf8"/>
         <element label="Superseeds" max_length="255" name="superseeds" type="document_id"/>
         <element label="Source Metadata" max_length="1000" name="source_metadata" type="string"/>
         <element choice="3" display="true" label="Type" max_length="40" name="type" type="choice">
