@@ -48,6 +48,17 @@ interface N8NWebhookResponse {
   error?: string;
 }
 
+interface CreateTaskRequest {
+  payload: string;
+  type: 'business_rule' | 'script_include' | 'client_script';
+  target_table: 'sys_script' | 'sys_script_include' | 'sys_script_client';
+}
+
+interface CreateTaskResponse {
+  success: boolean;
+  error?: string;
+}
+
 export class N8NClient {
   private config: N8NConfig;
   private static instance: N8NClient;
@@ -79,6 +90,11 @@ export class N8NClient {
         timeout: 30000 // 30 second timeout
       });
       
+      // For create_task endpoint, log the status code for debugging
+      if (endpoint === 'create_task') {
+        console.log(`N8N webhook for ${endpoint} returned status: ${response.status}`);
+      }
+      
       return {
         success: true,
         data: response.data
@@ -87,7 +103,7 @@ export class N8NClient {
       console.error(`N8N webhook error for ${endpoint}:`, error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: endpoint === 'create_task' ? 'Task creation failed' : (error instanceof Error ? error.message : 'Unknown error')
       };
     }
   }
@@ -224,6 +240,47 @@ export class N8NClient {
       console.error('Failed to delete multiple QA pairs:', error instanceof Error ? error.message : 'Unknown error');
       return false;
     }
+  }
+
+  async createTask(request: CreateTaskRequest): Promise<CreateTaskResponse> {
+    const result = await this.callWebhook('create_task', request);
+    
+    if (!result.success) {
+      console.error('Failed to create task:', result.error);
+      return {
+        success: false,
+        error: result.error || 'Unknown error occurred'
+      };
+    }
+    
+    // Check if N8N workflow response contains sys_id (indicates successful creation)
+    if (result.data && typeof result.data === 'object') {
+      const responseData = result.data as { sys_id?: string; error?: string };
+      
+      // If N8N returned a sys_id, the task was created successfully
+      if (responseData.sys_id) {
+        console.log('Task created successfully with sys_id:', responseData.sys_id);
+        return {
+          success: true
+        };
+      }
+      
+      // If no sys_id but there's an error field, return the error
+      if (responseData.error) {
+        console.error('N8N workflow failed:', responseData.error);
+        return {
+          success: false,
+          error: responseData.error
+        };
+      }
+    }
+    
+    // If we get here, the response format was unexpected
+    console.error('N8N response missing sys_id field, response:', result.data);
+    return {
+      success: false,
+      error: 'Task creation failed'
+    };
   }
 }
 
