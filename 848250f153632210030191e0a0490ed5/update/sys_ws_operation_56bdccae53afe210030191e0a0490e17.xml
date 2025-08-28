@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json,application/xml,text/xml</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl/>
+        <http_method>POST</http_method>
+        <name>CreateTask</name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+    try {
+        // Parse the request body automatically by accessing the .data property
+        var jsonData = request.body.data;
+        
+        // Validate required fields
+        if (!jsonData.payload || !jsonData.correlation_id || !jsonData.type || !jsonData.target_table) {
+            throw new Error('Missing required fields in JSON payload');
+        }
+        
+        // Create and populate the record
+        var taskRecord = new GlideRecord('x_1118332_servic_0_integration_task');
+        taskRecord.initialize();
+        taskRecord.setValue('payload', jsonData.payload);
+        taskRecord.setValue('correlation_id', jsonData.correlation_id);
+        taskRecord.setValue('type', jsonData.type);
+        taskRecord.setValue('target_table', jsonData.target_table);
+        
+        var sysId = taskRecord.insert();
+        
+        if (!sysId) {
+            throw new Error('Failed to create record');
+        }
+        
+        // Set successful response
+		var responseBody = { sys_id: sysId };
+        response.setStatus(201);
+        response.setBody(responseBody);
+    } catch (e) {
+        // Handle errors with appropriate status and message
+        response.setStatus(400);  // Use 400 for bad requests, or 500 for server errors
+        var errorBody = { error: e.message };
+        response.setBody(errorBody);
+    }
+})(request, response);]]></operation_script>
+        <operation_uri>/api/x_1118332_servic_0/servicenow_helper_task_api</operation_uri>
+        <produces>application/json,application/xml,text/xml</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>true</requires_snc_internal_role>
+        <short_description/>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-08-26 16:23:46</sys_created_on>
+        <sys_id>56bdccae53afe210030191e0a0490e17</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>CreateTask</sys_name>
+        <sys_package display_value="Servicenow Helper" source="x_1118332_servic_0">848250f153632210030191e0a0490ed5</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Servicenow Helper">848250f153632210030191e0a0490ed5</sys_scope>
+        <sys_update_name>sys_ws_operation_56bdccae53afe210030191e0a0490e17</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-08-26 16:23:46</sys_updated_on>
+        <web_service_definition display_value="ServiceNow Helper Task API">7e3d40ae53afe210030191e0a0490ec0</web_service_definition>
+        <web_service_version/>
+    </sys_ws_operation>
+</record_update>
