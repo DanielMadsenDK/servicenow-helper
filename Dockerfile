@@ -1,5 +1,5 @@
-# Use Node.js 18 alpine for smaller image size
-FROM node:18-alpine AS base
+# Use Node.js 22 alpine for smaller image size
+FROM node:22-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm install
 
 # Rebuild the source code only when needed
 FROM base AS builder

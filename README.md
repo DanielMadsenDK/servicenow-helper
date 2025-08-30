@@ -6,9 +6,9 @@
 
 **AI-Powered ServiceNow Assistance Tool**
 
-*Built with Next.js 15 • AI-Powered by OpenRouter • Security-First Design*
+*Built with Next.js 15.5.2 • AI-Powered by OpenRouter • Security-First Design*
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.4.4-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
@@ -155,7 +155,7 @@ sequenceDiagram
 
 ```bash
 # Required software
-✅ Node.js 18+
+✅ Node.js 22+
 ✅ Docker & Docker Compose
 ✅ Git
 ```
@@ -208,13 +208,13 @@ docker compose up -d
 <div align="center">
 
 ### Frontend
-![Next.js](https://img.shields.io/badge/Next.js-15.4.4-000000?style=flat-square&logo=next.js)
+![Next.js](https://img.shields.io/badge/Next.js-15.5.2-000000?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-3178C6?style=flat-square&logo=typescript)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1.11-06B6D4?style=flat-square&logo=tailwindcss)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
 
 ### Backend
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=flat-square&logo=postgresql)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.4-336791?style=flat-square&logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker)
 ![n8n](https://img.shields.io/badge/n8n-Workflows-FF6D5A?style=flat-square&logo=n8n)
 
@@ -222,6 +222,7 @@ docker compose up -d
 ![OpenRouter](https://img.shields.io/badge/OpenRouter-Multi--Model-FF4B4B?style=flat-square)
 ![JWT](https://img.shields.io/badge/JWT-Authentication-000000?style=flat-square&logo=jsonwebtokens)
 ![Axios](https://img.shields.io/badge/Axios-1.11.0-5A29E4?style=flat-square&logo=axios)
+![pgvector](https://img.shields.io/badge/pgvector-0.8.0-4169E1?style=flat-square)
 
 </div>
 
@@ -391,8 +392,8 @@ The `agent_models` table stores individual model configurations per user:
 
 <div align="center">
 
-![Jest](https://img.shields.io/badge/Jest-30.0.4-C21325?style=flat-square&logo=jest)
-![Playwright](https://img.shields.io/badge/Playwright-1.54.0-2EAD33?style=flat-square&logo=playwright)
+![Jest](https://img.shields.io/badge/Jest-30.1.1-C21325?style=flat-square&logo=jest)
+![Playwright](https://img.shields.io/badge/Playwright-1.55.0-2EAD33?style=flat-square&logo=playwright)
 
 </div>
 
