@@ -184,7 +184,7 @@ describe('ResultsSection', () => {
         />
       );
 
-      const saveButton = screen.getByRole('button', { name: /add to knowledge base/i });
+      const saveButton = screen.getByRole('button', { name: /add to knowledge store/i });
       expect(saveButton).toBeInTheDocument();
       expect(screen.getAllByTestId('icon-bookmark-plus')).toHaveLength(2); // Icon appears twice: in info section and button
     });
@@ -198,7 +198,7 @@ describe('ResultsSection', () => {
         />
       );
 
-      const saveButton = screen.getByRole('button', { name: /add to knowledge base/i });
+      const saveButton = screen.getByRole('button', { name: /add to knowledge store/i });
       fireEvent.click(saveButton);
 
       await waitFor(() => {
@@ -220,7 +220,7 @@ describe('ResultsSection', () => {
         />
       );
 
-      const saveButton = screen.getByRole('button', { name: /add to knowledge base/i });
+      const saveButton = screen.getByRole('button', { name: /add to knowledge store/i });
       fireEvent.click(saveButton);
 
       await waitFor(() => {
@@ -240,7 +240,7 @@ describe('ResultsSection', () => {
         />
       );
 
-      const saveButton = screen.getByRole('button', { name: /add to knowledge base/i });
+      const saveButton = screen.getByRole('button', { name: /add to knowledge store/i });
       fireEvent.click(saveButton);
 
       // Should not crash and should reset to original state
@@ -259,8 +259,8 @@ describe('ResultsSection', () => {
       );
 
       // Save button should still be present, but with different messaging
-      expect(screen.getByRole('button', { name: /add to knowledge base/i })).toBeInTheDocument();
-      expect(screen.getByText('Found this helpful? Add it to the knowledge base for better future answers')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /add to knowledge store/i })).toBeInTheDocument();
+      expect(screen.getByText('Found this helpful? Add it to the Knowledge Store for better future answers')).toBeInTheDocument();
     });
   });
 
@@ -364,7 +364,7 @@ describe('ResultsSection', () => {
         />
       );
 
-      const saveButton = screen.getByRole('button', { name: /add to knowledge base/i });
+      const saveButton = screen.getByRole('button', { name: /add to knowledge store/i });
       expect(saveButton).toBeInTheDocument();
       
       saveButton.focus();

@@ -31,7 +31,7 @@ Built with security-first principles featuring server-side JWT authentication, N
 Complete conversation lifecycle management with full history tracking, advanced search and filtering capabilities, session continuity across interactions, and export functionality for documentation purposes.
 
 ### **Knowledge Store Management**
-Comprehensive knowledge base management with dedicated interface for viewing, searching, and organizing saved Q&A pairs. Features bulk operations, quality metrics tracking, and metadata management for curated knowledge content.
+Comprehensive Knowledge Store management with dedicated interface for viewing, searching, and organizing saved Q&A pairs. Features bulk operations, quality metrics tracking, and metadata management for curated knowledge content.
 
 ### **Modern Experience**
 Enjoy a responsive design built with TailwindCSS, progressive web app support for mobile devices, dark/light theme toggle for user preference, real-time streaming responses with automatic scrolling, and full accessibility optimization for inclusive usage.
@@ -274,7 +274,7 @@ Configure different AI models for specialized agents to optimize performance:
 4. **Enjoy Enhanced UX** with automatic scrolling to responses when streaming starts
 5. **Deploy Scripts** directly to ServiceNow using the "Send to ServiceNow" button on script code blocks
 6. **Access History** through the conversation panel with advanced filtering
-7. **Save to Knowledge Store** by clicking the "Add to knowledge base" button on helpful responses
+7. **Save to Knowledge Store** by clicking the "Add to Knowledge Store" button on helpful responses
 8. **Manage Knowledge Store** through the dedicated management interface accessible via the hamburger menu
 
 ### **File Attachments (Multimodal Support)**
@@ -329,7 +329,7 @@ Deploy AI-generated scripts directly to your ServiceNow instance with seamless i
 
 ### **Knowledge Store Management**
 
-Efficiently manage your curated Q&A knowledge base with comprehensive management features:
+Efficiently manage your curated Q&A Knowledge Store with comprehensive management features:
 
 | Feature | Description | Access |
 |---------|-------------|--------|
