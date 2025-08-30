@@ -49,7 +49,6 @@ export default function SearchInterface() {
   const performanceMonitorRef = useRef<StreamingPerformanceMonitor>(new StreamingPerformanceMonitor());
   const [streamingStatus, setStreamingStatus] = useState<StreamingStatus>(StreamingStatus.CONNECTING);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [hasScrolledToResults, setHasScrolledToResults] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isLoadedFromHistory, setIsLoadedFromHistory] = useState(false);
   const [isWelcomeSectionVisible, setIsWelcomeSectionVisible] = useState(settings.welcome_section_visible);
@@ -86,7 +85,6 @@ export default function SearchInterface() {
     setIsStreaming(false);
     setIsLoading(false);
     setStreamingClient(null);
-    setHasScrolledToResults(false);
     
     // Clear content and buffer
     setStreamingContent('');
@@ -124,14 +122,6 @@ export default function SearchInterface() {
       setStreamingContent(content);
       
       performanceMonitorRef.current.recordRender(performance.now() - renderStart);
-      
-      // Scroll to results on first meaningful content
-      if (!hasScrolledToResults && content.length > 0 && resultsRef.current) {
-        setTimeout(() => {
-          smoothScrollToResults();
-        }, 100);
-        setHasScrolledToResults(true);
-      }
       
       setBatchTimeout(null);
     }, batchInterval);
@@ -185,15 +175,16 @@ export default function SearchInterface() {
   }, [settings]);
 
   // Scroll to results when response is available (both new responses and history items)
+  // Exclude streaming scenarios since they handle scrolling separately
   useEffect(() => {
-    if (response && resultsRef.current) {
+    if (response && resultsRef.current && !isStreaming) {
       // Different delays: shorter for history (no API wait), longer for new responses (lazy-loaded ReactMarkdown)
       const delay = isLoadedFromHistory ? 100 : 500;
       setTimeout(() => {
         smoothScrollToResults();
       }, delay);
     }
-  }, [response, isLoadedFromHistory]);
+  }, [response, isLoadedFromHistory, isStreaming]);
 
 
   // Scroll to results when streaming starts is now handled in onChunk callback
@@ -221,7 +212,13 @@ export default function SearchInterface() {
     // Unified streaming mode for all clients
     console.log('Using unified streaming mode for all clients');
     setIsStreaming(true);
-    setHasScrolledToResults(false);
+    
+    // Scroll to results immediately when starting request (before streaming)
+    if (resultsRef.current) {
+      setTimeout(() => {
+        smoothScrollToResults();
+      }, 100); // Small delay to ensure results section is rendered
+    }
     
     // Reset streaming state tracking
     streamingCompletedRef.current = false;
@@ -320,7 +317,6 @@ export default function SearchInterface() {
             setIsStreaming(false);
             setIsLoading(false);
             setStreamingClient(null);
-            setHasScrolledToResults(false);
             
             // Cleanup cancellation manager
             streamingCancellation.cleanupSession(sessionKey);
