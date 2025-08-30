@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a multi-service application called "ServiceNow Helper" that provides an AI-powered interface for ServiceNow assistance featuring **multi-agent AI architecture**. The entire system is containerized using Docker Compose.
 
 The core components are:
-- **Next.js 15.4.4 Frontend**: A web application for user interaction, authentication, and displaying results with agent model configuration, knowledge store management, and multimodal capabilities.
+- **Next.js 15.5.2 Frontend**: A web application for user interaction, authentication, and displaying results with agent model configuration, knowledge store management, and multimodal capabilities.
 - **n8n Workflow Engine**: Handles the backend AI processing with multi-agent support, integrating with services like Anthropic Claude.
 - **PostgreSQL Database**: Provides data storage for n8n, session storage, agent model configurations, and knowledge store for the Next.js app.
 - **ServiceNow Helper Companion App**: A ServiceNow application that facilitates integration using staging table architecture for secure data synchronization.
@@ -121,17 +121,17 @@ The application follows a containerized, multi-service architecture orchestrated
 
 ## Technical Stack
 
-- **Frontend**: Next.js 15.4.4 (App Router), React 19.0.0, TypeScript 5.9.2, TailwindCSS 4.1.11
+- **Frontend**: Next.js 15.5.2 (App Router), React 19.0.0, TypeScript 5.9.2, TailwindCSS 4.1.11
 - **Backend/Workflow**: n8n
-- **Database**: PostgreSQL (with tables: `ServiceNowSupportTool` for conversations, `user_settings` for user preferences, `agent_models` for agent model configurations)
+- **Database**: PostgreSQL 15.4 with pgvector 0.8.0 (with tables: `ServiceNowSupportTool` for conversations, `user_settings` for user preferences, `agent_models` for agent model configurations)
 - **Containerization**: Docker, Docker Compose (Dockerfile and docker-compose.yml in root)
-- **Libraries**: Axios 1.11.0, ReactMarkdown 10.1.0, Lucide React 0.539.0, JWT 9.0.2, highlight.js 11.11.1
+- **Libraries**: Axios 1.11.0, ReactMarkdown 10.1.0, Lucide React 0.542.0, JWT 9.0.2, highlight.js 11.11.1
 - **Performance**: Dynamic imports, lazy loading, React.memo, code splitting, and streaming optimizations
 - **Streaming**: Server-Sent Events (SSE), real-time UI updates, connection pooling, and retry logic
 - **Security**: Comprehensive security headers, XSS protection, CSRF prevention, and streaming validation
 - **Accessibility**: ARIA attributes, keyboard navigation, screen reader support, and streaming status announcements
 - **PWA Support**: Progressive Web App capabilities with next-pwa 5.6.0
-- **Testing**: Jest 30.0.4, Playwright 1.54.0, Testing Library
+- **Testing**: Jest 30.1.1, Playwright 1.55.0, Testing Library
 
 ## Project Structure
 

@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: pgvector/pgvector:pg15
+    image: ankane/pgvector
     environment:
       POSTGRES_DB: n8n
       POSTGRES_USER: n8n

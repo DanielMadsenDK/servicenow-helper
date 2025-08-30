@@ -21,7 +21,7 @@
 The application follows a containerized, multi-service architecture orchestrated by Docker Compose.
 
 ### Core Components
-- **Next.js 15.4.4 Frontend**: A web application for user interaction, authentication, and displaying results.
+- **Next.js 15.5.2 Frontend**: A web application for user interaction, authentication, and displaying results.
 - **n8n Workflow Engine**: Handles the backend AI processing with **multi-agent architecture**, integrating with OpenRouter to provide access to multiple AI models for specialized agents.
 - **PostgreSQL Database**: Provides data storage for n8n and session storage for the Next.js app.
 
@@ -56,11 +56,11 @@ The application follows a containerized, multi-service architecture orchestrated
 
 ## Technical Stack
 
-- **Frontend**: Next.js 15.4.4 (App Router), React 19.0.0, TypeScript 5.9.2, TailwindCSS 4.1.11
+- **Frontend**: Next.js 15.5.2 (App Router), React 19.0.0, TypeScript 5.9.2, TailwindCSS 4.1.11
 - **Backend/Workflow**: n8n
-- **Database**: PostgreSQL (with tables: `ServiceNowSupportTool` for conversations, `user_settings` for user preferences, `agent_models` for agent model configurations)
+- **Database**: PostgreSQL 15.4 with pgvector 0.8.0 (with tables: `ServiceNowSupportTool` for conversations, `user_settings` for user preferences, `agent_models` for agent model configurations)
 - **Containerization**: Docker, Docker Compose (Dockerfile and docker-compose.yml in root)
-- **Libraries**: Axios 1.11.0, ReactMarkdown 10.1.0, Lucide React 0.539.0, JWT 9.0.2
+- **Libraries**: Axios 1.11.0, ReactMarkdown 10.1.0, Lucide React 0.542.0, JWT 9.0.2
 - **Performance**: Dynamic imports, lazy loading, React.memo, and code splitting
 - **Security**: Comprehensive security headers, XSS protection, and CSRF prevention
 - **Accessibility**: ARIA attributes, keyboard navigation, and screen reader support

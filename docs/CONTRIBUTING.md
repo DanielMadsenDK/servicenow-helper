@@ -5,7 +5,7 @@ Thank you for your interest in contributing! This guide will help you get starte
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 22+ 
 - Docker and Docker Compose
 - Git
 
@@ -145,9 +145,9 @@ chore: maintenance tasks
 ## Architecture Considerations
 
 ### Core Components
-- **Frontend**: Next.js 15.4.4 with App Router
+- **Frontend**: Next.js 15.5.2 with App Router
 - **Backend**: n8n workflows for AI processing  
-- **Database**: PostgreSQL for data persistence
+- **Database**: PostgreSQL 15.4 with pgvector 0.8.0 for data persistence
 - **Authentication**: JWT-based auth system
 
 ### Key Patterns
