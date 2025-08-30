@@ -148,7 +148,7 @@ export default function UserManual() {
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100">Search Mode</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Enhanced search capabilities that help find relevant information from ServiceNow documentation and knowledge base.
+                      Enhanced search capabilities that help find relevant information from ServiceNow documentation and Knowledge Store.
                     </p>
                   </div>
                 </div>
@@ -158,7 +158,7 @@ export default function UserManual() {
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100">Conversation History</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Access your previous questions and responses through the history panel for easy reference and follow-up. You can also add valuable Q&A pairs from your history to the knowledge base.
+                      Access your previous questions and responses through the history panel for easy reference and follow-up. You can also add valuable Q&A pairs from your history to the Knowledge Store.
                     </p>
                   </div>
                 </div>
@@ -176,20 +176,20 @@ export default function UserManual() {
                 <div className="flex items-start space-x-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/30 border border-gray-200 dark:border-gray-600">
                   <Database className="w-5 h-5 text-indigo-500 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Knowledge Base</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Knowledge Store</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Add helpful Q&A pairs to the knowledge base to improve future responses. The AI automatically uses this knowledge base when generating answers.
+                      Add helpful Q&A pairs to the Knowledge Store to improve future responses. The AI automatically uses this Knowledge Store when generating answers.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Knowledge Base */}
+            {/* Knowledge Store */}
             <div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center">
-                <BookmarkPlus className="w-5 h-5 mr-3 text-indigo-500" />
-                Knowledge Base
+                <Database className="w-5 h-5 mr-3 text-indigo-500" />
+                Knowledge Store
               </h2>
               <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl p-6">
                 <h3 className="font-semibold text-indigo-900 dark:text-indigo-100 mb-4">How It Works</h3>
@@ -197,9 +197,9 @@ export default function UserManual() {
                   <div className="flex items-start space-x-3">
                     <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Automatic Knowledge Base Usage</h4>
+                      <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Automatic Knowledge Store Usage</h4>
                       <p className="text-sm text-indigo-800 dark:text-indigo-200">
-                        When you ask a question, the AI automatically searches the knowledge base to find relevant Q&A pairs that can help improve the response.
+                        When you ask a question, the AI automatically searches the Knowledge Store to find relevant Q&A pairs that can help improve the response.
                       </p>
                     </div>
                   </div>
@@ -207,9 +207,9 @@ export default function UserManual() {
                   <div className="flex items-start space-x-3">
                     <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Adding to Knowledge Base</h4>
+                      <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Adding to Knowledge Store</h4>
                       <p className="text-sm text-indigo-800 dark:text-indigo-200">
-                        After receiving a helpful response (or when viewing conversation history), you&apos;ll see an &quot;Add to knowledge base&quot; button. Click it to save the Q&A pair for future reference.
+                        After receiving a helpful response (or when viewing conversation history), you&apos;ll see an &quot;Add to Knowledge Store&quot; button. Click it to save the Q&A pair for future reference.
                       </p>
                     </div>
                   </div>
@@ -225,37 +225,14 @@ export default function UserManual() {
                   </div>
                 </div>
                 
-                <div className="mt-6 p-4 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
-                  <h4 className="font-medium text-indigo-900 dark:text-indigo-100 mb-2 flex items-center">
-                    <BookmarkPlus className="w-4 h-4 mr-2" />
-                    Best Practices
-                  </h4>
-                  <ul className="text-sm text-indigo-800 dark:text-indigo-200 space-y-1">
-                    <li>• Add Q&A pairs that contain valuable, reusable information</li>
-                    <li>• Include responses with specific technical details or code examples</li>
-                    <li>• Save troubleshooting solutions that could help others</li>
-                    <li>• Add comprehensive configuration guides and best practices</li>
-                    <li>• Review conversation history to find valuable Q&A pairs worth saving</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Knowledge Store Management */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center">
-                <Database className="w-5 h-5 mr-3 text-indigo-500" />
-                Knowledge Store Management
-              </h2>
-              <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl p-6">
-                <h3 className="font-semibold text-indigo-900 dark:text-indigo-100 mb-4">Managing Your Knowledge Store</h3>
+                <h3 className="font-semibold text-indigo-900 dark:text-indigo-100 mb-4 mt-8">Managing Your Knowledge Store</h3>
                 <p className="text-sm text-indigo-800 dark:text-indigo-200 mb-6">
                   Access the dedicated Knowledge Store Management page to view, search, and organize all your saved Q&A pairs in one place.
                 </p>
                 
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</div>
+                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">4</div>
                     <div className="min-w-0 flex-1">
                       <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Accessing Knowledge Store</h4>
                       <p className="text-sm text-indigo-800 dark:text-indigo-200">
@@ -265,7 +242,7 @@ export default function UserManual() {
                   </div>
                   
                   <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</div>
+                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">5</div>
                     <div className="min-w-0 flex-1">
                       <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Browsing & Searching</h4>
                       <p className="text-sm text-indigo-800 dark:text-indigo-200">
@@ -275,7 +252,7 @@ export default function UserManual() {
                   </div>
                   
                   <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">3</div>
+                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">6</div>
                     <div className="min-w-0 flex-1">
                       <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Deleting Entries</h4>
                       <p className="text-sm text-indigo-800 dark:text-indigo-200">
@@ -285,7 +262,7 @@ export default function UserManual() {
                   </div>
                   
                   <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">4</div>
+                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">7</div>
                     <div className="min-w-0 flex-1">
                       <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Viewing Details</h4>
                       <p className="text-sm text-indigo-800 dark:text-indigo-200">
@@ -295,8 +272,20 @@ export default function UserManual() {
                   </div>
                 </div>
                 
-                <div className="mt-6 p-4 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
+                <div className="mt-8 p-4 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
                   <h4 className="font-medium text-indigo-900 dark:text-indigo-100 mb-2 flex items-center">
+                    <BookmarkPlus className="w-4 h-4 mr-2" />
+                    Best Practices
+                  </h4>
+                  <ul className="text-sm text-indigo-800 dark:text-indigo-200 space-y-1 mb-4">
+                    <li>• Add Q&A pairs that contain valuable, reusable information</li>
+                    <li>• Include responses with specific technical details or code examples</li>
+                    <li>• Save troubleshooting solutions that could help others</li>
+                    <li>• Add comprehensive configuration guides and best practices</li>
+                    <li>• Review conversation history to find valuable Q&A pairs worth saving</li>
+                  </ul>
+                  
+                  <h4 className="font-medium text-indigo-900 dark:text-indigo-100 mb-2 flex items-center mt-6">
                     <Database className="w-4 h-4 mr-2" />
                     Management Features
                   </h4>

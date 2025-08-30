@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { History, BookmarkPlus, Check } from 'lucide-react';
+import { History, Database, Check } from 'lucide-react';
 import { ServiceNowResponse, StreamingStatus } from '@/types';
 import StreamingMarkdownRenderer from './StreamingMarkdownRenderer';
 import axios from 'axios';
@@ -51,12 +51,12 @@ export default function ResultsSection({
         setIsSaved(true);
         setTimeout(() => setIsSaved(false), 3000); // Reset after 3 seconds
       } else {
-        setSaveError(response_api.data.error || 'Failed to add to knowledge base');
+        setSaveError(response_api.data.error || 'Failed to add to Knowledge Store');
       }
     } catch (error) {
       console.error('Error saving Q&A pair:', error);
       if (axios.isAxiosError(error)) {
-        setSaveError(error.response?.data?.error || 'Failed to add to knowledge base');
+        setSaveError(error.response?.data?.error || 'Failed to add to Knowledge Store');
       } else {
         setSaveError('An unexpected error occurred');
       }
@@ -147,7 +147,7 @@ export default function ResultsSection({
             />
           </div>
           
-          {/* Add to Knowledge Base Button - show for all responses with questions */}
+          {/* Add to Knowledge Store Button - show for all responses with questions */}
           {question && (
             <div className={`mt-6 p-4 rounded-xl border ${
               isLoadedFromHistory 
@@ -161,7 +161,7 @@ export default function ResultsSection({
                       ? 'bg-amber-100 dark:bg-amber-800/50' 
                       : 'bg-blue-100 dark:bg-blue-800/50'
                   }`}>
-                    <BookmarkPlus className={`w-5 h-5 ${
+                    <Database className={`w-5 h-5 ${
                       isLoadedFromHistory 
                         ? 'text-amber-600 dark:text-amber-400' 
                         : 'text-blue-600 dark:text-blue-400'
@@ -173,8 +173,8 @@ export default function ResultsSection({
                     </h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       {isLoadedFromHistory 
-                        ? "Found this helpful? Add it to the knowledge base for better future answers" 
-                        : "Add this Q&A pair to the knowledge base for better answers"}
+                        ? "Found this helpful? Add it to the Knowledge Store for better future answers" 
+                        : "Add this Q&A pair to the Knowledge Store for better answers"}
                     </p>
                     {isLoadedFromHistory && (
                       <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
@@ -193,17 +193,17 @@ export default function ResultsSection({
                         ? 'bg-green-500 text-white cursor-default'
                         : 'bg-blue-600 hover:bg-blue-700 text-white hover:shadow-md transform hover:scale-105'
                     } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    title={isSaved ? 'Successfully added to knowledge base' : 'Add this Q&A pair to the knowledge base'}
+                    title={isSaved ? 'Successfully added to Knowledge Store' : 'Add this Q&A pair to the Knowledge Store'}
                   >
                     {isSaving ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     ) : isSaved ? (
                       <Check className="w-4 h-4" />
                     ) : (
-                      <BookmarkPlus className="w-4 h-4" />
+                      <Database className="w-4 h-4" />
                     )}
                     <span>
-                      {isSaving ? 'Adding...' : isSaved ? 'Added!' : 'Add to knowledge base'}
+                      {isSaving ? 'Adding...' : isSaved ? 'Added!' : 'Add to Knowledge Store'}
                     </span>
                   </button>
                 </div>
@@ -225,7 +225,7 @@ export default function ResultsSection({
                   <div className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
                     <span className="text-green-700 dark:text-green-400 text-sm font-medium">
-                      Successfully added to knowledge base! This will help improve future responses.
+                      Successfully added to Knowledge Store! This will help improve future responses.
                     </span>
                   </div>
                 </div>
