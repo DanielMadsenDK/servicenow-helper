@@ -34,6 +34,12 @@ const defaultAgents: DefaultAgent[] = [
     displayName: 'Client Script Agent',
     description: 'Handles ServiceNow client scripts, UI policies, and front-end customizations',
     defaultModel: 'anthropic/claude-sonnet-4'
+  },
+  {
+    name: 'script_include',
+    displayName: 'Script Include Agent',
+    description: 'Specializes in ServiceNow Script Includes, reusable server-side JavaScript libraries',
+    defaultModel: 'anthropic/claude-sonnet-4'
   }
 ];
 
