@@ -22,7 +22,8 @@ const defaultSettings: UserSettings = {
   agent_models: {
     orchestration: 'anthropic/claude-sonnet-4',
     business_rule: 'anthropic/claude-sonnet-4',
-    client_script: 'anthropic/claude-sonnet-4'
+    client_script: 'anthropic/claude-sonnet-4',
+    script_include: 'anthropic/claude-sonnet-4'
   }
 };
 

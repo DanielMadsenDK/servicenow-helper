@@ -471,7 +471,8 @@ export class AgentModelManager {
       const defaultModels = {
         orchestration: 'anthropic/claude-sonnet-4',
         business_rule: 'anthropic/claude-sonnet-4',
-        client_script: 'anthropic/claude-sonnet-4'
+        client_script: 'anthropic/claude-sonnet-4',
+        script_include: 'anthropic/claude-sonnet-4'
       };
       
       await this.updateUserAgentModels(userId, defaultModels);
@@ -560,6 +561,12 @@ export class AgentModelManager {
         name: 'client_script',
         displayName: 'Client Script Agent',
         description: 'Handles ServiceNow client scripts, UI policies, and front-end customizations',
+        defaultModel: 'anthropic/claude-sonnet-4'
+      },
+      {
+        name: 'script_include',
+        displayName: 'Script Include Agent',
+        description: 'Specializes in ServiceNow Script Includes, reusable server-side JavaScript libraries',
         defaultModel: 'anthropic/claude-sonnet-4'
       }
     ];

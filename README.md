@@ -77,9 +77,11 @@ graph TB
         L[OpenRouter] --> M[Orchestration Agent]
         L --> N[Business Rule Agent]
         L --> O[Client Script Agent]
+        L --> SI[Script Include Agent]
         M --> P[Claude/GPT/Gemini]
         N --> Q[Claude/GPT/Gemini]
         O --> R[Claude/GPT/Gemini]
+        SI --> S[Claude/GPT/Gemini]
     end
     
     subgraph "ServiceNow Integration"
@@ -122,6 +124,7 @@ sequenceDiagram
     participant O as Orchestration Agent
     participant BR as Business Rule Agent
     participant CS as Client Script Agent
+    participant SI as Script Include Agent
 
     U->>B: Enter question
     B->>N: POST /api/submit-question-stream (JWT + agent models)
@@ -130,6 +133,7 @@ sequenceDiagram
     W->>O: Route to Orchestration Agent (configured model)
     O->>BR: Delegate to Business Rule Agent (if needed)
     O->>CS: Delegate to Client Script Agent (if needed)
+    O->>SI: Delegate to Script Include Agent (if needed)
     O->>A: Coordinate multi-agent response (streaming)
     
     loop Real-time Streaming
@@ -249,6 +253,7 @@ Configure different AI models for specialized agents to optimize performance:
 | **Orchestration Agent** | Coordinates overall response and routing | Claude, GPT, Gemini, and more |
 | **Business Rule Agent** | Specialized for ServiceNow business logic | Claude, GPT, Gemini, and more |
 | **Client Script Agent** | Optimized for client-side scripting | Claude, GPT, Gemini, and more |
+| **Script Include Agent** | Specializes in reusable server-side JavaScript libraries | Claude, GPT, Gemini, and more |
 
 **How to configure agent models:**
 1. Navigate to **Settings** via the hamburger menu
@@ -371,7 +376,7 @@ The `agent_models` table stores individual model configurations per user:
 |--------|------|-------------|
 | `id` | SERIAL | Primary key |
 | `user_id` | VARCHAR(255) | User identifier |
-| `agent_name` | VARCHAR(100) | Agent identifier (orchestration, business_rule, client_script) |
+| `agent_name` | VARCHAR(100) | Agent identifier (orchestration, business_rule, client_script, script_include) |
 | `model_name` | VARCHAR(500) | Selected AI model for the agent |
 | `created_at` | TIMESTAMP | Record creation time |
 | `updated_at` | TIMESTAMP | Last modification time |

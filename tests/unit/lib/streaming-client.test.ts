@@ -31,7 +31,8 @@ describe('StreamingClient', () => {
       agentModels: [
         { agent: 'orchestration', model: 'claude-3' },
         { agent: 'business_rule', model: 'claude-3' },
-        { agent: 'client_script', model: 'claude-3' }
+        { agent: 'client_script', model: 'claude-3' },
+        { agent: 'script_include', model: 'claude-3' }
       ],
     };
 

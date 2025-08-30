@@ -150,6 +150,8 @@ export default function Settings() {
         return Server;
       case 'client_script':
         return Monitor;
+      case 'script_include':
+        return Code2;
       default:
         return Bot;
     }
