@@ -129,7 +129,7 @@ const CodeBlock = React.memo(function CodeBlock({ children, className, ...props 
             <SendScriptButton 
               scriptContent={extractTextContent(children)}
               size="sm"
-              className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+              className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm transition-colors"
             />
             
             <button
