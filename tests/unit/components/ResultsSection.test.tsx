@@ -17,10 +17,23 @@ jest.mock('react-markdown', () => {
 jest.mock('remark-gfm', () => jest.fn());
 jest.mock('rehype-highlight', () => jest.fn());
 
+// Mock StreamingMarkdownRenderer
+jest.mock('@/components/StreamingMarkdownRenderer', () => {
+  return function MockStreamingMarkdownRenderer({ content, isStreaming, ...props }: any) {
+    return (
+      <div data-testid="markdown-content" {...props}>
+        {content}
+      </div>
+    );
+  };
+});
+
 // Mock lucide-react icons
 jest.mock('lucide-react', () => ({
   History: ({ className }: { className?: string }) => 
     <div data-testid="icon-history" className={className}>History</div>,
+  Database: ({ className }: { className?: string }) => 
+    <div data-testid="icon-database" className={className}>Database</div>,
   BookmarkPlus: ({ className }: { className?: string }) => 
     <div data-testid="icon-bookmark-plus" className={className}>BookmarkPlus</div>,
   Check: ({ className }: { className?: string }) => 
@@ -186,7 +199,7 @@ describe('ResultsSection', () => {
 
       const saveButton = screen.getByRole('button', { name: /add to knowledge store/i });
       expect(saveButton).toBeInTheDocument();
-      expect(screen.getAllByTestId('icon-bookmark-plus')).toHaveLength(2); // Icon appears twice: in info section and button
+      expect(screen.getAllByTestId('icon-database')).toHaveLength(2); // Icon appears twice: in info section and button
     });
 
     it('should handle save to history click', async () => {
@@ -245,7 +258,7 @@ describe('ResultsSection', () => {
 
       // Should not crash and should reset to original state
       await waitFor(() => {
-        expect(screen.getByTestId('icon-bookmark-plus')).toBeInTheDocument();
+        expect(screen.getByTestId('icon-database')).toBeInTheDocument();
       });
     });
 

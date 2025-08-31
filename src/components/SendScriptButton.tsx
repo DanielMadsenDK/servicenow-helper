@@ -89,17 +89,19 @@ export default function SendScriptButton({
     lg: 'text-base'
   };
 
+  // Default button styling - can be overridden by className prop
+  const defaultButtonClasses = `inline-flex items-center gap-1 ${buttonSizeClasses[size]} bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 ${textSizeClasses[size]} font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200`;
+
   return (
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className={`inline-flex items-center gap-1 ${buttonSizeClasses[size]} bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 ${textSizeClasses[size]} font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 ${className}`}
+        className={className || defaultButtonClasses}
         title="Send script to ServiceNow"
         disabled={!scriptContent.trim()}
       >
         <Send className={iconSizeClasses[size]} />
-        {size !== 'sm' && 'Send to ServiceNow'}
-        {size === 'sm' && 'Send'}
+        <span className="hidden sm:inline">{size !== 'sm' ? 'Send to ServiceNow' : 'Send'}</span>
       </button>
 
       <SendScriptModal
