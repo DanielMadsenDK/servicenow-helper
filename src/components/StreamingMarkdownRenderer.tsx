@@ -1,6 +1,6 @@
 'use client';
 
-import React, { lazy, Suspense, useMemo } from 'react';
+import React, { lazy, Suspense, useMemo, memo } from 'react';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 
@@ -21,9 +21,20 @@ interface StreamingMarkdownRendererProps {
   enableProgressiveRendering?: boolean;
 }
 
-export default function StreamingMarkdownRenderer({ 
-  content, 
-  isStreaming = false, 
+// Custom comparison function for React.memo
+const arePropsEqual = (prevProps: StreamingMarkdownRendererProps, nextProps: StreamingMarkdownRendererProps): boolean => {
+  // Deep comparison for content changes
+  if (prevProps.content !== nextProps.content) return false;
+  if (prevProps.isStreaming !== nextProps.isStreaming) return false;
+  if (prevProps.showStreamingCursor !== nextProps.showStreamingCursor) return false;
+  if (prevProps.className !== nextProps.className) return false;
+  if (prevProps.enableProgressiveRendering !== nextProps.enableProgressiveRendering) return false;
+  return true;
+};
+
+const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
+  content,
+  isStreaming = false,
   showStreamingCursor = false,
   className = '',
   enableProgressiveRendering = true
@@ -83,7 +94,7 @@ export default function StreamingMarkdownRenderer({
     );
   }
 
-  // When streaming is complete: Full ReactMarkdown rendering with syntax highlighting enabled for all devices
+  // When streaming is complete: Use ReactMarkdown rendering with performance optimizations
   return (
     <div className={className} data-testid="markdown-content">
       <Suspense fallback={
@@ -102,4 +113,8 @@ export default function StreamingMarkdownRenderer({
       </Suspense>
     </div>
   );
-}
+}, arePropsEqual);
+
+StreamingMarkdownRenderer.displayName = 'StreamingMarkdownRenderer';
+
+export default StreamingMarkdownRenderer;

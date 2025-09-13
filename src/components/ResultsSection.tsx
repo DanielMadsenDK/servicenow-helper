@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { History, Database, Check } from 'lucide-react';
 import axios from 'axios';
 
@@ -19,11 +19,26 @@ interface ResultsSectionProps {
   streamingStatus?: StreamingStatus;
 }
 
-export default function ResultsSection({ 
-  response, 
-  error, 
-  isLoadedFromHistory, 
-  selectedType, 
+// Custom comparison function for React.memo
+const areResultsEqual = (prevProps: ResultsSectionProps, nextProps: ResultsSectionProps): boolean => {
+  // Deep comparison for props that affect rendering
+  if (prevProps.response?.message !== nextProps.response?.message) return false;
+  if (prevProps.response?.type !== nextProps.response?.type) return false;
+  if (prevProps.error !== nextProps.error) return false;
+  if (prevProps.isLoadedFromHistory !== nextProps.isLoadedFromHistory) return false;
+  if (prevProps.selectedType !== nextProps.selectedType) return false;
+  if (prevProps.question !== nextProps.question) return false;
+  if (prevProps.streamingContent !== nextProps.streamingContent) return false;
+  if (prevProps.isStreaming !== nextProps.isStreaming) return false;
+  if (prevProps.streamingStatus !== nextProps.streamingStatus) return false;
+  return true;
+};
+
+const ResultsSection = memo(function ResultsSection({
+  response,
+  error,
+  isLoadedFromHistory,
+  selectedType,
   question,
   streamingContent = '',
   isStreaming = false,
@@ -238,4 +253,8 @@ export default function ResultsSection({
       )}
     </div>
   );
-}
+}, areResultsEqual);
+
+ResultsSection.displayName = 'ResultsSection';
+
+export default ResultsSection;

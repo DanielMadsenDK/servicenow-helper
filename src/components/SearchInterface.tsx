@@ -7,7 +7,7 @@ import { ServiceNowResponse, ConversationHistoryItem, StreamingRequest, Streamin
 import { cancelRequest, submitQuestionStreaming } from '@/lib/api';
 import { StreamingClient } from '@/lib/streaming-client';
 import { streamingCancellation } from '@/lib/streaming-cancellation';
-import { StreamingBuffer, getOptimalBatchInterval, StreamingPerformanceMonitor } from '@/lib/streaming-buffer';
+import { StreamingBuffer, getSmartBatchInterval, StreamingPerformanceMonitor, analyzeContentType } from '@/lib/streaming-buffer';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAIModels } from '@/contexts/AIModelContext';
 import { useAgentModels } from '@/contexts/AgentModelContext';
@@ -113,7 +113,8 @@ export default function SearchInterface() {
     // Clear existing timeout and set new one
     if (batchTimeout) clearTimeout(batchTimeout);
     
-    const batchInterval = getOptimalBatchInterval();
+    const currentContent = streamingBufferRef.current.getContent();
+    const batchInterval = getSmartBatchInterval(currentContent);
     
     const newTimeout = setTimeout(() => {
       // Double-check batching is still active when timeout fires
@@ -311,10 +312,29 @@ export default function SearchInterface() {
               streamingTimeoutRef.current = null;
             }
             
-            // Log performance stats
+            // Log performance stats and optimization metrics
             const stats = performanceMonitorRef.current.getStats();
-            console.log('Streaming Performance Stats:', stats);
-            console.log(`Streaming completed with ${content.length} characters of content`);
+            const bufferMetrics = streamingBufferRef.current.getPerformanceMetrics();
+            const contentType = analyzeContentType(content);
+
+            console.log('=== STREAMING PERFORMANCE REPORT ===');
+            console.log('Content Stats:', {
+              length: content.length,
+              type: contentType,
+              chunks: bufferMetrics.chunkCount
+            });
+            console.log('Performance Stats:', stats);
+            console.log('Buffer Metrics:', bufferMetrics);
+            console.log('Optimizations Active:', {
+              reactMemo: true,
+              virtualScrolling: content.length > 2000,
+              smartBatching: true,
+              incrementalUpdates: bufferMetrics.optimizationStatus.incrementalUpdates,
+              contentTypeAnalysis: true,
+              performanceMonitoring: true,
+              streamingBufferOptimizations: true
+            });
+            console.log('=====================================');
             
             setIsStreaming(false);
             setIsLoading(false);

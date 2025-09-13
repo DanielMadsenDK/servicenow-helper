@@ -22,8 +22,8 @@
   "dependencies": {
     "@types/jsonwebtoken": "^9.0.10",
     "@types/pg": "^8.15.4",
-    "axios": "^1.11.0",
-    "critters": "^0.0.23",
+    "axios": "^1.12.0",
+    "beasties": "^0.1.0",
     "highlight.js": "^11.11.1",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.542.0",
@@ -33,6 +33,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
+    "react-window": "^2.1.0",
+    "react-window-infinite-loader": "^1.0.10",
     "rehype-highlight": "^7.0.2",
     "remark-gfm": "^4.0.1"
   },
@@ -48,6 +50,7 @@
     "@types/node": "^24.0.10",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
+    "@types/react-window": "^1.8.8",
     "dotenv": "^17.1.0",
     "eslint": "^9.34.0",
     "eslint-config-next": "^15.5.2",
