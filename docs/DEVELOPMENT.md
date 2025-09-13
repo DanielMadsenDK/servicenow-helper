@@ -87,11 +87,28 @@ The application follows a containerized, multi-service architecture orchestrated
 -   `src/lib/database.ts` - Database layer with AgentModelManager
 -   `scripts/migrate-to-agent-models.sql` - Database migration for agent models
 
-### Streaming Architecture
+### Streaming Architecture & Performance
 -   `src/app/api/submit-question-stream/route.ts` - Streaming question submission API
 -   `src/lib/streaming-client.ts` - Core streaming connection management
 -   `src/lib/streaming-cancellation.ts` - Enhanced cancellation system
+-   `src/lib/streaming-buffer.ts` - Optimized streaming buffer with incremental updates
+-   `src/lib/performance-monitor.ts` - Performance monitoring and analytics
+-   `src/components/StreamingMarkdownRenderer.tsx` - Streaming markdown with virtual scrolling
+-   `src/components/VirtualizedMarkdownRenderer.tsx` - Virtual scrolling for large content
 -   `src/hooks/useNetworkStatus.ts` - Network monitoring and connection health
+
+### Next.js 15 Stable Features (Latest Implementation)
+-   **Turbopack**: 5-10x faster development builds with `npm run dev --turbopack`
+-   **Enhanced Package Optimization**: Optimized imports for `lucide-react`, `react-markdown`, `highlight.js`, `axios`, `jsonwebtoken`
+-   **Advanced Bundle Analysis**: Integrated webpack bundle analyzer with `npm run build:analyze`
+-   **Improved Development DX**: Faster HMR and compilation with Turbopack
+
+### Image Optimization (Phase 2)
+-   `src/components/OptimizedImage.tsx` - Next.js Image with lazy loading and blur placeholders
+-   `src/components/ImageGallery.tsx` - Modal gallery with keyboard navigation
+-   `src/components/ImageExample.tsx` - Usage examples and documentation
+-   `src/hooks/useLazyImage.ts` - Intersection Observer hooks for lazy loading
+-   Enhanced `next.config.ts` - Advanced image configuration with WebP/AVIF support
 
 ### Configuration & Setup
 -   `n8n/init/workflow-template.json` - N8N workflow template for AI processing

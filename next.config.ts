@@ -67,11 +67,19 @@ const withPWA = require("next-pwa")({
       options: {
         cacheName: "images-cache",
         expiration: {
-          maxEntries: 200,
-          maxAgeSeconds: 60 * 60 * 24 * 90, // 90 days
+          maxEntries: 500, // Increased for more images
+          maxAgeSeconds: 60 * 60 * 24 * 180, // 180 days for images
+          purgeOnQuotaError: true, // Clean up when storage is full
         },
         cacheableResponse: {
           statuses: [0, 200],
+        },
+        // Add background sync for failed image requests
+        backgroundSync: {
+          name: 'image-sync',
+          options: {
+            maxRetentionTime: 24 * 60, // 24 hours
+          },
         },
       },
     },
@@ -135,9 +143,16 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // Performance optimizations
+  // Performance optimizations with stable features
   experimental: {
-    optimizePackageImports: ['lucide-react', 'react-markdown', 'highlight.js'],
+    // Enhanced package optimization - stable in 15.5.2
+    optimizePackageImports: [
+      'lucide-react',
+      'react-markdown',
+      'highlight.js',
+      'axios',
+      'jsonwebtoken'
+    ],
     optimizeCss: true,
   },
 
@@ -169,11 +184,43 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  // Image optimization
+  // Enhanced image optimization with advanced settings
   images: {
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 31536000, // 1 year for static images
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.gravatar.com',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.sanity.io',
+        port: '',
+        pathname: '**',
+      },
+    ],
+    qualities: [25, 50, 75, 100],
+    unoptimized: false,
   },
 
   async headers() {
