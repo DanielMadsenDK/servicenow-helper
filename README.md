@@ -55,6 +55,7 @@ Enjoy a responsive design built with TailwindCSS, progressive web app support fo
 | **Code Quality** | Enhanced ESLint rules & pre-commit hooks | Automated Quality Assurance |
 | **Streaming Optimizations** | Virtual scrolling, React.memo, smart batching | Phase 1 Performance Enhancements |
 | **Image Optimization** | WebP/AVIF, lazy loading, responsive images | Phase 2 Performance Enhancements |
+| **Next.js 15 Features** | Turbopack, enhanced package optimization | Latest Stable Implementation |
 
 ## Architecture
 

@@ -143,9 +143,16 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // Performance optimizations
+  // Performance optimizations with stable features
   experimental: {
-    optimizePackageImports: ['lucide-react', 'react-markdown', 'highlight.js'],
+    // Enhanced package optimization - stable in 15.5.2
+    optimizePackageImports: [
+      'lucide-react',
+      'react-markdown',
+      'highlight.js',
+      'axios',
+      'jsonwebtoken'
+    ],
     optimizeCss: true,
   },
 
