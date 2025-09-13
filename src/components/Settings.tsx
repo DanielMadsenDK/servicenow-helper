@@ -3,9 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Image, Headphones, Bot, Zap, Server, Monitor } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAIModels } from '@/contexts/AIModelContext';
 import { useAgentModels } from '@/contexts/AgentModelContext';
+
 import BurgerMenu from './BurgerMenu';
 import ThemeToggle from './ThemeToggle';
 import AIModelModal from './AIModelModal';

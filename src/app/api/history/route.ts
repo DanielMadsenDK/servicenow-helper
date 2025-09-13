@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { getServerAuthState } from '@/lib/server-auth';
 import ConversationHistory from '@/lib/database';
 import { HistoryQueryOptions, HistoryApiResponse } from '@/types';

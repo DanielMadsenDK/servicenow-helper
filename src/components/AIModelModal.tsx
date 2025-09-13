@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Save, AlertCircle, DollarSign, Gift, FileText, Image, Headphones } from 'lucide-react';
+
 import { useAIModels } from '@/contexts/AIModelContext';
 import type { Capability } from '@/types/index';
 

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Copy, Check, Maximize2, X } from 'lucide-react';
+
 import SendScriptButton from './SendScriptButton';
 
 interface CodeBlockProps {
@@ -10,7 +11,7 @@ interface CodeBlockProps {
   className?: string;
 }
 
-const CodeBlock = React.memo(function CodeBlock({ children, className, ...props }: CodeBlockProps & React.HTMLAttributes<HTMLElement>) {
+const CodeBlock = React.memo(({ children, className, ...props }: CodeBlockProps & React.HTMLAttributes<HTMLElement>) => {
   const [copied, setCopied] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);

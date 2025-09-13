@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Send } from 'lucide-react';
+
 import SendScriptModal from './SendScriptModal';
 
 interface SendScriptButtonProps {

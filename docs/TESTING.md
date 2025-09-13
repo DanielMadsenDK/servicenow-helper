@@ -1,6 +1,6 @@
 ## Testing
 
-This project includes comprehensive testing with both unit tests (Jest) and end-to-end tests (Playwright).
+This project includes comprehensive testing with both unit tests (Jest) and end-to-end tests (Playwright), enhanced with performance testing, code quality gates, and automated testing infrastructure.
 
 ### Test Types
 
@@ -9,17 +9,30 @@ This project includes comprehensive testing with both unit tests (Jest) and end-
 
 - **Location**: `tests/unit/`
 - **Command**: `npm test` (non-interactive mode)
-- **Watch Mode**: Available by default in development
+- **Watch Mode**: `npm run test:watch` (interactive development)
+- **Coverage**: `npm run test:coverage` (detailed coverage reports)
+- **CI Mode**: `npm run test:ci` (optimized for CI/CD)
 - **Benefits**: Fast feedback, component behavior validation, utility function testing
 
-#### 2. Integration Tests (Playwright)  
+#### 2. Integration Tests (Playwright)
 **Purpose**: Test complete user workflows against a real running application.
 
 - **Location**: `tests/`
 - **Command**: `npm run test:e2e`
 - **Headed Mode**: `npm run test:e2e:headed` (see browser)
+- **UI Mode**: `npm run test:e2e:ui` (interactive test runner)
+- **Debug Mode**: `npm run test:e2e:debug` (step-through debugging)
 - **Single Browser**: `npm run test:e2e -- --project=chromium`
 - **Benefits**: End-to-end validation, real browser testing, full user journey coverage
+
+#### 3. Performance Tests (Jest)
+**Purpose**: Validate Core Web Vitals and performance metrics.
+
+- **Location**: `tests/performance/`
+- **Command**: `npm run test:performance`
+- **Metrics**: FCP, LCP, FID, CLS tracking and validation
+- **Bundle Analysis**: Automated bundle size validation
+- **Benefits**: Performance regression detection, Core Web Vitals compliance
 
 ### Environment Setup for Testing
 
@@ -71,7 +84,10 @@ export TEST_AUTH_PASSWORD=password123
   3. **User Interactions**: Form inputs, button clicks, navigation
   4. **Feature Access**: History panel, settings with agent model configuration, and conversation management
   5. **Agent Model Configuration**: Settings page agent model selection and persistence
-  6. **Responsive Design**: Cross-browser compatibility (Chromium, Firefox)
+  6. **Streaming Interface**: Real-time response streaming and cancellation
+  7. **File Upload**: Multimodal file attachment functionality
+  8. **Continue Session**: Toggle behavior and state persistence
+  9. **Cross-browser Compatibility**: Consistent behavior across Chromium and Firefox
 
 ### Running Tests
 

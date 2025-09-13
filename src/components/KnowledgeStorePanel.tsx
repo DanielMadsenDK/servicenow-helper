@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Database, Search, X, Filter, RefreshCw, AlertCircle, Trash2, CheckSquare, Square } from 'lucide-react';
+
 import { KnowledgeStoreItem, KnowledgeStoreQueryResult, KnowledgeStoreFilters } from '@/types';
+
 import KnowledgeStoreItemComponent from './KnowledgeStoreItem';
 
 interface KnowledgeStorePanelProps {

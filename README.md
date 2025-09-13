@@ -48,6 +48,11 @@ Enjoy a responsive design built with TailwindCSS, progressive web app support fo
 | **Agent Model Configuration** | Individual model selection per AI agent | Persistent Agent Settings |
 | **Knowledge Store Management** | Comprehensive Q&A management interface | React Components + PostgreSQL |
 | **Script Deployment** | Send generated scripts directly to ServiceNow | N8N Client + ServiceNow API |
+| **Performance Monitoring** | Core Web Vitals & streaming analytics | Performance Monitor + Bundle Analysis |
+| **Progressive Web App** | Offline support & native app experience | Service Worker + PWA Manifest |
+| **Advanced Testing** | Comprehensive test suite with coverage | Jest + Playwright + Quality Gates |
+| **Bundle Analysis** | Webpack bundle analyzer integration | Performance Insights |
+| **Code Quality** | Enhanced ESLint rules & pre-commit hooks | Automated Quality Assurance |
 
 ## Architecture
 
@@ -217,6 +222,12 @@ docker compose up -d
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.4-336791?style=flat-square&logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker)
 ![n8n](https://img.shields.io/badge/n8n-Workflows-FF6D5A?style=flat-square&logo=n8n)
+
+### Performance & Quality
+![Jest](https://img.shields.io/badge/Jest-30.1.1-C21325?style=flat-square&logo=jest)
+![Playwright](https://img.shields.io/badge/Playwright-1.55.0-2EAD33?style=flat-square&logo=playwright)
+![ESLint](https://img.shields.io/badge/ESLint-9.34.0-4B32C3?style=flat-square&logo=eslint)
+![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square&logo=pwa)
 
 ### AI & Security
 ![OpenRouter](https://img.shields.io/badge/OpenRouter-Multi--Model-FF4B4B?style=flat-square)
@@ -473,11 +484,20 @@ servicenow-helper/
 | Command | Description | Usage |
 |---------|-------------|-------|
 | `npm run dev` | Development server | Local development |
-| `npm run build` | Production build | Deployment prep |
+| `npm run build` | Production build with PWA | Deployment prep |
+| `npm run build:analyze` | Build with bundle analyzer | Performance insights |
 | `npm run start` | Production server | Live deployment |
-| `npm run lint` | Code quality check | Code review |
-| `npm test` | Unit testing | Component testing |
-| `npm run test:e2e` | Integration testing | Full app testing |
+| `npm run lint` | Enhanced ESLint checks | Code quality |
+| `npm run type-check` | TypeScript validation | Type safety |
+| `npm test` | Jest unit tests (watch mode) | Component testing |
+| `npm run test:watch` | Jest tests in watch mode | Development testing |
+| `npm run test:coverage` | Jest with coverage reports | Test coverage |
+| `npm run test:ci` | Jest for CI/CD | Automated testing |
+| `npm run test:performance` | Performance-specific tests | Performance validation |
+| `npm run test:e2e` | Playwright integration tests | Full app testing |
+| `npm run test:e2e:ui` | Playwright with UI mode | Interactive testing |
+| `npm run test:e2e:headed` | Playwright headed mode | Visual testing |
+| `npm run test:e2e:debug` | Playwright debug mode | Test debugging |
 
 </div>
 

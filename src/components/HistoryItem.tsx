@@ -4,7 +4,9 @@ import { useState, memo, lazy, Suspense } from 'react';
 import { Clock, MessageCircle, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
+
 import { ConversationHistoryItem } from '@/types';
+
 import CodeBlock from './CodeBlock';
 
 // Lazy load markdown component
@@ -16,7 +18,7 @@ interface HistoryItemProps {
   onSelect?: (conversation: ConversationHistoryItem) => void;
 }
 
-const HistoryItem = memo(function HistoryItem({ conversation, onDelete, onSelect }: HistoryItemProps) {
+const HistoryItem = memo(({ conversation, onDelete, onSelect }: HistoryItemProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 

@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+
 import UserManual from '@/components/UserManual';
 
 export const metadata: Metadata = {

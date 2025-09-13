@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { LogOut, Settings, BookOpen, Database } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function BurgerMenu() {
   const [isOpen, setIsOpen] = useState(false);

@@ -1,9 +1,10 @@
 'use client';
 
 import React, { lazy, Suspense, useMemo } from 'react';
-import { markdownComponents } from '@/lib/markdown-components';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
+
+import { markdownComponents } from '@/lib/markdown-components';
 import { isMobileDevice } from '@/lib/streaming-buffer';
 
 // Lazy load ReactMarkdown

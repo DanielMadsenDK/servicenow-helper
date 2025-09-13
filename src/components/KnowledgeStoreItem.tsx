@@ -4,7 +4,9 @@ import { useState, memo, lazy, Suspense } from 'react';
 import { Clock, MessageCircle, Trash2, ChevronDown, ChevronUp, Tag, TrendingUp, Star } from 'lucide-react';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
+
 import { KnowledgeStoreItem } from '@/types';
+
 import CodeBlock from './CodeBlock';
 
 // Lazy load markdown component
@@ -19,14 +21,14 @@ interface KnowledgeStoreItemProps {
   showSelection?: boolean;
 }
 
-const KnowledgeStoreItemComponent = memo(function KnowledgeStoreItem({ 
+const KnowledgeStoreItemComponent = memo(({ 
   item, 
   onDelete, 
   onSelect, 
   isSelected = false,
   onSelectionChange,
   showSelection = false
-}: KnowledgeStoreItemProps) {
+}: KnowledgeStoreItemProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { getServerAuthState } from '@/lib/server-auth';
 
 export async function POST(request: NextRequest) {

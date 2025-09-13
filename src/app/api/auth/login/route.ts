@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
       const token = jwt.sign(
         { 
-          username: username,
+          username,
           exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
         },
         JWT_SECRET

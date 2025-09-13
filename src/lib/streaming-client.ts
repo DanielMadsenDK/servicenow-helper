@@ -1,4 +1,5 @@
 import { StreamingChunk, StreamingRequest, StreamingStatus } from '@/types';
+import { getPerformanceMonitor } from '@/lib/performance-monitor';
 
 export interface StreamingCallbacks {
   onChunk: (chunk: StreamingChunk) => void;

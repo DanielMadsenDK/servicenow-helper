@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import { History, Database, Check } from 'lucide-react';
-import { ServiceNowResponse, StreamingStatus } from '@/types';
-import StreamingMarkdownRenderer from './StreamingMarkdownRenderer';
 import axios from 'axios';
+
+import { ServiceNowResponse, StreamingStatus } from '@/types';
+
+import StreamingMarkdownRenderer from './StreamingMarkdownRenderer';
 
 interface ResultsSectionProps {
   response: ServiceNowResponse | null;

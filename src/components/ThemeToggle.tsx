@@ -2,9 +2,10 @@
 
 import { memo } from 'react';
 import { Sun, Moon } from 'lucide-react';
+
 import { useTheme } from '@/contexts/ThemeContext';
 
-const ThemeToggle = memo(function ThemeToggle() {
+const ThemeToggle = memo(() => {
   const { resolvedTheme, toggleTheme } = useTheme();
 
   return (

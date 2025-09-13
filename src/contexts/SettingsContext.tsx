@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, ReactNode, useState, useEffect, useCallback } from 'react';
+
 import type { UserSettings, SettingsApiResponse } from '../types/index';
 
 interface SettingsContextType {

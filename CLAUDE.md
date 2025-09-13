@@ -18,15 +18,20 @@ The core components are:
 - `docker compose --profile setup up -d` - **First time setup.** Starts all services and runs initial setup.
 - `./scripts/setup-n8n.sh` - Manual setup script (only needed if automatic setup fails).
 - `npm run dev` - Start the Next.js development server (requires separate n8n/Postgres instances).
-- `npm run build` - Build production application.
+- `npm run build` - Build production application with PWA optimization.
+- `npm run build:analyze` - Build with webpack bundle analyzer for performance insights.
 - `npm run start` - Start production server.
-- `npm run lint` - Run ESLint checks.
+- `npm run lint` - Run ESLint checks with enhanced code quality rules.
+- `npm run type-check` - Run TypeScript type checking.
 - `npm test` - Run Jest unit tests (non-interactive mode).
+- `npm run test:watch` - Run Jest tests in watch mode.
+- `npm run test:coverage` - Run Jest tests with coverage reporting.
 - `npm run test:ci` - Run Jest unit tests for CI/CD environments.
 - `npm run test:e2e` - Run Playwright integration tests.
 - `npm run test:e2e:ui` - Run Playwright tests with UI mode.
 - `npm run test:e2e:headed` - Run Playwright tests in headed mode.
 - `npm run test:e2e:debug` - Run Playwright tests in debug mode.
+- `npm run test:performance` - Run performance-specific tests.
 
 ## Architecture
 
@@ -126,12 +131,13 @@ The application follows a containerized, multi-service architecture orchestrated
 - **Database**: PostgreSQL 15.4 with pgvector 0.8.0 (with tables: `ServiceNowSupportTool` for conversations, `user_settings` for user preferences, `agent_models` for agent model configurations)
 - **Containerization**: Docker, Docker Compose (Dockerfile and docker-compose.yml in root)
 - **Libraries**: Axios 1.11.0, ReactMarkdown 10.1.0, Lucide React 0.542.0, JWT 9.0.2, highlight.js 11.11.1
-- **Performance**: Dynamic imports, lazy loading, React.memo, code splitting, and streaming optimizations
-- **Streaming**: Server-Sent Events (SSE), real-time UI updates, connection pooling, and retry logic
-- **Security**: Comprehensive security headers, XSS protection, CSRF prevention, and streaming validation
-- **Accessibility**: ARIA attributes, keyboard navigation, screen reader support, and streaming status announcements
-- **PWA Support**: Progressive Web App capabilities with next-pwa 5.6.0
-- **Testing**: Jest 30.1.1, Playwright 1.55.0, Testing Library
+- **Performance**: Dynamic imports, lazy loading, React.memo, code splitting, bundle analysis, and Core Web Vitals monitoring
+- **Streaming**: Server-Sent Events (SSE), real-time UI updates, connection pooling, retry logic, and performance monitoring
+- **Security**: Comprehensive security headers, XSS protection, CSRF prevention, streaming validation, and rate limiting
+- **Accessibility**: ARIA attributes, keyboard navigation, screen reader support, and WCAG compliance
+- **PWA Support**: Advanced Progressive Web App with offline support, install prompts, and app shortcuts
+- **Testing**: Jest 30.1.1 with coverage reporting, Playwright 1.55.0 for E2E, enhanced ESLint rules, and pre-commit quality gates
+- **Quality Assurance**: Husky pre-commit hooks, lint-staged, TypeScript strict mode, and automated testing
 
 ## Project Structure
 
@@ -245,3 +251,91 @@ This codebase implements comprehensive Next.js 15 best practices:
 - Dynamic imports with `Suspense` - Code splitting (HistoryPanel, ReactMarkdown)
 - Custom hooks for performance and state management
 - Streaming infrastructure for real-time responses
+
+## Performance Monitoring & Core Web Vitals
+
+The application includes comprehensive performance monitoring and Core Web Vitals tracking:
+
+### Performance Monitoring System
+- **PerformanceMonitor** (`src/lib/performance-monitor.ts`) - Singleton class for tracking Core Web Vitals
+- **Real-time Metrics**: FCP (First Contentful Paint), LCP (Largest Contentful Paint), FID (First Input Delay), CLS (Cumulative Layout Shift)
+- **Streaming Performance**: Tracks connection times, chunk sizes, and streaming efficiency
+- **Memory Management**: Monitors for memory leaks and cleanup tracking
+
+### Bundle Analysis & Optimization
+- **Webpack Bundle Analyzer**: Integrated with `npm run build:analyze` for detailed bundle insights
+- **Code Splitting**: Automatic vendor and React chunk separation
+- **Package Import Optimization**: Selective imports for `lucide-react`, `react-markdown`, `highlight.js`
+- **CSS Optimization**: TailwindCSS optimization with tree-shaking
+
+### Caching Strategy
+- **Multi-tier Service Worker**: Advanced caching with different strategies per resource type
+- **API Caching**: Network-first strategy with 5-minute cache for API responses
+- **Static Asset Caching**: Cache-first strategy with 1-year expiration for immutable assets
+- **Image Optimization**: WebP/AVIF support with responsive sizing
+
+## Testing & Quality Assurance
+
+### Enhanced Testing Suite
+- **Jest Configuration**: Coverage thresholds (70% branches, 75% functions, 80% lines/statements)
+- **Performance Tests**: Dedicated performance test suite with Core Web Vitals validation
+- **Unit Tests**: Comprehensive unit tests for performance monitor and utilities
+- **Test Utilities**: Enhanced test helpers with all React contexts and mocking
+
+### Code Quality Gates
+- **ESLint Rules**: Enhanced rules for performance, accessibility, and code quality
+- **Pre-commit Hooks**: Husky with lint-staged for automated quality checks
+- **TypeScript Strict Mode**: Enhanced type checking with `npm run type-check`
+- **Import Organization**: Automatic import sorting and validation
+
+### Testing Commands
+- `npm run test:coverage` - Generate coverage reports
+- `npm run test:performance` - Run performance-specific tests
+- `npm run type-check` - TypeScript validation
+- `npm run lint` - ESLint with auto-fix capabilities
+
+## Progressive Web App (PWA) Features
+
+### Advanced PWA Manifest
+- **App Shortcuts**: Quick access to New Question, Knowledge Store, and Settings
+- **Display Modes**: Support for window-controls-overlay, standalone, and minimal-ui
+- **File Handling**: Support for text, JSON, PDF files with drag-and-drop
+- **Share Target**: Receive shared content from other applications
+- **Protocol Handlers**: Custom URL scheme support (`web+servicenow://`)
+
+### Service Worker & Offline Support
+- **Offline Fallback**: Dedicated offline page with available features
+- **Advanced Caching**: Multi-strategy caching for different resource types
+- **Background Sync**: Service worker handles updates and sync operations
+- **Network Resilience**: Automatic retry and connection recovery
+
+### PWA Installation Experience
+- **Smart Install Prompts**: Appears after user engagement with dismiss tracking
+- **Cross-platform Support**: iOS, Android, and Desktop PWA compatibility
+- **Install State Tracking**: Monitors installation success and app usage
+- **Feature Highlights**: Showcases offline support and native app benefits
+
+### PWA Commands
+- `npm run build` - Production build with PWA optimization
+- Service worker automatically registers and manages caching
+- Offline page accessible at `/offline` when network unavailable
+
+## Key Performance Features
+
+### Real-time Monitoring
+- **Core Web Vitals**: Continuous tracking of user experience metrics
+- **Streaming Analytics**: Connection quality and response time monitoring
+- **Bundle Size Tracking**: Automated bundle size validation
+- **Memory Usage**: Leak detection and cleanup verification
+
+### Optimization Features
+- **Lazy Loading**: Components loaded on-demand for better initial load
+- **Image Optimization**: Next.js Image component with WebP/AVIF support
+- **Font Optimization**: Google Fonts caching and optimization
+- **CSS Optimization**: TailwindCSS purging and minification
+
+### Quality Assurance
+- **Automated Testing**: Pre-commit test execution
+- **Code Coverage**: Minimum coverage thresholds enforced
+- **Performance Budgets**: Bundle size and performance metric validation
+- **Accessibility Testing**: Automated accessibility rule validation
