@@ -312,29 +312,31 @@ export default function SearchInterface() {
               streamingTimeoutRef.current = null;
             }
             
-            // Log performance stats and optimization metrics
-            const stats = performanceMonitorRef.current.getStats();
-            const bufferMetrics = streamingBufferRef.current.getPerformanceMetrics();
-            const contentType = analyzeContentType(content);
+            // Log performance stats and optimization metrics (development only)
+            if (process.env.NODE_ENV === 'development') {
+              const stats = performanceMonitorRef.current.getStats();
+              const bufferMetrics = streamingBufferRef.current.getPerformanceMetrics();
+              const contentType = analyzeContentType(content);
 
-            console.log('=== STREAMING PERFORMANCE REPORT ===');
-            console.log('Content Stats:', {
-              length: content.length,
-              type: contentType,
-              chunks: bufferMetrics.chunkCount
-            });
-            console.log('Performance Stats:', stats);
-            console.log('Buffer Metrics:', bufferMetrics);
-            console.log('Optimizations Active:', {
-              reactMemo: true,
-              virtualScrolling: content.length > 2000,
-              smartBatching: true,
-              incrementalUpdates: bufferMetrics.optimizationStatus.incrementalUpdates,
-              contentTypeAnalysis: true,
-              performanceMonitoring: true,
-              streamingBufferOptimizations: true
-            });
-            console.log('=====================================');
+              console.log('=== STREAMING PERFORMANCE REPORT ===');
+              console.log('Content Stats:', {
+                length: content.length,
+                type: contentType,
+                chunks: bufferMetrics.chunkCount
+              });
+              console.log('Performance Stats:', stats);
+              console.log('Buffer Metrics:', bufferMetrics);
+              console.log('Optimizations Active:', {
+                reactMemo: true,
+                virtualScrolling: content.length > 50000, // Updated threshold to match StreamingMarkdownRenderer
+                smartBatching: true,
+                incrementalUpdates: bufferMetrics.optimizationStatus.incrementalUpdates,
+                contentTypeAnalysis: true,
+                performanceMonitoring: true,
+                streamingBufferOptimizations: true
+              });
+              console.log('=====================================');
+            }
             
             setIsStreaming(false);
             setIsLoading(false);

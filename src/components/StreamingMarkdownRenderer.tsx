@@ -7,8 +7,9 @@ import rehypeHighlight from 'rehype-highlight';
 import { markdownComponents } from '@/lib/markdown-components';
 import { isMobileDevice } from '@/lib/streaming-buffer';
 
-// Lazy load ReactMarkdown
+// Lazy load ReactMarkdown and VirtualizedMarkdownRenderer
 const ReactMarkdown = lazy(() => import('react-markdown'));
+const VirtualizedMarkdownRenderer = lazy(() => import('./VirtualizedMarkdownRenderer'));
 
 // Note: Progress estimation was removed from mobile view as it was unreliable for streaming content
 // const PROGRESS_ESTIMATION_FACTOR = 1000;
@@ -39,16 +40,47 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
   className = '',
   enableProgressiveRendering = true
 }: StreamingMarkdownRendererProps) {
-  
+
   const isMobile = useMemo(() => isMobileDevice(), []);
-  
+
   // For mobile devices, use progressive rendering threshold
   const progressiveRenderingThreshold = isMobile ? 500 : 200;
-  const shouldUseProgressiveRendering = enableProgressiveRendering && 
+  const shouldUseProgressiveRendering = enableProgressiveRendering &&
     content.length > progressiveRenderingThreshold;
+
+  // Virtual scrolling threshold - use for large content
+  const virtualScrollingThreshold = 10000; // 10k characters
+  const shouldUseVirtualScrolling = content.length > virtualScrollingThreshold;
 
   // Unified streaming approach for all devices
   if (isStreaming) {
+    // For very large content, use virtual scrolling during streaming
+    if (shouldUseVirtualScrolling) {
+      return (
+        <div className={className} data-testid="markdown-content">
+          <Suspense fallback={
+            <div className="streaming-raw-content">
+              <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base will-change-contents">
+                {content.slice(0, 1000)}...
+                {showStreamingCursor && (
+                  <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
+                )}
+              </div>
+            </div>
+          }>
+            <VirtualizedMarkdownRenderer
+              content={content}
+              height={isMobile ? 300 : 400}
+              className="streaming-virtualized-content"
+            />
+            {showStreamingCursor && (
+              <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
+            )}
+          </Suspense>
+        </div>
+      );
+    }
+
     // For long content when progressive rendering is enabled,
     // use ReactMarkdown even during streaming to provide better UX
     if (shouldUseProgressiveRendering && content.length > progressiveRenderingThreshold) {
@@ -78,7 +110,7 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
         </div>
       );
     }
-    
+
     // During streaming: Show optimized raw content with minimal DOM operations for all devices
     return (
       <div className={className}>
@@ -95,6 +127,26 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
   }
 
   // When streaming is complete: Use ReactMarkdown rendering with performance optimizations
+  // For very large content, use virtual scrolling even when complete
+  if (shouldUseVirtualScrolling) {
+    return (
+      <div className={className} data-testid="markdown-content">
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <span className="ml-2 text-gray-600 dark:text-gray-400">Loading large content...</span>
+          </div>
+        }>
+          <VirtualizedMarkdownRenderer
+            content={content}
+            height={isMobile ? 400 : 600}
+            className="completed-virtualized-content"
+          />
+        </Suspense>
+      </div>
+    );
+  }
+
   return (
     <div className={className} data-testid="markdown-content">
       <Suspense fallback={

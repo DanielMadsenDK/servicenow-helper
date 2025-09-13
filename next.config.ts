@@ -138,7 +138,7 @@ const nextConfig: NextConfig = {
   // Performance optimizations
   experimental: {
     optimizePackageImports: ['lucide-react', 'react-markdown', 'highlight.js'],
-    optimizeCss: false, // Disable CSS optimization to avoid critters dependency
+    optimizeCss: true,
   },
 
   // Bundle optimization

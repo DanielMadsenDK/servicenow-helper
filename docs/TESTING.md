@@ -74,7 +74,11 @@ export TEST_AUTH_PASSWORD=password123
 - `tests/unit/components/LoginForm.test.tsx` - Login form validation, submission, and UI interactions
 - `tests/unit/components/ProtectedRoute.test.tsx` - Authentication routing and conditional rendering
 - `tests/unit/components/SearchInterface.test.tsx` - Main interface rendering with agent model support
+- `tests/unit/components/ResultsSection.test.tsx` - Results display with React.memo optimizations
+- `tests/unit/components/StreamingMarkdownRenderer.test.tsx` - Streaming markdown with virtual scrolling
 - `tests/unit/lib/streaming-client.test.ts` - Streaming client functionality and agent model handling
+- `tests/unit/lib/streaming-buffer.test.ts` - Streaming buffer with incremental updates
+- `tests/unit/lib/performance-monitor.test.ts` - Performance monitoring and analytics
 - `tests/unit/lib/utils.test.ts` - Utility functions and helper methods
 
 #### Playwright Tests:

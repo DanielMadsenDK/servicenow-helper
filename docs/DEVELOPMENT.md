@@ -87,10 +87,14 @@ The application follows a containerized, multi-service architecture orchestrated
 -   `src/lib/database.ts` - Database layer with AgentModelManager
 -   `scripts/migrate-to-agent-models.sql` - Database migration for agent models
 
-### Streaming Architecture
+### Streaming Architecture & Performance
 -   `src/app/api/submit-question-stream/route.ts` - Streaming question submission API
 -   `src/lib/streaming-client.ts` - Core streaming connection management
 -   `src/lib/streaming-cancellation.ts` - Enhanced cancellation system
+-   `src/lib/streaming-buffer.ts` - Optimized streaming buffer with incremental updates
+-   `src/lib/performance-monitor.ts` - Performance monitoring and analytics
+-   `src/components/StreamingMarkdownRenderer.tsx` - Streaming markdown with virtual scrolling
+-   `src/components/VirtualizedMarkdownRenderer.tsx` - Virtual scrolling for large content
 -   `src/hooks/useNetworkStatus.ts` - Network monitoring and connection health
 
 ### Configuration & Setup
