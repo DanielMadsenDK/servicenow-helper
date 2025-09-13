@@ -1,4 +1,5 @@
 import { Pool, PoolClient } from 'pg';
+
 import type { AIModel, AIModelInput, Capability } from '@/types/index';
 
 interface DatabaseConfig {
@@ -130,7 +131,7 @@ export class AIModelManager {
         is_default: r.is_default,
         created_at: new Date(r.created_at),
         updated_at: new Date(r.updated_at),
-        capabilities: capabilities,
+        capabilities,
       };
     });
   }
@@ -372,7 +373,7 @@ export class AIModelManager {
       is_default: r.is_default,
       created_at: new Date(r.created_at),
       updated_at: new Date(r.updated_at),
-      capabilities: capabilities,
+      capabilities,
     };
   }
 

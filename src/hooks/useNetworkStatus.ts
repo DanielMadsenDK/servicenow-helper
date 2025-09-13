@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+
 import { testStreamingConnection } from '@/lib/streaming-client';
 
 export interface NetworkStatus {

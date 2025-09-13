@@ -2,11 +2,19 @@
 
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { History } from 'lucide-react';
+
 import { ServiceNowResponse, ConversationHistoryItem, StreamingRequest, StreamingChunk, StreamingStatus } from '@/types';
 import { cancelRequest, submitQuestionStreaming } from '@/lib/api';
 import { StreamingClient } from '@/lib/streaming-client';
 import { streamingCancellation } from '@/lib/streaming-cancellation';
 import { StreamingBuffer, getOptimalBatchInterval, StreamingPerformanceMonitor } from '@/lib/streaming-buffer';
+import { useSettings } from '@/contexts/SettingsContext';
+import { useAIModels } from '@/contexts/AIModelContext';
+import { useAgentModels } from '@/contexts/AgentModelContext';
+import { usePlaceholderRotation } from '@/hooks/usePlaceholderRotation';
+import { useSessionManager } from '@/hooks/useSessionManager';
+import { RequestType } from '@/lib/constants';
+
 import BurgerMenu from './BurgerMenu';
 import ThemeToggle from './ThemeToggle';
 import WelcomeSection from './WelcomeSection';
@@ -17,12 +25,6 @@ import ToggleControls from './ToggleControls';
 import SubmitButton from './SubmitButton';
 import ResultsSection from './ResultsSection';
 import Footer from './Footer';
-import { useSettings } from '@/contexts/SettingsContext';
-import { useAIModels } from '@/contexts/AIModelContext';
-import { useAgentModels } from '@/contexts/AgentModelContext';
-import { usePlaceholderRotation } from '@/hooks/usePlaceholderRotation';
-import { useSessionManager } from '@/hooks/useSessionManager';
-import { RequestType } from '@/lib/constants';
 import FileUpload from './FileUpload';
 
 // Lazy load heavy components
@@ -278,7 +280,7 @@ export default function SearchInterface() {
           addChunkToBatch(chunk.content);
         },
         
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         onComplete: (_totalContent: string) => {
           // Check if already completed (race condition prevention)
           if (streamingCompletedRef.current) {

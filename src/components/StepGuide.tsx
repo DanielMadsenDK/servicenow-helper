@@ -10,7 +10,7 @@ interface StepGuideProps {
   className?: string;
 }
 
-const StepGuide = memo(function StepGuide({ steps, type = 'auto', className = '' }: StepGuideProps) {
+const StepGuide = memo(({ steps, type = 'auto', className = '' }: StepGuideProps) => {
   // Auto-detect step type based on content
   const detectStepType = (steps: string[]): StepType => {
     if (type !== 'auto') return type;

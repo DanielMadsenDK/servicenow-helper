@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import { AIModelManager } from '@/lib/ai-models';
 import type { CapabilitiesApiResponse } from '@/types/index';
 

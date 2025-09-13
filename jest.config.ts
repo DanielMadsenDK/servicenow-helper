@@ -12,7 +12,7 @@ const config: Config = {
   testEnvironment: 'jsdom',
   // Add more setup options before each test is run
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  testMatch: ['<rootDir>/tests/unit/**/*.test.{ts,tsx}'],
+  testMatch: ['<rootDir>/tests/unit/**/*.test.{ts,tsx}', '<rootDir>/tests/performance/**/*.test.{ts,tsx}'],
   testPathIgnorePatterns: [
     '<rootDir>/tests/integration.spec.ts',
     '<rootDir>/.next/',
@@ -38,6 +38,24 @@ const config: Config = {
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
     '!src/**/*.stories.tsx',
+    '!src/app/**/layout.tsx',
+    '!src/app/**/page.tsx',
+    '!src/app/**/loading.tsx',
+    '!src/app/**/error.tsx',
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 75,
+      lines: 80,
+      statements: 80,
+    },
+  },
+  coverageReporters: [
+    'text',
+    'lcov',
+    'html',
+    'json-summary',
   ],
 };
 

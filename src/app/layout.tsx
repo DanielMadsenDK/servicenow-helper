@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { AIModelProvider } from "@/contexts/AIModelContext";
 import { AgentModelProvider } from "@/contexts/AgentModelContext";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,6 +73,7 @@ export default function RootLayout({
               <AIModelProvider>
                 <AgentModelProvider>
                   {children}
+                  <PWAInstallPrompt />
                 </AgentModelProvider>
               </AIModelProvider>
             </SettingsProvider>

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+
 import { PLACEHOLDER_EXAMPLES, PLACEHOLDER_ROTATION_INTERVAL } from '@/lib/constants';
 
 interface UsePlaceholderRotationProps {

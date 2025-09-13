@@ -23,6 +23,9 @@ These variables have sensible defaults but can be customized:
 | `AUTH_USERNAME` | Default login username | `admin` |
 | `AUTH_PASSWORD` | Default login password | `password123` |
 | `NODE_ENV` | Application environment | `development` |
+| `ANALYZE` | Enable webpack bundle analyzer | `false` |
+| `TEST_AUTH_USERNAME` | Test authentication username | `admin` |
+| `TEST_AUTH_PASSWORD` | Test authentication password | `password123` |
 
 ## Auto-configured Variables
 

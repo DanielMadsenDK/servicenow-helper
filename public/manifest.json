@@ -1,15 +1,74 @@
 {
-  "name": "ServiceNow Helper",
-  "short_name": "ServiceNow Helper",
-  "description": "Get instant help with ServiceNow implementations, documentation, and scripts",
+  "name": "ServiceNow Helper - AI-Powered ServiceNow Assistant",
+  "short_name": "SN Helper",
+  "description": "Get instant help with ServiceNow implementations, documentation, and scripts with AI-powered assistance",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#f6f6f6",
-  "theme_color": "#f6f6f6",
+  "theme_color": "#2563eb",
   "orientation": "any",
   "dir": "auto",
   "lang": "en-US",
+  "categories": ["productivity", "developer-tools", "business"],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "ServiceNow Helper Desktop Interface"
+    },
+    {
+      "src": "/screenshots/mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "ServiceNow Helper Mobile Interface"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Question",
+      "short_name": "Ask AI",
+      "description": "Start a new AI conversation",
+      "url": "/?action=new",
+      "icons": [
+        {
+          "src": "/maskable_icon_x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Knowledge Store",
+      "short_name": "Knowledge",
+      "description": "Browse saved Q&A pairs",
+      "url": "/knowledge-store",
+      "icons": [
+        {
+          "src": "/maskable_icon_x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Settings",
+      "short_name": "Settings",
+      "description": "Configure AI models and preferences",
+      "url": "/settings",
+      "icons": [
+        {
+          "src": "/maskable_icon_x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
   "icons": [
     {
       "src": "/maskable_icon_x48.png",
@@ -64,6 +123,53 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "handle_links": "preferred",
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "text/*": [".txt", ".md", ".json"],
+        "application/json": [".json"],
+        "application/pdf": [".pdf"]
+      },
+      "icons": [
+        {
+          "src": "/maskable_icon_x256.png",
+          "sizes": "256x256",
+          "type": "image/png"
+        }
+      ],
+      "launch_type": "single-client"
+    }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "shared_question",
+      "text": "shared_text",
+      "url": "shared_url",
+      "files": [
+        {
+          "name": "shared_files",
+          "accept": ["text/*", "image/*", ".pdf"]
+        }
+      ]
+    }
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+servicenow",
+      "url": "/?protocol=%s"
     }
   ]
 }

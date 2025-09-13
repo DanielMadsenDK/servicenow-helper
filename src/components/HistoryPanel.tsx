@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { History, Search, X, Filter, RefreshCw, AlertCircle } from 'lucide-react';
+
 import { ConversationHistoryItem, HistoryQueryResult, HistoryFilters } from '@/types';
+
 import HistoryItem from './HistoryItem';
 
 interface HistoryPanelProps {

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+
 import { generateSessionId } from '@/lib/session-utils';
 
 export function useSessionManager() {

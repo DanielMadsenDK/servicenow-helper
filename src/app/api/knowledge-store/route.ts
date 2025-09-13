@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { getServerAuthState } from '@/lib/server-auth';
 import { N8NClient } from '@/lib/n8n-client';
 import { KnowledgeStoreQueryResult } from '@/types';
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest) {
     const result: KnowledgeStoreQueryResult = {
       items: itemsWithDates,
       total: filteredItems.length,
-      hasMore: hasMore
+      hasMore
     };
 
     return NextResponse.json({

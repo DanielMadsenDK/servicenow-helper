@@ -56,14 +56,20 @@ git checkout -b fix/your-fix-name
 Run all tests before submitting:
 
 ```bash
-# Unit tests
+# Unit tests with coverage
 npm test
+npm run test:coverage
 
 # Integration tests
 npm run test:e2e
+npm run test:e2e:ui
 
-# Linting
+# Performance tests
+npm run test:performance
+
+# Code quality
 npm run lint
+npm run type-check
 ```
 
 ### 4. Commit Guidelines

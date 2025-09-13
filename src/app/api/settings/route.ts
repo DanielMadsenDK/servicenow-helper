@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { getServerAuthState } from '@/lib/server-auth';
 import { UserSettingsManager, AgentModelManager } from '@/lib/database';
 import type { UserSettings, SettingsApiResponse } from '@/types/index';

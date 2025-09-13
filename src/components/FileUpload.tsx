@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { Paperclip, X, FileText, Image, Headphones, AlertCircle } from 'lucide-react';
+
 import type { Capability } from '@/types/index';
 
 interface FileUploadProps {

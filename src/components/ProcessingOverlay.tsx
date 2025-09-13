@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Bot } from 'lucide-react';
+
 import { StreamingStatus } from '@/types';
 
 interface ProcessingOverlayProps {
