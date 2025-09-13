@@ -10,24 +10,30 @@ interface PWAInstallPromptProps {
 }
 
 export default function PWAInstallPrompt({ className = '' }: PWAInstallPromptProps) {
-  const { canInstall, isOnline, install, dismiss } = usePWAInstall();
+  const { canInstall, isOnline, install } = usePWAInstall();
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
     // Check if user has already dismissed the prompt
-    const dismissed = localStorage.getItem('pwa-install-dismissed');
-    if (dismissed) {
-      const dismissedTime = parseInt(dismissed);
-      const oneDay = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    try {
+      const dismissed = localStorage.getItem('pwa-install-dismissed');
+      if (dismissed) {
+        const dismissedTime = parseInt(dismissed);
+        const oneDay = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-      // Show again after 24 hours
-      if (Date.now() - dismissedTime > oneDay) {
-        localStorage.removeItem('pwa-install-dismissed');
-        setIsDismissed(false);
-      } else {
-        setIsDismissed(true);
+        // Show again after 24 hours
+        if (Date.now() - dismissedTime > oneDay) {
+          localStorage.removeItem('pwa-install-dismissed');
+          setIsDismissed(false);
+        } else {
+          setIsDismissed(true);
+        }
       }
+    } catch (error) {
+      console.warn('Failed to access localStorage for PWA install state:', error);
+      // Continue with default state if localStorage is unavailable
+      setIsDismissed(false);
     }
 
     // Show prompt after 30 seconds if installable and not dismissed
@@ -50,7 +56,12 @@ export default function PWAInstallPrompt({ className = '' }: PWAInstallPromptPro
   const handleDismiss = () => {
     setIsVisible(false);
     setIsDismissed(true);
-    localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+    try {
+      localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+    } catch (error) {
+      console.warn('Failed to store PWA install dismiss state:', error);
+      // Continue with in-memory state even if storage fails
+    }
   };
 
   if (!isVisible || !canInstall) {
