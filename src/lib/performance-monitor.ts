@@ -2,6 +2,21 @@
  * Performance monitoring utilities for the ServiceNow Helper application
  */
 
+// Extended PerformanceEntry interfaces for proper typing
+interface PerformanceEventTiming extends PerformanceEntry {
+  processingStart: number;
+}
+
+interface LayoutShiftEntry extends PerformanceEntry {
+  value: number;
+  hadRecentInput: boolean;
+}
+
+interface NavigationTimingEntry extends PerformanceEntry {
+  responseStart: number;
+  requestStart: number;
+}
+
 export interface PerformanceMetrics {
   fcp: number | null; // First Contentful Paint
   lcp: number | null; // Largest Contentful Paint
@@ -44,7 +59,7 @@ class PerformanceMonitor {
       });
       fcpObserver.observe({ entryTypes: ['paint'] });
       this.observers.push(fcpObserver);
-    } catch (e) {
+    } catch {
       console.warn('FCP observer not supported');
     }
 
@@ -57,7 +72,7 @@ class PerformanceMonitor {
       });
       lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
       this.observers.push(lcpObserver);
-    } catch (e) {
+    } catch {
       console.warn('LCP observer not supported');
     }
 
@@ -65,12 +80,12 @@ class PerformanceMonitor {
     try {
       const fidObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        const lastEntry = entries[entries.length - 1] as any;
+        const lastEntry = entries[entries.length - 1] as PerformanceEventTiming;
         this.metrics.fid = lastEntry.processingStart - lastEntry.startTime;
       });
       fidObserver.observe({ entryTypes: ['first-input'] });
       this.observers.push(fidObserver);
-    } catch (e) {
+    } catch {
       console.warn('FID observer not supported');
     }
 
@@ -79,16 +94,17 @@ class PerformanceMonitor {
       const clsObserver = new PerformanceObserver((list) => {
         let clsValue = 0;
         const entries = list.getEntries();
-        entries.forEach((entry: any) => {
-          if (!entry.hadRecentInput) {
-            clsValue += entry.value;
+        entries.forEach((entry) => {
+          const layoutShiftEntry = entry as LayoutShiftEntry;
+          if (!layoutShiftEntry.hadRecentInput) {
+            clsValue += layoutShiftEntry.value;
           }
         });
         this.metrics.cls = clsValue;
       });
       clsObserver.observe({ entryTypes: ['layout-shift'] });
       this.observers.push(clsObserver);
-    } catch (e) {
+    } catch {
       console.warn('CLS observer not supported');
     }
 
@@ -96,15 +112,16 @@ class PerformanceMonitor {
     try {
       const navigationObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        entries.forEach((entry: any) => {
+        entries.forEach((entry) => {
           if (entry.entryType === 'navigation') {
-            this.metrics.ttfb = entry.responseStart - entry.requestStart;
+            const navEntry = entry as NavigationTimingEntry;
+            this.metrics.ttfb = navEntry.responseStart - navEntry.requestStart;
           }
         });
       });
       navigationObserver.observe({ entryTypes: ['navigation'] });
       this.observers.push(navigationObserver);
-    } catch (e) {
+    } catch {
       console.warn('Navigation observer not supported');
     }
   }
@@ -120,6 +137,11 @@ class PerformanceMonitor {
    * Start tracking streaming performance
    */
   startStreamingSession(sessionId: string): void {
+    if (!sessionId || typeof sessionId !== 'string') {
+      console.warn('Invalid session ID provided to startStreamingSession');
+      return;
+    }
+
     this.streamingMetrics.set(sessionId, {
       connectionTime: Date.now(),
       firstChunkTime: 0,
@@ -133,8 +155,21 @@ class PerformanceMonitor {
    * Record streaming metrics
    */
   recordStreamingChunk(sessionId: string, chunkSize: number): void {
+    if (!sessionId || typeof sessionId !== 'string') {
+      console.warn('Invalid session ID provided to recordStreamingChunk');
+      return;
+    }
+
+    if (typeof chunkSize !== 'number' || chunkSize < 0 || !isFinite(chunkSize)) {
+      console.warn('Invalid chunk size provided to recordStreamingChunk');
+      return;
+    }
+
     const metrics = this.streamingMetrics.get(sessionId);
-    if (!metrics) return;
+    if (!metrics) {
+      console.warn(`No streaming session found for ID: ${sessionId}`);
+      return;
+    }
 
     if (metrics.firstChunkTime === 0) {
       metrics.firstChunkTime = Date.now();
@@ -148,8 +183,15 @@ class PerformanceMonitor {
    * End streaming session and get metrics
    */
   endStreamingSession(sessionId: string): StreamingMetrics | null {
+    if (!sessionId || typeof sessionId !== 'string') {
+      console.warn('Invalid session ID provided to endStreamingSession');
+      return null;
+    }
+
     const metrics = this.streamingMetrics.get(sessionId);
-    if (!metrics) return null;
+    if (!metrics) {
+      return null;
+    }
 
     metrics.totalStreamingTime = Date.now() - metrics.connectionTime;
     this.streamingMetrics.delete(sessionId);
@@ -201,7 +243,7 @@ class PerformanceMonitor {
     this.observers.forEach(observer => {
       try {
         observer.disconnect();
-      } catch (e) {
+      } catch {
         // Ignore errors when disconnecting
       }
     });
