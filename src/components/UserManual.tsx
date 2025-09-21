@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ArrowLeft, BookOpen, Search, Settings as SettingsIcon, MessageSquare, Lightbulb, FileText, Code2, Wrench, Eye, Globe, ToggleRight, Clock, List, BookmarkPlus, Database } from 'lucide-react';
+import { ArrowLeft, BookOpen, Search, Settings as SettingsIcon, MessageSquare, Lightbulb, FileText, Code2, Wrench, Eye, Globe, ToggleRight, Clock, List, BookmarkPlus, Database, Filter, Bot } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import BurgerMenu from './BurgerMenu';
@@ -332,6 +332,128 @@ export default function UserManual() {
                   <div className="flex items-start space-x-3">
                     <List className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />
                     <span><strong>Request Type:</strong> Choose your default request type for new sessions</span>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <Bot className="w-5 h-5 text-indigo-500 mt-0.5 flex-shrink-0" />
+                    <span><strong>AI Agent Models:</strong> Configure individual AI models for specialized agents with advanced filtering</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Agent Model Configuration */}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center">
+                <Bot className="w-5 h-5 mr-3 text-indigo-500" />
+                AI Agent Model Configuration
+              </h2>
+              <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl p-6">
+                <h3 className="font-semibold text-indigo-900 dark:text-indigo-100 mb-4">Multi-Agent AI System</h3>
+                <p className="text-sm text-indigo-800 dark:text-indigo-200 mb-6">
+                  ServiceNow Helper uses specialized AI agents, each optimized for different tasks. You can configure individual AI models for each agent to maximize performance and accuracy.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="p-3 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
+                    <h4 className="font-medium text-indigo-900 dark:text-indigo-100 text-sm mb-1">Orchestration Agent</h4>
+                    <p className="text-xs text-indigo-800 dark:text-indigo-200">Coordinates overall response and routing between different specialized agents</p>
+                  </div>
+                  <div className="p-3 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
+                    <h4 className="font-medium text-indigo-900 dark:text-indigo-100 text-sm mb-1">Business Rule Agent</h4>
+                    <p className="text-xs text-indigo-800 dark:text-indigo-200">Specialized for ServiceNow business logic and rule configuration</p>
+                  </div>
+                  <div className="p-3 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
+                    <h4 className="font-medium text-indigo-900 dark:text-indigo-100 text-sm mb-1">Client Script Agent</h4>
+                    <p className="text-xs text-indigo-800 dark:text-indigo-200">Optimized for client-side scripting and UI component development</p>
+                  </div>
+                  <div className="p-3 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
+                    <h4 className="font-medium text-indigo-900 dark:text-indigo-100 text-sm mb-1">Script Include Agent</h4>
+                    <p className="text-xs text-indigo-800 dark:text-indigo-200">Specializes in reusable server-side JavaScript libraries</p>
+                  </div>
+                </div>
+
+                <h3 className="font-semibold text-indigo-900 dark:text-indigo-100 mb-4 flex items-center">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Advanced Model Filtering & Sorting
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Access Agent Configuration</h4>
+                      <p className="text-sm text-indigo-800 dark:text-indigo-200">
+                        Navigate to Settings → AI Agent Models section to see all available agents and their current model assignments.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Use Advanced Filtering</h4>
+                      <p className="text-sm text-indigo-800 dark:text-indigo-200">
+                        Click the <strong>Filter button (funnel icon)</strong> next to the + button to open the advanced filtering modal with options to filter by model type and sort preferences.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">3</div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Configure Filter Options</h4>
+                      <p className="text-sm text-indigo-800 dark:text-indigo-200">
+                        Choose which model types to include: <strong>Free Models</strong>, <strong>Paid Models</strong>, and <strong>Multimodal Models</strong>. Filters use OR logic - selecting multiple filters expands results to show models matching any criteria. Select your preferred sorting: <strong>Alphabetical (A-Z)</strong> or <strong>Date Added (Oldest First)</strong>.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">4</div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-medium text-indigo-900 dark:text-indigo-100">Apply Filters and Select Models</h4>
+                      <p className="text-sm text-indigo-800 dark:text-indigo-200">
+                        Click "Apply" to filter the model list. Expand any agent card to see the filtered and sorted models, then select the optimal model for each agent's specialized tasks.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
+                  <h4 className="font-medium text-indigo-900 dark:text-indigo-100 mb-2 flex items-center">
+                    <Filter className="w-4 h-4 mr-2" />
+                    Filtering Features
+                  </h4>
+                  <div className="space-y-3 text-sm text-indigo-800 dark:text-indigo-200">
+                    <div>
+                      <span className="font-medium">Inclusive OR Logic:</span> Filters expand results rather than restrict them
+                    </div>
+                    <div>
+                      <span className="font-medium">Free Models:</span> Shows all free models (including multimodal free models)
+                    </div>
+                    <div>
+                      <span className="font-medium">Paid Models:</span> Shows all paid models (including multimodal paid models)
+                    </div>
+                    <div>
+                      <span className="font-medium">Multimodal Models:</span> Shows all multimodal models (both free and paid)
+                    </div>
+                    <div>
+                      <span className="font-medium">Multiple Selections:</span> Selecting multiple filters shows models matching any criteria
+                    </div>
+                    <div>
+                      <span className="font-medium">Intelligent Sorting:</span> Alphabetical or by date added for easy discovery
+                    </div>
+                    <div>
+                      <span className="font-medium">Active Filter Badge:</span> Visual indicator shows number of active filters
+                    </div>
+                    <div>
+                      <span className="font-medium">Mobile Optimized:</span> Larger icons and touch-friendly interface
+                    </div>
+                    <div>
+                      <span className="font-medium">Reset Filters:</span> Quick reset to default settings
+                    </div>
+                    <div>
+                      <span className="font-medium">Accessibility:</span> Full keyboard navigation and screen reader support
+                    </div>
                   </div>
                 </div>
               </div>

@@ -45,7 +45,7 @@ Enjoy a responsive design built with TailwindCSS, progressive web app support fo
 | **Real-time Streaming** | Live AI response streaming with performance optimizations | n8n Workflow Engine + SSE |
 | **Session Management** | Unique keys & continuation | PostgreSQL Backend |
 | **Search Enhancement** | ServiceNow KB integration | API Connections |
-| **Agent Model Configuration** | Individual model selection per AI agent | Persistent Agent Settings |
+| **Agent Model Configuration** | Individual model selection per AI agent with advanced filtering & sorting | Persistent Agent Settings + Filter System |
 | **Knowledge Store Management** | Comprehensive Q&A management interface | React Components + PostgreSQL |
 | **Script Deployment** | Send generated scripts directly to ServiceNow | N8N Client + ServiceNow API |
 | **Performance Monitoring** | Core Web Vitals & streaming analytics | Performance Monitor + Bundle Analysis |
@@ -257,7 +257,7 @@ Access the settings via the hamburger menu to personalize your experience:
 | **Welcome Section** | Toggle info box visibility | Show/Hide |
 | **Default Search Mode** | Set preferred search behavior | On/Off |
 | **Default Request Type** | Choose default category | Documentation, Recommendation, Script, Troubleshoot |
-| **Agent Model Configuration** | Configure AI models for specialized agents | Individual model selection per agent |
+| **Agent Model Configuration** | Configure AI models for specialized agents with advanced filtering | Individual model selection per agent + Filter & Sort |
 
 #### **Multi-Agent AI Configuration**
 
@@ -273,8 +273,23 @@ Configure different AI models for specialized agents to optimize performance:
 **How to configure agent models:**
 1. Navigate to **Settings** via the hamburger menu
 2. Expand individual agent cards to view configuration options
-3. Select the optimal AI model for each agent's specialized tasks
-4. Models are automatically saved and persisted across sessions
+3. Use the **Filter** button (funnel icon) to filter and sort available models:
+   - **Filter by Type**: Include Free, Paid, and/or Multimodal models (OR logic - selecting multiple filters expands results)
+   - **Sort Options**: Alphabetical (A-Z) or Date Added (Oldest First)
+   - **Active Filter Indicator**: Badge shows number of active filters
+4. Select the optimal AI model for each agent's specialized tasks
+5. Models are automatically saved and persisted across sessions
+
+**Advanced Filtering Features:**
+- **Inclusive Filtering**: Filter models by cost (free/paid) and capabilities (multimodal) using OR logic
+  - **Free Models**: Shows all free models (including multimodal free models)
+  - **Paid Models**: Shows all paid models (including multimodal paid models)
+  - **Multimodal Models**: Shows all multimodal models (both free and paid)
+  - **Multiple Selections**: Selecting multiple filters expands results to include models matching any criteria
+- **Intelligent Sorting**: Sort alphabetically or by date added for easy discovery
+- **Visual Indicators**: Clear badges show model types and active filters
+- **Mobile Optimized**: Larger icons and touch-friendly interface on mobile devices
+- **Accessibility**: Full keyboard navigation and screen reader support
 
 ### **Asking Questions**
 
