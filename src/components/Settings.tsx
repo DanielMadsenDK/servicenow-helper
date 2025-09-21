@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Image, Headphones, Bot, Zap, Server, Monitor } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Image, Headphones, Bot, Zap, Server, Monitor, Filter } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { useSettings } from '@/contexts/SettingsContext';
@@ -11,6 +11,7 @@ import { useAgentModels } from '@/contexts/AgentModelContext';
 import BurgerMenu from './BurgerMenu';
 import ThemeToggle from './ThemeToggle';
 import AIModelModal from './AIModelModal';
+import FilterModal, { type FilterSettings, type FilterOptions, type SortOption } from './FilterModal';
 
 export default function Settings() {
   const router = useRouter();
@@ -21,7 +22,19 @@ export default function Settings() {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [urlInputValue, setUrlInputValue] = useState('');
   const [showModelModal, setShowModelModal] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
   const [expandedAgents, setExpandedAgents] = useState<Record<string, boolean>>({});
+  const [filterSettings, setFilterSettings] = useState<FilterSettings>({
+    filters: {
+      showFree: true,
+      showPaid: true,
+      showMultimodal: true
+    },
+    sort: {
+      type: 'alphabetical',
+      label: 'Alphabetical (A-Z)'
+    }
+  });
 
   // Initialize URL input value with current setting
   useEffect(() => {
@@ -37,6 +50,49 @@ export default function Settings() {
     });
     setExpandedAgents(initialExpanded);
   }, [getDefaultAgents]);
+
+  // Filter and sort models based on current settings
+  const filteredAndSortedModels = useMemo(() => {
+    let filteredModels = models.filter(model => {
+      const isMultimodal = model.capabilities && model.capabilities.length > 0;
+      const { showFree, showPaid, showMultimodal } = filterSettings.filters;
+
+      // If no filters are active, show all models
+      if (!showFree && !showPaid && !showMultimodal) {
+        return true;
+      }
+
+      // Check if model matches any of the selected filter criteria (OR logic)
+      const matchesFreeFilter = showFree && model.is_free;
+      const matchesPaidFilter = showPaid && !model.is_free;
+      const matchesMultimodalFilter = showMultimodal && isMultimodal;
+
+      // Model should be shown if it matches at least one active filter
+      return matchesFreeFilter || matchesPaidFilter || matchesMultimodalFilter;
+    });
+
+    // Apply sorting
+    if (filterSettings.sort.type === 'alphabetical') {
+      filteredModels.sort((a, b) => {
+        const nameA = (a.display_name || a.model_name).toLowerCase();
+        const nameB = (b.display_name || b.model_name).toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+    } else if (filterSettings.sort.type === 'dateAdded') {
+      filteredModels.sort((a, b) => a.id - b.id);
+    }
+
+    return filteredModels;
+  }, [models, filterSettings]);
+
+  const handleFilterApply = (newSettings: FilterSettings) => {
+    setFilterSettings(newSettings);
+  };
+
+  const hasActiveFilters = () => {
+    const { filters } = filterSettings;
+    return !filters.showFree || !filters.showPaid || !filters.showMultimodal;
+  };
 
   const handleToggle = async (key: keyof typeof settings, value: boolean) => {
     setSaving(key);
@@ -430,14 +486,33 @@ export default function Settings() {
                       <label className="text-gray-900 dark:text-gray-100 font-medium">Agent Model Configuration</label>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Configure AI models for each specialized agent</p>
                     </div>
-                    <button
-                      onClick={() => setShowModelModal(true)}
-                      disabled={!isAuthenticated}
-                      className="p-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Add new AI model"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setShowFilterModal(true)}
+                        disabled={!isAuthenticated}
+                        className={`relative p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                          hasActiveFilters()
+                            ? 'text-blue-600 dark:text-blue-400'
+                            : 'text-gray-600 hover:text-blue-700 dark:text-gray-400 dark:hover:text-blue-300'
+                        }`}
+                        title="Filter and sort models"
+                      >
+                        <Filter className="w-5 h-5" />
+                        {hasActiveFilters() && (
+                          <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                            {Object.values(filterSettings.filters).filter(v => !v).length}
+                          </span>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => setShowModelModal(true)}
+                        disabled={!isAuthenticated}
+                        className="p-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Add new AI model"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="space-y-3">
@@ -456,13 +531,21 @@ export default function Settings() {
                           <button
                             onClick={() => toggleAgentExpanded(agent.name)}
                             disabled={agentModelsLoading || !isAuthenticated}
-                            className="w-full px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
+                            aria-expanded={isExpanded}
+                            aria-controls={`agent-models-${agent.name}`}
+                            aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${agent.displayName} model options`}
+                            className="group w-full px-4 py-3 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
                           >
                             <div className="flex items-center space-x-3">
-                              <AgentIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                              <AgentIcon className="w-5 h-5 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors" />
                               <div className="text-left">
-                                <div className="font-medium text-gray-900 dark:text-gray-100">{agent.displayName}</div>
-                                <div className="text-sm text-gray-600 dark:text-gray-400">{agent.description}</div>
+                                <div
+                                  id={`agent-${agent.name}-heading`}
+                                  className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-800 dark:group-hover:text-blue-200 transition-colors"
+                                >
+                                  {agent.displayName}
+                                </div>
+                                <div className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">{agent.description}</div>
                               </div>
                             </div>
                             <div className="flex items-center space-x-2">
@@ -473,55 +556,82 @@ export default function Settings() {
                                   {selectedModel && (
                                     <div className="flex items-center space-x-1">
                                       {selectedModel.is_free ? (
-                                        <Gift className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                        <Gift className="w-4 h-4 sm:w-3 sm:h-3 text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300 transition-colors" />
                                       ) : (
-                                        <DollarSign className="w-3 h-3 text-yellow-600 dark:text-yellow-400" />
+                                        <DollarSign className="w-4 h-4 sm:w-3 sm:h-3 text-yellow-600 dark:text-yellow-400 group-hover:text-yellow-700 dark:group-hover:text-yellow-300 transition-colors" />
                                       )}
-                                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                                      <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
                                         {selectedModel.display_name || selectedModel.model_name}
                                       </span>
                                     </div>
                                   )}
-                                  <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                  <ChevronDown className={`w-4 h-4 text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all ${isExpanded ? 'rotate-180' : ''}`} />
                                 </>
                               )}
                             </div>
                           </button>
 
                           {isExpanded && (
-                            <div className="px-4 pb-4 bg-gray-50 dark:bg-gray-700/50">
-                              <div className="space-y-2">
-                                {models.map((model) => (
+                            <div
+                              id={`agent-models-${agent.name}`}
+                              className="px-4 pt-3 pb-4 bg-gray-50 dark:bg-gray-700/50"
+                              role="group"
+                              aria-labelledby={`agent-${agent.name}-heading`}
+                            >
+                              <div className="space-y-3">
+                                {filteredAndSortedModels.map((model) => (
                                   <button
                                     key={model.id}
                                     onClick={() => handleAgentModelChange(agent.name, model.model_name)}
                                     disabled={isSaving || !isAuthenticated}
-                                    className={`w-full px-3 py-2 rounded-lg text-left flex items-center justify-between transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                                    aria-label={`Select ${model.display_name || model.model_name} for ${agent.displayName}. ${model.is_free ? 'Free model' : 'Paid model'}${model.capabilities && model.capabilities.length > 0 ? ', multimodal capabilities' : ''}`}
+                                    aria-pressed={currentModel === model.model_name}
+                                    className={`group w-full px-4 py-3 rounded-lg text-left flex items-center justify-between transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
                                       currentModel === model.model_name
-                                        ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700'
-                                        : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-750'
+                                        ? 'bg-blue-100 dark:bg-blue-800/50 border-2 border-blue-300 dark:border-blue-600 shadow-sm'
+                                        : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-200 dark:hover:border-blue-700'
                                     }`}
                                   >
                                     <div className="flex items-center space-x-2">
                                       {model.is_free ? (
-                                        <Gift className="w-4 h-4 text-green-600 dark:text-green-400" />
+                                        <Gift className={`w-5 h-5 sm:w-4 sm:h-4 transition-colors ${
+                                          currentModel === model.model_name
+                                            ? 'text-green-800 dark:text-green-200'
+                                            : 'text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300'
+                                        }`} />
                                       ) : (
-                                        <DollarSign className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                                        <DollarSign className={`w-5 h-5 sm:w-4 sm:h-4 transition-colors ${
+                                          currentModel === model.model_name
+                                            ? 'text-yellow-800 dark:text-yellow-200'
+                                            : 'text-yellow-600 dark:text-yellow-400 group-hover:text-yellow-700 dark:group-hover:text-yellow-300'
+                                        }`} />
                                       )}
                                       <div className="flex items-center space-x-2 min-w-0">
-                                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                                        <span className={`text-sm font-medium truncate transition-colors ${
+                                          currentModel === model.model_name
+                                            ? 'text-blue-950 dark:text-blue-50'
+                                            : 'text-gray-900 dark:text-gray-100 group-hover:text-blue-800 dark:group-hover:text-blue-200'
+                                        }`}>
                                           {model.display_name || model.model_name}
                                         </span>
                                         {isModelMultimodal(model) && (
                                           <div className="flex items-center space-x-1">
-                                            <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">MultiModal</span>
+                                            <span className={`text-xs font-medium transition-colors ${
+                                              currentModel === model.model_name
+                                                ? 'text-blue-800 dark:text-blue-200'
+                                                : 'text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300'
+                                            }`}>MultiModal</span>
                                             <div className="flex space-x-1">
                                               {model.capabilities?.map((cap) => {
                                                 const IconComponent = getCapabilityIcon(cap.name);
                                                 return (
-                                                  <IconComponent 
-                                                    key={cap.id} 
-                                                    className="w-3 h-3 text-blue-600 dark:text-blue-400" 
+                                                  <IconComponent
+                                                    key={cap.id}
+                                                    className={`w-4 h-4 sm:w-3 sm:h-3 transition-colors ${
+                                                      currentModel === model.model_name
+                                                        ? 'text-blue-800 dark:text-blue-200'
+                                                        : 'text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300'
+                                                    }`}
                                                   />
                                                 );
                                               })}
@@ -531,13 +641,16 @@ export default function Settings() {
                                       </div>
                                     </div>
                                     {currentModel === model.model_name && (
-                                      <Check className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                      <Check className="w-5 h-5 sm:w-4 sm:h-4 text-blue-800 dark:text-blue-200" />
                                     )}
                                   </button>
                                 ))}
-                                {models.length === 0 && (
+                                {filteredAndSortedModels.length === 0 && (
                                   <div className="px-3 py-2 text-gray-500 dark:text-gray-400 text-sm text-center">
-                                    No AI models available. Add one using the + button above.
+                                    {models.length === 0
+                                      ? "No AI models available. Add one using the + button above."
+                                      : "No models match the current filters. Try adjusting your filter settings."
+                                    }
                                   </div>
                                 )}
                               </div>
@@ -559,7 +672,7 @@ export default function Settings() {
                     </div>
                     <div className="flex items-center space-x-1">
                       <Bot className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                      <span>Specialized Agent</span>
+                      <span>Multimodal Model</span>
                     </div>
                   </div>
                 </div>
@@ -574,6 +687,14 @@ export default function Settings() {
         isOpen={showModelModal}
         onClose={() => setShowModelModal(false)}
         onSuccess={handleModelModalSuccess}
+      />
+
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        onApply={handleFilterApply}
+        currentSettings={filterSettings}
       />
     </div>
   );
