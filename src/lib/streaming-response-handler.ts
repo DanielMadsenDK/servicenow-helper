@@ -3,7 +3,7 @@ import { N8NStreamingClient } from '@/lib/n8n-streaming-client';
 import { StreamingRequest } from '@/types';
 
 export class StreamingResponseHandler {
-  public static createStreamingResponse(body: StreamingRequest): ReadableStream {
+  public static createStreamingResponse(body: StreamingRequest, providerId?: number): ReadableStream {
     return new ReadableStream({
       async start(controller) {
         let completionSent = false;
@@ -24,7 +24,7 @@ export class StreamingResponseHandler {
         try {
           sendEvent('connecting', '');
 
-          const streamData = await N8NStreamingClient.createStreamingConnection(body);
+          const streamData = await N8NStreamingClient.createStreamingConnection(body, providerId);
 
           for await (const n8nChunk of parseStream<N8nChunk>(streamData)) {
             // Validate chunk structure

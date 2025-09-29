@@ -5,13 +5,14 @@ import { StreamingRequest } from '@/types';
 import { getServerAuthState } from '@/lib/server-auth';
 import { validateRequest } from '@/lib/request-validation';
 import { StreamingResponseHandler } from '@/lib/streaming-response-handler';
+import { UserSettingsManager } from '@/lib/database';
 
 
 
 export async function POST(request: NextRequest) {
   try {
-    const { isAuthenticated } = await getServerAuthState();
-    if (!isAuthenticated) {
+    const authResult = await getServerAuthState();
+    if (!authResult.isAuthenticated || !authResult.user) {
       return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     }
 
@@ -22,7 +23,23 @@ export async function POST(request: NextRequest) {
         return new Response(JSON.stringify({ success: false, error: validationError }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
-    const stream = StreamingResponseHandler.createStreamingResponse(body);
+    // Get user's selected provider
+    let selectedProviderId: number | undefined;
+    try {
+      const settingsManager = new UserSettingsManager();
+      const providerIdSetting = await settingsManager.getSetting(authResult.user.username, 'selected_provider_id');
+
+      if (providerIdSetting && typeof providerIdSetting === 'number') {
+        selectedProviderId = providerIdSetting;
+        console.log(`Using selected provider ID: ${selectedProviderId} for user: ${authResult.user.username}`);
+      } else {
+        console.log(`No provider selected for user: ${authResult.user.username}, using default`);
+      }
+    } catch (error) {
+      console.warn('Failed to get selected provider ID, using default:', error);
+    }
+
+    const stream = StreamingResponseHandler.createStreamingResponse(body, selectedProviderId);
 
     return new Response(stream, {
       headers: StreamingResponseHandler.getStreamingHeaders(),

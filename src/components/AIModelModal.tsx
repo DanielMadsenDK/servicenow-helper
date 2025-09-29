@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, Save, AlertCircle, DollarSign, Gift, FileText, Image, Headphones } from 'lucide-react';
 
 import { useAIModels } from '@/contexts/AIModelContext';
+import { useProviders } from '@/contexts/ProviderContext';
 import type { Capability } from '@/types/index';
 
 interface AIModelModalProps {
@@ -14,6 +15,7 @@ interface AIModelModalProps {
 
 export default function AIModelModal({ isOpen, onClose, onSuccess }: AIModelModalProps) {
   const { addModel } = useAIModels();
+  const { selectedProvider, providers } = useProviders();
   const [modelName, setModelName] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [isFree, setIsFree] = useState(false);
@@ -108,11 +110,19 @@ export default function AIModelModal({ isOpen, onClose, onSuccess }: AIModelModa
     setError(null);
 
     try {
+      // Use selected provider or default to first available provider
+      const providerId = selectedProvider?.id || providers[0]?.id;
+
+      if (!providerId) {
+        throw new Error('No provider available. Please configure a provider first.');
+      }
+
       await addModel({
         model_name: modelName.trim(),
         display_name: displayName.trim() || undefined,
         is_free: isFree,
         is_default: false,
+        provider_id: providerId,
         capability_ids: selectedCapabilities
       });
       
