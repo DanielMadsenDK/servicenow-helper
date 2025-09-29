@@ -455,8 +455,8 @@ export class ProviderManager {
    */
   async validateProvider(provider: Provider): Promise<boolean> {
     try {
-      // Basic URL validation
-      if (!provider.endpoint || !provider.endpoint.startsWith('http')) {
+      // Basic endpoint validation (not empty)
+      if (!provider.endpoint || provider.endpoint.trim() === '') {
         return false;
       }
 

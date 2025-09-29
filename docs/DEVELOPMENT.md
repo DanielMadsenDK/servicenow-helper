@@ -27,8 +27,8 @@ The application follows a containerized, multi-service architecture orchestrated
 
 ### Core Components
 - **Next.js 15.5.2 Frontend**: A web application for user interaction, authentication, and displaying results.
-- **n8n Workflow Engine**: Handles the backend AI processing with **multi-agent architecture**, integrating with OpenRouter to provide access to multiple AI models for specialized agents.
-- **PostgreSQL Database**: Provides data storage for n8n and session storage for the Next.js app.
+- **n8n Workflow Engine**: Handles the backend AI processing with **multi-agent architecture**, integrating with multiple AI providers (OpenRouter, Hugging Face) to provide access to diverse AI models for specialized agents.
+- **PostgreSQL Database**: Provides data storage for n8n, session storage for the Next.js app, and provider management configurations.
 
 ### Authentication System
 - JWT-based authentication using httpOnly cookies.
@@ -45,9 +45,11 @@ The application follows a containerized, multi-service architecture orchestrated
 
 ### Settings System
 - **User Settings Management**: Persistent user preferences stored in PostgreSQL database
-- **Agent Model Configuration**: Individual AI model selection per specialized agent
+- **Multi-Provider Configuration**: Support for multiple AI providers with individual configurations
+- **Agent Model Configuration**: Individual AI model selection per specialized agent from multiple providers
 - **Settings Context**: React context providing settings state management and API integration
 - **AgentModelContext**: Dedicated React context for multi-agent model state management
+- **ProviderContext**: React context for provider state management and selection
 - **Authentication-Aware**: Settings are user-specific and require authentication to save
 - **Real-time Sync**: Settings changes immediately reflect across the application
 - **Default Fallbacks**: Works gracefully when unauthenticated with sensible defaults

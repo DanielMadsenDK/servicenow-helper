@@ -47,7 +47,7 @@ export class N8NStreamingClient {
         throw new Error(`Provider ${provider.display_name} is not active`);
       }
 
-      if (!provider.endpoint) {
+      if (!provider.endpoint || provider.endpoint.trim() === '') {
         throw new Error(`Provider ${provider.display_name} has no endpoint configured`);
       }
 

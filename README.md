@@ -6,7 +6,7 @@
 
 **AI-Powered ServiceNow Assistance Tool**
 
-*Built with Next.js 15.5.2 • AI-Powered by OpenRouter • Security-First Design*
+*Built with Next.js 15.5.2 • Multi-Provider AI Architecture • Security-First Design*
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
@@ -15,14 +15,14 @@
 
 ---
 
-*An intelligent ServiceNow assistance tool featuring **multi-agent AI architecture** that provides real-time streaming AI responses through an intuitive web interface and n8n workflow automation. Configure specialized agents with individual AI models for optimized performance.*
+*An intelligent ServiceNow assistance tool featuring **multi-agent AI architecture** with **multiple AI provider support** that provides real-time streaming AI responses through an intuitive web interface and n8n workflow automation. Configure specialized agents with individual AI models from multiple providers (OpenRouter, Hugging Face) for optimized performance and cost flexibility.*
 
 </div>
 
 ## Features
 
 ### **AI-Powered Intelligence**
-Leverage cutting-edge artificial intelligence with **multi-agent AI architecture** and access to multiple text-based AI models through OpenRouter integration. Configure specialized AI agents for different tasks (Orchestration, Business Rules, Client Scripts), get smart ServiceNow question categorization, real-time streaming response generation, and context-aware assistance that understands your specific needs.
+Leverage cutting-edge artificial intelligence with **multi-agent AI architecture** and **multiple AI provider support**. Access diverse AI models through OpenRouter, Hugging Face, and extensible provider system. Configure specialized AI agents for different tasks (Orchestration, Business Rules, Client Scripts), get smart ServiceNow question categorization, real-time streaming response generation, and context-aware assistance with cost optimization through provider selection.
 
 ### **Robust Security**
 Built with security-first principles featuring server-side JWT authentication, Next.js middleware security layers, and comprehensive security headers to protect your data and sessions.
@@ -40,12 +40,12 @@ Enjoy a responsive design built with TailwindCSS, progressive web app support fo
 
 | Feature | Description | Technology |
 |---------|-------------|------------|
-| **Multi-Agent AI Architecture** | Specialized agents with configurable models | Agent-Specific Model Selection |
+| **Multi-Provider AI Architecture** | Multiple AI providers with specialized agent configuration | OpenRouter + Hugging Face + Extensible |
 | **Question Types** | Documentation, Scripts, Troubleshooting | Intelligent Categorization |
 | **Real-time Streaming** | Live AI response streaming with performance optimizations | n8n Workflow Engine + SSE |
 | **Session Management** | Unique keys & continuation | PostgreSQL Backend |
 | **Search Enhancement** | ServiceNow KB integration | API Connections |
-| **Agent Model Configuration** | Individual model selection per AI agent with advanced filtering & sorting | Persistent Agent Settings + Filter System |
+| **Provider & Model Management** | Individual model selection per AI agent across multiple providers | Multi-Provider Support + Advanced Filtering |
 | **Knowledge Store Management** | Comprehensive Q&A management interface | React Components + PostgreSQL |
 | **Script Deployment** | Send generated scripts directly to ServiceNow | N8N Client + ServiceNow API |
 | **Performance Monitoring** | Core Web Vitals & streaming analytics | Performance Monitor + Bundle Analysis |
@@ -81,11 +81,14 @@ graph TB
         H --> K[PostgreSQL]
     end
     
-    subgraph "Multi-Agent AI Layer"
-        L[OpenRouter] --> M[Orchestration Agent]
-        L --> N[Business Rule Agent]
-        L --> O[Client Script Agent]
-        L --> SI[Script Include Agent]
+    subgraph "Multi-Provider AI Layer"
+        L[Provider Manager] --> OR[OpenRouter]
+        L --> HF[Hugging Face]
+        L --> EX[Extensible Providers]
+        OR --> M[Orchestration Agent]
+        HF --> N[Business Rule Agent]
+        OR --> O[Client Script Agent]
+        HF --> SI[Script Include Agent]
         M --> P[Claude/GPT/Gemini]
         N --> Q[Claude/GPT/Gemini]
         O --> R[Claude/GPT/Gemini]
@@ -188,6 +191,7 @@ cp .env.example .env
 ```env
 OPENAI_API_KEY=your_openai_api_key
 OPENROUTER_API_KEY=your_openrouter_api_key
+HUGGINGFACE_API_KEY=your_huggingface_api_key
 WEBHOOK_API_KEY=secure_random_string
 JWT_SECRET=secure_jwt_secret
 N8N_ENCRYPTION_KEY=secure_n8n_key
@@ -233,7 +237,7 @@ docker compose up -d
 ![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square&logo=pwa)
 
 ### AI & Security
-![OpenRouter](https://img.shields.io/badge/OpenRouter-Multi--Model-FF4B4B?style=flat-square)
+![Multi-Provider](https://img.shields.io/badge/Multi--Provider-OpenRouter%20%2B%20HuggingFace-FF4B4B?style=flat-square)
 ![JWT](https://img.shields.io/badge/JWT-Authentication-000000?style=flat-square&logo=jsonwebtokens)
 ![Axios](https://img.shields.io/badge/Axios-1.11.0-5A29E4?style=flat-square&logo=axios)
 ![pgvector](https://img.shields.io/badge/pgvector-0.8.0-4169E1?style=flat-square)
@@ -257,18 +261,34 @@ Access the settings via the hamburger menu to personalize your experience:
 | **Welcome Section** | Toggle info box visibility | Show/Hide |
 | **Default Search Mode** | Set preferred search behavior | On/Off |
 | **Default Request Type** | Choose default category | Documentation, Recommendation, Script, Troubleshoot |
-| **Agent Model Configuration** | Configure AI models for specialized agents with advanced filtering | Individual model selection per agent + Filter & Sort |
+| **Multi-Provider Configuration** | Configure AI providers and models for specialized agents | Provider selection + Model assignment per agent |
+
+#### **Multi-Provider AI Architecture**
+
+The ServiceNow Helper supports multiple AI providers for cost optimization and model diversity:
+
+| Provider | Purpose | Supported Models | Cost |
+|----------|---------|------------------|------|
+| **OpenRouter** | Primary provider with extensive model catalog | Claude, GPT, Gemini, Llama, and 200+ models | Varies by model |
+| **Hugging Face** | Open-source and cost-effective models | Open-source models, custom fine-tuned models | Free and paid tiers |
+| **Extensible System** | Add custom providers via database configuration | Any API-compatible provider | Configurable |
+
+**Provider Configuration:**
+1. **Database Setup**: Providers are configured in the `providers` table with endpoint URLs
+2. **API Key Management**: Environment variables follow pattern `{PROVIDER_NAME}_API_KEY`
+3. **Model Assignment**: Each AI agent can use models from different providers
+4. **Cost Optimization**: Mix free and paid models based on task complexity
 
 #### **Multi-Agent AI Configuration**
 
-Configure different AI models for specialized agents to optimize performance:
+Configure different AI models from multiple providers for specialized agents to optimize performance:
 
-| Agent | Purpose | Configurable Models |
-|-------|---------|--------------------|
-| **Orchestration Agent** | Coordinates overall response and routing | Claude, GPT, Gemini, and more |
-| **Business Rule Agent** | Specialized for ServiceNow business logic | Claude, GPT, Gemini, and more |
-| **Client Script Agent** | Optimized for client-side scripting | Claude, GPT, Gemini, and more |
-| **Script Include Agent** | Specializes in reusable server-side JavaScript libraries | Claude, GPT, Gemini, and more |
+| Agent | Purpose | Configurable Models | Provider Options |
+|-------|---------|--------------------|--------------------|
+| **Orchestration Agent** | Coordinates overall response and routing | Claude, GPT, Gemini, and more | OpenRouter, Hugging Face |
+| **Business Rule Agent** | Specialized for ServiceNow business logic | Claude, GPT, Gemini, and more | OpenRouter, Hugging Face |
+| **Client Script Agent** | Optimized for client-side scripting | Claude, GPT, Gemini, and more | OpenRouter, Hugging Face |
+| **Script Include Agent** | Specializes in reusable server-side JavaScript libraries | Claude, GPT, Gemini, and more | OpenRouter, Hugging Face |
 
 **How to configure agent models:**
 1. Navigate to **Settings** via the hamburger menu
@@ -386,6 +406,39 @@ Efficiently manage your curated Q&A Knowledge Store with comprehensive managemen
 
 ## Database Configuration
 
+### **Multi-Provider Setup**
+
+The application includes comprehensive database setup for multiple AI providers:
+
+```bash
+# Run provider table creation and seeding
+docker exec -i servicenow-helper-postgres-1 psql -U n8n -d n8n < scripts/create-providers-table.sql
+docker exec -i servicenow-helper-postgres-1 psql -U n8n -d n8n < scripts/seed-providers.sql
+
+# Automatic setup (included in first-time setup)
+docker compose --profile setup up -d
+```
+
+### **Provider Database Schema**
+
+The `providers` table manages AI provider configurations:
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | SERIAL | Primary key |
+| `name` | VARCHAR(100) | Provider identifier (openrouter, huggingface) |
+| `display_name` | VARCHAR(200) | Human-readable name |
+| `endpoint` | TEXT | N8N webhook endpoint for provider |
+| `is_active` | BOOLEAN | Provider availability status |
+| `priority` | INTEGER | Display/selection priority |
+| `rate_limit_per_minute` | INTEGER | Rate limiting (optional) |
+| `created_at` | TIMESTAMP | Record creation time |
+| `updated_at` | TIMESTAMP | Last modification time |
+
+**Default Providers:**
+- **OpenRouter** (Priority 100): Comprehensive model catalog with 200+ models
+- **Hugging Face** (Priority 90): Open-source and cost-effective models
+
 ### **Agent Models Migration**
 
 The application includes a comprehensive database migration system for agent model configuration:
@@ -466,11 +519,16 @@ servicenow-helper/
 ├── n8n/                                 # Workflow templates
 ├── public/                              # Static assets & PWA
 ├── scripts/                             # Utility scripts
+│   ├── create-providers-table.sql      # Provider table schema creation
+│   ├── seed-providers.sql              # Provider data seeding (OpenRouter, Hugging Face)
 │   └── migrate-to-agent-models.sql     # Agent models database migration
 ├── src/                                 # Application source
 │   ├── app/                             # Next.js App Router
 │   │   ├── api/agent-models/           # Agent model configuration API
+│   │   ├── api/ai-models/              # AI model management API
+│   │   ├── api/capabilities/           # AI model capabilities API
 │   │   ├── api/knowledge-store/        # Knowledge store management API
+│   │   ├── api/providers/              # Provider management API
 │   │   ├── api/send-script/            # Script deployment API
 │   │   ├── api/settings/               # Settings API
 │   │   ├── api/submit-question-stream/ # Streaming API
@@ -486,9 +544,13 @@ servicenow-helper/
 │   │   └── SearchInterface.tsx            # Main interface (streaming)
 │   ├── contexts/                        # React contexts
 │   │   ├── AgentModelContext.tsx          # Agent model state management
+│   │   ├── AIModelContext.tsx             # AI model state management
+│   │   ├── ProviderContext.tsx            # Provider state management
 │   │   └── SettingsContext.tsx            # Settings state
 │   ├── lib/                             # Utilities
+│   │   ├── ai-models.ts                    # AI model utilities and management
 │   │   ├── n8n-client.ts                  # N8N client with knowledge store methods
+│   │   ├── providers.ts                   # Provider management utilities
 │   │   ├── streaming-client.ts            # Streaming client
 │   │   └── database.ts                    # Database layer (with AgentModelManager)
 │   └── types/                           # TypeScript definitions (with knowledge store types)

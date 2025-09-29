@@ -101,19 +101,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<ProviderA
       );
     }
 
-    if (!providerInput.endpoint || typeof providerInput.endpoint !== 'string') {
+    if (!providerInput.endpoint || typeof providerInput.endpoint !== 'string' || providerInput.endpoint.trim() === '') {
       return NextResponse.json(
-        { success: false, error: 'Endpoint is required and must be a string' },
-        { status: 400 }
-      );
-    }
-
-    // Basic URL validation
-    try {
-      new URL(providerInput.endpoint);
-    } catch {
-      return NextResponse.json(
-        { success: false, error: 'Invalid endpoint format' },
+        { success: false, error: 'Endpoint is required and must be a non-empty string' },
         { status: 400 }
       );
     }

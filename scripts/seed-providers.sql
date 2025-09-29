@@ -58,7 +58,7 @@ BEGIN
 
     RAISE NOTICE 'Seeded % providers successfully', inserted_count;
     RAISE NOTICE 'Providers added: OpenRouter (priority 100), Hugging Face (priority 90)';
-    RAISE NOTICE 'Note: endpoint fields are left empty for manual configuration';
+    RAISE NOTICE 'Note: endpoint fields are seeded with default N8N webhook GUIDs';
     RAISE NOTICE 'API keys are read from environment variables: OPENROUTER_API_KEY, HUGGINGFACE_API_KEY';
 
     RETURN inserted_count;
@@ -86,11 +86,11 @@ BEGIN
         RAISE NOTICE 'Summary: % providers added to the database', result;
         RAISE NOTICE '';
         RAISE NOTICE 'NEXT STEPS:';
-        RAISE NOTICE '1. Configure endpoints for each provider in the database';
-        RAISE NOTICE '2. Set up environment variables for API keys:';
+        RAISE NOTICE '1. Set up environment variables for API keys:';
         RAISE NOTICE '   - OPENROUTER_API_KEY=your_openrouter_key';
         RAISE NOTICE '   - HUGGINGFACE_API_KEY=your_huggingface_key';
-        RAISE NOTICE '3. Update endpoints to point to your N8N webhook endpoints';
+        RAISE NOTICE '2. Import the corresponding N8N workflows with matching webhook GUIDs';
+        RAISE NOTICE '3. Update endpoints if using custom N8N webhook endpoints';
         RAISE NOTICE 'Note: API keys follow the pattern {PROVIDER_NAME}_API_KEY';
     ELSE
         RAISE NOTICE 'No new providers were seeded (table already contains data)';

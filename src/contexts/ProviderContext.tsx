@@ -65,7 +65,7 @@ export function ProviderProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load providers';
       setError(errorMessage);
-      console.error('Failed to fetch providers:', err);
+      console.error('Failed to fetch providers:', errorMessage);
       setProviders([]);
       setSelectedProviderState(null);
       localStorage.removeItem(STORAGE_KEY);
@@ -146,7 +146,7 @@ export function ProviderProvider({ children }: { children: ReactNode }) {
       }).catch(err => {
         const errorMessage = err instanceof Error ? err.message : 'Failed to load providers';
         setError(errorMessage);
-        console.error('Failed to fetch providers:', err);
+        console.error('Failed to fetch providers:', errorMessage);
       });
     }, 5 * 60 * 1000); // 5 minutes
 

@@ -39,6 +39,7 @@ Create a `.env` file with the following variables:
 # Required API Keys
 OPENAI_API_KEY=your-openai-api-key-here
 OPENROUTER_API_KEY=your-openrouter-api-key-here
+HUGGINGFACE_API_KEY=your-huggingface-api-key-here
 WEBHOOK_API_KEY=your-secure-webhook-api-key-here
 
 # Application Configuration
@@ -66,19 +67,20 @@ NODE_ENV=devel
 The setup process automatically:
 
 1. **Creates N8N default user** with email `admin@servicenow-helper.local` and password `admin123`
-2. **Sets up API credentials** for OpenAI and OpenRouter using your environment variables
+2. **Sets up API credentials** for OpenAI, OpenRouter, and Hugging Face using your environment variables
 3. **Creates webhook authentication** using your specified API key
 4. **Configures PostgreSQL connections** for both N8N and the application
 5. **Imports and activates the workflow** with correct credential mappings
-6. **Creates the required database tables** for tracking requests and agent model configurations
-7. **Migrates existing user settings** to the new multi-agent architecture
-8. **Sets up default agents** (Orchestration, Business Rule, Client Script) for each user
+6. **Creates the required database tables** for tracking requests, agent model configurations, and provider management
+7. **Seeds the providers table** with OpenRouter and Hugging Face configurations
+8. **Migrates existing user settings** to the new multi-agent architecture
+9. **Sets up default agents** (Orchestration, Business Rule, Client Script) for each user
 
 ## Architecture
 
-- **PostgreSQL**: Shared database for N8N workflows, chat memory, session storage, and agent model configurations
-- **N8N**: Workflow engine with automated credential setup and multi-agent support
-- **Next.js**: Frontend application with authentication and agent model management
+- **PostgreSQL**: Shared database for N8N workflows, chat memory, session storage, agent model configurations, and provider management
+- **N8N**: Workflow engine with automated credential setup, multi-agent support, and multi-provider routing
+- **Next.js**: Frontend application with authentication, agent model management, and provider configuration
 
 ## Default Credentials
 
