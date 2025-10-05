@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState, memo } from 'react';
-import { History, Database, Check } from 'lucide-react';
+import { History, Database, Check, Download } from 'lucide-react';
 import axios from 'axios';
 
-import { ServiceNowResponse, StreamingStatus } from '@/types';
+import { ServiceNowResponse, StreamingStatus, ExportOptions } from '@/types';
+import { exportAnswer } from '@/lib/export-utils';
 
 import StreamingMarkdownRenderer from './StreamingMarkdownRenderer';
+import ExportModal from './ExportModal';
 
 interface ResultsSectionProps {
   response: ServiceNowResponse | null;
@@ -48,6 +50,12 @@ const ResultsSection = memo(function ResultsSection({
   const [isSaved, setIsSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Export state
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [exportSuccess, setExportSuccess] = useState(false);
+
   const handleSaveQA = async () => {
     if (!response || !question) return;
 
@@ -63,7 +71,7 @@ const ResultsSection = memo(function ResultsSection({
       };
 
       const response_api = await axios.post('/api/save-qa-pair', saveData);
-      
+
       if (response_api.data.success) {
         setIsSaved(true);
         setTimeout(() => setIsSaved(false), 3000); // Reset after 3 seconds
@@ -79,6 +87,31 @@ const ResultsSection = memo(function ResultsSection({
       }
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleExport = async (options: ExportOptions) => {
+    setIsExporting(true);
+    setExportError(null);
+    setExportSuccess(false);
+
+    try {
+      await exportAnswer(options);
+      setExportSuccess(true);
+      setTimeout(() => {
+        setExportSuccess(false);
+        setIsExportModalOpen(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Error exporting answer:', error);
+      if ((error as Error).message === 'Save cancelled by user') {
+        // User cancelled, just close modal
+        setIsExportModalOpen(false);
+      } else {
+        setExportError((error as Error).message || 'Failed to export answer');
+      }
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -120,21 +153,36 @@ const ResultsSection = memo(function ResultsSection({
                 {isStreaming ? 'Streaming' : (response?.type || selectedType)} Response
               </span>
             </div>
-            
-            {/* Streaming status indicator */}
-            {showStreamingIndicators && (
-              <div className="flex items-center space-x-2 text-sm text-blue-600 dark:text-blue-400">
-                <div className="flex space-x-1">
-                  <div className="w-1 h-1 bg-blue-500 rounded-full streaming-dots" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-1 h-1 bg-blue-500 rounded-full streaming-dots" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-1 h-1 bg-blue-500 rounded-full streaming-dots" style={{ animationDelay: '300ms' }}></div>
+
+            <div className="flex items-center gap-2">
+              {/* Streaming status indicator */}
+              {showStreamingIndicators && (
+                <div className="flex items-center space-x-2 text-sm text-blue-600 dark:text-blue-400">
+                  <div className="flex space-x-1">
+                    <div className="w-1 h-1 bg-blue-500 rounded-full streaming-dots" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-1 h-1 bg-blue-500 rounded-full streaming-dots" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-1 h-1 bg-blue-500 rounded-full streaming-dots" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                  <span className="font-medium">
+                    {streamingStatus === StreamingStatus.CONNECTING && 'Connecting...'}
+                    {streamingStatus === StreamingStatus.STREAMING && 'AI is responding...'}
+                  </span>
                 </div>
-                <span className="font-medium">
-                  {streamingStatus === StreamingStatus.CONNECTING && 'Connecting...'}
-                  {streamingStatus === StreamingStatus.STREAMING && 'AI is responding...'}
-                </span>
-              </div>
-            )}
+              )}
+
+              {/* Export button - styled like Send/Toggle/Copy buttons */}
+              {response && !isStreaming && (
+                <button
+                  onClick={() => setIsExportModalOpen(true)}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
+                  title="Export answer"
+                  aria-label="Export answer as Markdown or PDF"
+                >
+                  <Download className="w-3 h-3" />
+                  Export
+                </button>
+              )}
+            </div>
           </div>
           <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 sm:p-8 shadow-inner border border-gray-100 dark:border-gray-600">
             <StreamingMarkdownRenderer 
@@ -167,20 +215,20 @@ const ResultsSection = memo(function ResultsSection({
           {/* Add to Knowledge Store Button - show for all responses with questions */}
           {question && (
             <div className={`mt-6 p-4 rounded-xl border ${
-              isLoadedFromHistory 
+              isLoadedFromHistory
                 ? 'bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border-amber-200 dark:border-amber-700/50'
                 : 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-700/50'
             }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg ${
-                    isLoadedFromHistory 
-                      ? 'bg-amber-100 dark:bg-amber-800/50' 
+                    isLoadedFromHistory
+                      ? 'bg-amber-100 dark:bg-amber-800/50'
                       : 'bg-blue-100 dark:bg-blue-800/50'
                   }`}>
                     <Database className={`w-5 h-5 ${
-                      isLoadedFromHistory 
-                        ? 'text-amber-600 dark:text-amber-400' 
+                      isLoadedFromHistory
+                        ? 'text-amber-600 dark:text-amber-400'
                         : 'text-blue-600 dark:text-blue-400'
                     }`} />
                   </div>
@@ -189,8 +237,8 @@ const ResultsSection = memo(function ResultsSection({
                       Help improve future responses
                     </h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {isLoadedFromHistory 
-                        ? "Found this helpful? Add it to the Knowledge Store for better future answers" 
+                      {isLoadedFromHistory
+                        ? "Found this helpful? Add it to the Knowledge Store for better future answers"
                         : "Add this Q&A pair to the Knowledge Store for better answers"}
                     </p>
                     {isLoadedFromHistory && (
@@ -200,7 +248,7 @@ const ResultsSection = memo(function ResultsSection({
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleSaveQA}
@@ -251,6 +299,18 @@ const ResultsSection = memo(function ResultsSection({
           )}
         </div>
       )}
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExport={handleExport}
+        question={question}
+        answer={displayContent || ''}
+        isExporting={isExporting}
+        error={exportError}
+        success={exportSuccess}
+      />
     </div>
   );
 }, areResultsEqual);

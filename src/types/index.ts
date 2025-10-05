@@ -314,3 +314,14 @@ export interface KnowledgeStoreFilters {
     end: Date | null;
   };
 }
+
+// Export Types
+export type ExportFormat = 'markdown' | 'pdf';
+
+export interface ExportOptions {
+  format: ExportFormat;
+  filename: string;
+  includeQuestion: boolean;
+  question?: string;
+  answer: string;
+}
