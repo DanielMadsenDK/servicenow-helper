@@ -27,8 +27,8 @@ Leverage cutting-edge artificial intelligence with **multi-agent AI architecture
 ### **Robust Security**
 Built with security-first principles featuring server-side JWT authentication, Next.js middleware security layers, and comprehensive security headers to protect your data and sessions.
 
-### **Conversation Management** 
-Complete conversation lifecycle management with full history tracking, advanced search and filtering capabilities, session continuity across interactions, and export functionality for documentation purposes.
+### **Conversation Management**
+Complete conversation lifecycle management with full history tracking, advanced search and filtering capabilities, session continuity across interactions, and answer export functionality (Markdown/PDF) for documentation and sharing purposes.
 
 ### **Knowledge Store Management**
 Comprehensive Knowledge Store management with dedicated interface for viewing, searching, and organizing saved Q&A pairs. Features bulk operations, quality metrics tracking, and metadata management for curated knowledge content.
@@ -48,6 +48,7 @@ Enjoy a responsive design built with TailwindCSS, progressive web app support fo
 | **Provider & Model Management** | Individual model selection per AI agent across multiple providers | Multi-Provider Support + Advanced Filtering |
 | **Knowledge Store Management** | Comprehensive Q&A management interface | React Components + PostgreSQL |
 | **Script Deployment** | Send generated scripts directly to ServiceNow | N8N Client + ServiceNow API |
+| **Answer Export** | Export answers as Markdown or PDF files | jsPDF + File System Access API |
 | **Performance Monitoring** | Core Web Vitals & streaming analytics | Performance Monitor + Bundle Analysis |
 | **Progressive Web App** | Offline support & native app experience | Service Worker + PWA Manifest |
 | **Advanced Testing** | Comprehensive test suite with 347 passing tests | Jest + Playwright + Quality Gates |
@@ -322,10 +323,11 @@ Configure different AI models from multiple providers for specialized agents to 
 2. **Submit Query** using the intuitive search interface
 3. **Watch Live Responses** stream in real-time as the AI generates answers
 4. **Enjoy Enhanced UX** with automatic scrolling to responses when streaming starts
-5. **Deploy Scripts** directly to ServiceNow using the "Send to ServiceNow" button on script code blocks
-6. **Access History** through the conversation panel with advanced filtering
-7. **Save to Knowledge Store** by clicking the "Add to Knowledge Store" button on helpful responses
-8. **Manage Knowledge Store** through the dedicated management interface accessible via the hamburger menu
+5. **Export Answers** as Markdown or PDF files using the Export button in the response header
+6. **Deploy Scripts** directly to ServiceNow using the "Send to ServiceNow" button on script code blocks
+7. **Access History** through the conversation panel with advanced filtering
+8. **Save to Knowledge Store** by clicking the "Add to Knowledge Store" button on helpful responses
+9. **Manage Knowledge Store** through the dedicated management interface accessible via the hamburger menu
 
 ### **File Attachments (Multimodal Support)**
 
@@ -376,6 +378,44 @@ Deploy AI-generated scripts directly to your ServiceNow instance with seamless i
 - **Error Prevention**: Automated table targeting prevents deployment mistakes
 - **Audit Trail**: All deployments tracked through ServiceNow's standard audit system
 - **Security**: Authentication required and processed through secure N8N workflows
+
+### **Answer Export Functionality**
+
+Save AI-generated answers for documentation, sharing, and offline reference:
+
+| Feature | Description | Formats |
+|---------|-------------|---------|
+| **Multiple Formats** | Export answers as Markdown or styled PDF | .md, .pdf |
+| **Question Inclusion** | Optionally include the original question | Toggle on/off (default: on) |
+| **File System Access** | Native save dialog on supported browsers | Chrome, Edge, Opera |
+| **Custom Filenames** | Edit filename before saving | Auto-generated with timestamp |
+| **Styled PDFs** | PDF exports match UI styling | Headings, code blocks, lists, tables |
+
+**How to export answers:**
+1. **Receive Answer** from AI in the response section
+2. **Click Export Button** located in the response header (next to response type indicator)
+3. **Choose Format** - Select Markdown (.md) or PDF (.pdf) from the modal
+4. **Edit Filename** - Customize the filename (default: `ServiceNow-Helper-YYYY-MM-DD-HH-MM-SS`)
+5. **Include Question** - Toggle whether to include the original question (enabled by default)
+6. **Save File** - Click Export to save
+   - **Chrome/Edge/Opera**: Native save dialog to choose destination
+   - **Safari/Firefox**: Downloads to default Downloads folder
+
+**Export Formats:**
+- **Markdown (.md)** - Plain text format, perfect for documentation systems and version control
+- **PDF (.pdf)** - Professionally styled document matching the UI appearance with syntax highlighting
+
+**Browser Support:**
+- **File System Access API**: Chrome 86+, Edge 86+, Opera 72+ (native save dialog)
+- **Download Fallback**: All modern browsers (automatic download to Downloads folder)
+- **PWA Compatible**: Works in both web and Progressive Web App modes
+
+**Export Benefits:**
+- **Documentation**: Create searchable documentation from AI responses
+- **Knowledge Sharing**: Share formatted answers with team members
+- **Offline Reference**: Access important answers without internet connection
+- **Version Control**: Track answer evolution with Markdown in Git repositories
+- **Professional Output**: PDF exports maintain visual styling for presentations
 
 ### **Knowledge Store Management**
 
@@ -536,8 +576,10 @@ servicenow-helper/
 │   │   └── settings/                   # Settings page
 │   ├── components/                      # React components
 │   │   ├── CodeBlock.tsx                  # Enhanced code blocks with send functionality
+│   │   ├── ExportModal.tsx                # Answer export modal (Markdown/PDF)
 │   │   ├── KnowledgeStorePanel.tsx        # Knowledge store management interface
 │   │   ├── KnowledgeStoreItem.tsx         # Individual knowledge store entry display
+│   │   ├── ResultsSection.tsx             # Results display with export functionality
 │   │   ├── SendScriptButton.tsx           # Script deployment button component
 │   │   ├── SendScriptModal.tsx            # Script type selection modal
 │   │   ├── Settings.tsx                   # Settings component
@@ -548,12 +590,14 @@ servicenow-helper/
 │   │   ├── ProviderContext.tsx            # Provider state management
 │   │   └── SettingsContext.tsx            # Settings state
 │   ├── lib/                             # Utilities
-│   │   ├── ai-models.ts                    # AI model utilities and management
+│   │   ├── ai-models.ts                   # AI model utilities and management
+│   │   ├── export-utils.ts                # Export utilities (Markdown/PDF generation)
 │   │   ├── n8n-client.ts                  # N8N client with knowledge store methods
+│   │   ├── pdf-styles.ts                  # PDF styling configuration
 │   │   ├── providers.ts                   # Provider management utilities
 │   │   ├── streaming-client.ts            # Streaming client
 │   │   └── database.ts                    # Database layer (with AgentModelManager)
-│   └── types/                           # TypeScript definitions (with knowledge store types)
+│   └── types/                           # TypeScript definitions (with export types)
 └── tests/                               # Test files and mocks
 ```
 
