@@ -4,6 +4,7 @@
  */
 
 import { jsPDF } from 'jspdf';
+import { ExportFormat, ExportOptions } from '@/types';
 import {
   initializePDF,
   applyH1Style,
@@ -24,16 +25,6 @@ import {
   drawCodeBlockBackground,
   drawBlockquoteBackground,
 } from './pdf-styles';
-
-export type ExportFormat = 'markdown' | 'pdf';
-
-export interface ExportOptions {
-  format: ExportFormat;
-  filename: string;
-  includeQuestion: boolean;
-  question?: string;
-  answer: string;
-}
 
 /**
  * Generate default filename with timestamp
@@ -99,13 +90,7 @@ async function saveWithFilePicker(
     });
 
     const writable = await handle.createWritable();
-
-    if (typeof content === 'string') {
-      await writable.write(content);
-    } else {
-      await writable.write(content);
-    }
-
+    await writable.write(content);
     await writable.close();
   } catch (error) {
     // User cancelled the dialog or error occurred

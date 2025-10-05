@@ -67,8 +67,9 @@ The application follows a containerized, multi-service architecture orchestrated
 - **Backend/Workflow**: n8n
 - **Database**: PostgreSQL 15.4 with pgvector 0.8.0 (with tables: `ServiceNowSupportTool` for conversations, `user_settings` for user preferences, `agent_models` for agent model configurations)
 - **Containerization**: Docker, Docker Compose (Dockerfile and docker-compose.yml in root)
-- **Libraries**: Axios 1.11.0, ReactMarkdown 10.1.0, Lucide React 0.542.0, JWT 9.0.2
+- **Libraries**: Axios 1.11.0, ReactMarkdown 10.1.0, Lucide React 0.542.0, JWT 9.0.2, jsPDF 2.5.2
 - **Performance**: Dynamic imports, lazy loading, React.memo, code splitting, bundle analysis, and Core Web Vitals monitoring
+- **Export**: jsPDF for PDF generation, File System Access API for native save dialogs
 - **Streaming**: Server-Sent Events (SSE), real-time UI updates, connection pooling, retry logic, and performance monitoring
 - **Security**: Comprehensive security headers, XSS protection, CSRF prevention, streaming validation, and rate limiting
 - **Accessibility**: ARIA attributes, keyboard navigation, screen reader support, and WCAG compliance
@@ -98,6 +99,13 @@ The application follows a containerized, multi-service architecture orchestrated
 -   `src/components/StreamingMarkdownRenderer.tsx` - Streaming markdown with virtual scrolling
 -   `src/components/VirtualizedMarkdownRenderer.tsx` - Virtual scrolling for large content
 -   `src/hooks/useNetworkStatus.ts` - Network monitoring and connection health
+
+### Answer Export System
+-   `src/components/ExportModal.tsx` - Export modal for format selection and configuration
+-   `src/components/ResultsSection.tsx` - Results display with export button integration
+-   `src/lib/export-utils.ts` - Export utilities for Markdown and PDF generation
+-   `src/lib/pdf-styles.ts` - PDF styling configuration matching UI design
+-   `src/types/index.ts` - Export type definitions (ExportFormat, ExportOptions)
 
 ### Next.js 15 Stable Features (Latest Implementation)
 -   **Turbopack**: 5-10x faster development builds with `npm run dev --turbopack`
