@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+import type { Provider } from '@/types';
+import { ProviderManager } from '@/lib/providers';
+
 interface N8NConfig {
   baseUrl: string;
   apiKey: string;
@@ -80,27 +83,55 @@ export class N8NClient {
     return N8NClient.instance;
   }
 
-  private async callWebhook(endpoint: string, data: unknown): Promise<N8NWebhookResponse> {
+  private async callWebhook(endpoint: string, data: unknown, provider?: Provider): Promise<N8NWebhookResponse> {
     try {
-      const response = await axios.post(`${this.config.baseUrl}/webhook/${endpoint}`, data, {
+      // Determine which base URL and API key to use
+      let baseUrl = this.config.baseUrl;
+      let apiKey = this.config.apiKey;
+
+      if (provider) {
+        // Use provider-specific configuration
+        if (provider.endpoint) {
+          baseUrl = provider.endpoint;
+        }
+
+        // Get provider-specific API key using naming convention
+        const providerApiKey = ProviderManager.getProviderApiKey(provider.name);
+        if (providerApiKey) {
+          apiKey = providerApiKey;
+        } else {
+          console.warn(`API key environment variable ${provider.name.toUpperCase()}_API_KEY not found for provider ${provider.name}, using default`);
+        }
+
+        console.log(`Using provider ${provider.display_name} with endpoint: ${baseUrl}`);
+      }
+
+      const response = await axios.post(`${baseUrl}/webhook/${endpoint}`, data, {
         headers: {
           'Content-Type': 'application/json',
-          'apikey': this.config.apiKey
+          'apikey': apiKey,
+          'X-Provider': provider?.name || 'default',
         },
         timeout: 30000 // 30 second timeout
       });
-      
+
       // For create_task endpoint, log the status code for debugging
       if (endpoint === 'create_task') {
         console.log(`N8N webhook for ${endpoint} returned status: ${response.status}`);
+        if (provider) {
+          console.log(`Request sent to provider: ${provider.display_name}`);
+        }
       }
-      
+
       return {
         success: true,
         data: response.data
       };
     } catch (error) {
       console.error(`N8N webhook error for ${endpoint}:`, error);
+      if (provider) {
+        console.error(`Error occurred with provider: ${provider.display_name}`);
+      }
       return {
         success: false,
         error: endpoint === 'create_task' ? 'Task creation failed' : (error instanceof Error ? error.message : 'Unknown error')
@@ -242,9 +273,28 @@ export class N8NClient {
     }
   }
 
-  async createTask(request: CreateTaskRequest): Promise<CreateTaskResponse> {
-    const result = await this.callWebhook('create_task', request);
-    
+  async createTask(request: CreateTaskRequest, providerId?: number): Promise<CreateTaskResponse> {
+    let provider: Provider | undefined;
+
+    // Get provider configuration if providerId is provided
+    if (providerId) {
+      try {
+        const providerManager = new ProviderManager();
+        provider = await providerManager.getProviderById(providerId) || undefined;
+
+        if (provider && !provider.is_active) {
+          return {
+            success: false,
+            error: `Provider ${provider.display_name} is not active`
+          };
+        }
+      } catch (error) {
+        console.warn(`Failed to get provider for ID ${providerId}, using default:`, error);
+      }
+    }
+
+    const result = await this.callWebhook('create_task', request, provider);
+
     if (!result.success) {
       console.error('Failed to create task:', result.error);
       return {
@@ -252,19 +302,22 @@ export class N8NClient {
         error: result.error || 'Unknown error occurred'
       };
     }
-    
+
     // Check if N8N workflow response contains sys_id (indicates successful creation)
     if (result.data && typeof result.data === 'object') {
       const responseData = result.data as { sys_id?: string; error?: string };
-      
+
       // If N8N returned a sys_id, the task was created successfully
       if (responseData.sys_id) {
         console.log('Task created successfully with sys_id:', responseData.sys_id);
+        if (provider) {
+          console.log(`Task created using provider: ${provider.display_name}`);
+        }
         return {
           success: true
         };
       }
-      
+
       // If no sys_id but there's an error field, return the error
       if (responseData.error) {
         console.error('N8N workflow failed:', responseData.error);
@@ -274,7 +327,7 @@ export class N8NClient {
         };
       }
     }
-    
+
     // If we get here, the response format was unexpected
     console.error('N8N response missing sys_id field, response:', result.data);
     return {

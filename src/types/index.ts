@@ -88,6 +88,7 @@ export interface UserSettings {
   servicenow_instance_url: string;
   default_ai_model: string; // Legacy field for backward compatibility
   agent_models?: Record<string, string>; // New field: { agent_name: model_name }
+  selected_provider_id?: number; // New field: selected provider for filtering models
 }
 
 export interface Capability {
@@ -112,6 +113,8 @@ export interface AIModel {
   display_name?: string;
   is_free: boolean;
   is_default: boolean;
+  provider_id: number;
+  provider?: Provider; // Optional populated provider information
   created_at: Date;
   updated_at: Date;
   capabilities?: Capability[];
@@ -122,6 +125,7 @@ export interface AIModelInput {
   display_name?: string;
   is_free: boolean;
   is_default?: boolean;
+  provider_id: number;
   capability_ids?: number[];
 }
 
@@ -181,6 +185,29 @@ export interface StreamingRequest extends Omit<ServiceNowRequest, 'sessionkey'> 
   sessionkey: string;
 }
 
+// Provider-aware streaming configuration
+export interface StreamingConfig {
+  provider: Provider;
+  agentModels: Record<string, string>;
+  endpoint: string; // Dynamic endpoint based on provider
+}
+
+// Enhanced N8N request with provider support
+export interface N8nStreamingRequest {
+  action: string;
+  sessionId: string;
+  chatInput: string;
+  metadata: {
+    type: string;
+    aiModel: string;
+    agentModels?: AgentModel[];
+    file?: string;
+    searching: boolean;
+    userId: string;
+    provider?: Provider; // Provider information for N8N processing
+  };
+}
+
 // Agent Models Types
 export interface AgentModelRecord {
   id: number;
@@ -207,6 +234,40 @@ export interface DefaultAgent {
   displayName: string;
   description: string;
   defaultModel: string;
+}
+
+// Provider Types
+export interface Provider {
+  id: number;
+  name: string;
+  display_name: string;
+  endpoint: string;
+  is_active: boolean;
+  priority: number;
+  rate_limit_per_minute?: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ProviderInput {
+  name: string;
+  display_name: string;
+  endpoint: string;
+  is_active?: boolean;
+  priority?: number;
+  rate_limit_per_minute?: number;
+}
+
+export interface ProvidersApiResponse {
+  success: boolean;
+  data?: Provider[];
+  error?: string;
+}
+
+export interface ProviderApiResponse {
+  success: boolean;
+  data?: Provider;
+  error?: string;
 }
 
 // Knowledge Store Types

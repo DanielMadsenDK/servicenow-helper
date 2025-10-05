@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { AIModelProvider } from "@/contexts/AIModelContext";
 import { AgentModelProvider } from "@/contexts/AgentModelContext";
+import { ProviderProvider } from "@/contexts/ProviderContext";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 const geistSans = Geist({
@@ -69,14 +70,16 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <AuthProvider>
-            <SettingsProvider>
-              <AIModelProvider>
-                <AgentModelProvider>
-                  {children}
-                  <PWAInstallPrompt />
-                </AgentModelProvider>
-              </AIModelProvider>
-            </SettingsProvider>
+            <ProviderProvider>
+              <SettingsProvider>
+                <AIModelProvider>
+                  <AgentModelProvider>
+                    {children}
+                    <PWAInstallPrompt />
+                  </AgentModelProvider>
+                </AIModelProvider>
+              </SettingsProvider>
+            </ProviderProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

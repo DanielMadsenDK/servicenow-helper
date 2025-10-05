@@ -9,7 +9,8 @@ These variables must be configured in your `.env` file:
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `OPENAI_API_KEY` | OpenAI API key | `sk-proj-...` |
-| `OPENROUTER_API_KEY` | OpenRouter API key (provides access to multiple AI models for multi-agent architecture) | `sk-or-v1-...` |
+| `OPENROUTER_API_KEY` | OpenRouter API key (primary provider with 200+ AI models) | `sk-or-v1-...` |
+| `HUGGINGFACE_API_KEY` | Hugging Face API key (open-source and cost-effective models) | `hf_...` |
 | `WEBHOOK_API_KEY` | Secure key for webhook authentication | `564669d2-7b3c-4c24-b44a-be72461ccd4f` |
 | `JWT_SECRET` | JWT signing secret | `your-jwt-secret-here` |
 | `N8N_ENCRYPTION_KEY` | n8n credential encryption key (must be secure) | `your-secure-n8n-encryption-key-here` |
@@ -38,12 +39,31 @@ These variables are automatically set by Docker Compose and typically don't need
 | `N8N_API_KEY` | Internal API key for webhook access | Same as `WEBHOOK_API_KEY` |
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://n8n:n8n_password@localhost:5432/n8n` |
 
+## Multi-Provider API Key Configuration
+
+The ServiceNow Helper supports multiple AI providers with automatic API key detection using naming conventions:
+
+### Provider API Key Pattern
+Each provider's API key follows the pattern: `{PROVIDER_NAME}_API_KEY`
+
+| Provider | Environment Variable | Usage |
+|----------|---------------------|-------|
+| OpenRouter | `OPENROUTER_API_KEY` | Primary provider with extensive model catalog |
+| Hugging Face | `HUGGINGFACE_API_KEY` | Open-source and cost-effective models |
+| Custom Providers | `{CUSTOM_NAME}_API_KEY` | Any provider added to the database |
+
+### Adding New Providers
+1. Add provider to database via `providers` table
+2. Set environment variable following the naming pattern
+3. Provider becomes automatically available in the system
+
 ## Security Notes
 
 - **API Keys**: Store securely and never commit to version control
 - **JWT_SECRET**: Use a long, random string for production
 - **N8N_ENCRYPTION_KEY**: Must be a securely generated random string
 - **WEBHOOK_API_KEY**: Used to secure webhook endpoints between services
+- **Provider Keys**: Each provider's API key is automatically detected using the naming convention
 
 ## Example .env File
 
@@ -51,6 +71,7 @@ These variables are automatically set by Docker Compose and typically don't need
 # API Keys - Required for automated setup
 OPENAI_API_KEY=your-openai-api-key-here
 OPENROUTER_API_KEY=your-openrouter-api-key-here
+HUGGINGFACE_API_KEY=your-huggingface-api-key-here
 WEBHOOK_API_KEY=your-secure-webhook-api-key-here
 
 # N8N Configuration  

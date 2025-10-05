@@ -124,10 +124,10 @@ services:
       - CLAUDE_API_KEY=${CLAUDE_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - WEBHOOK_API_KEY=${WEBHOOK_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
     volumes:
-      - ./scripts/setup-n8n.sh:/setup-n8n.sh
+      - ./scripts:/scripts
       - ./n8n:/n8n
-      - ./.env:/.env
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - servicenow-network
@@ -136,8 +136,8 @@ services:
         echo 'Starting n8n setup container...' &&
         apk add --no-cache curl docker-cli bash jq &&
         echo 'Dependencies installed. Running setup script...' &&
-        chmod +x /setup-n8n.sh &&
-        bash /setup-n8n.sh &&
+        chmod +x /scripts/setup-n8n.sh &&
+        bash /scripts/setup-n8n.sh &&
         echo 'Setup script completed successfully!'
       "
     restart: "no"

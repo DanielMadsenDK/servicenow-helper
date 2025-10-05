@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAIModels } from '@/contexts/AIModelContext';
 import { useAgentModels } from '@/contexts/AgentModelContext';
+import { useProviders } from '@/contexts/ProviderContext';
 
 import BurgerMenu from './BurgerMenu';
 import ThemeToggle from './ThemeToggle';
@@ -18,6 +19,7 @@ export default function Settings() {
   const { settings, isLoading, error, isAuthenticated, updateSetting } = useSettings();
   const { models } = useAIModels();
   const { agentModels, updateAgentModel, getDefaultAgents, isLoading: agentModelsLoading } = useAgentModels();
+  const { providers, selectedProvider, setSelectedProvider, isLoading: providersLoading } = useProviders();
   const [saving, setSaving] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [urlInputValue, setUrlInputValue] = useState('');
@@ -51,13 +53,18 @@ export default function Settings() {
     setExpandedAgents(initialExpanded);
   }, [getDefaultAgents]);
 
-  // Filter and sort models based on current settings
+  // Filter and sort models based on current settings and selected provider
   const filteredAndSortedModels = useMemo(() => {
     let filteredModels = models.filter(model => {
+      // First filter by selected provider
+      if (selectedProvider && model.provider_id !== selectedProvider.id) {
+        return false;
+      }
+
       const isMultimodal = model.capabilities && model.capabilities.length > 0;
       const { showFree, showPaid, showMultimodal } = filterSettings.filters;
 
-      // If no filters are active, show all models
+      // If no filters are active, show all models (that match the provider)
       if (!showFree && !showPaid && !showMultimodal) {
         return true;
       }
@@ -83,7 +90,7 @@ export default function Settings() {
     }
 
     return filteredModels;
-  }, [models, filterSettings]);
+  }, [models, filterSettings, selectedProvider]);
 
   const handleFilterApply = (newSettings: FilterSettings) => {
     setFilterSettings(newSettings);
@@ -472,6 +479,70 @@ export default function Settings() {
                       </button>
                     ))}
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Provider Selection */}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">AI Provider</h2>
+              <div className="space-y-4">
+                <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-700/30">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <Server className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <div>
+                      <label className="text-gray-900 dark:text-gray-100 font-medium">Selected Provider</label>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Choose your AI service provider</p>
+                    </div>
+                  </div>
+
+                  {providersLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
+                      <span className="text-gray-600 dark:text-gray-400">Loading providers...</span>
+                    </div>
+                  ) : providers.length === 0 ? (
+                    <div className="text-gray-500 dark:text-gray-400 text-sm">
+                      No providers available. Please configure providers in the database.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {providers.map((provider) => (
+                        <button
+                          key={provider.id}
+                          onClick={() => setSelectedProvider(provider)}
+                          disabled={!isAuthenticated || !provider.is_active}
+                          className={`p-4 rounded-xl border-2 transition-all duration-200 flex items-center space-x-3 shadow-sm hover:shadow-md transform hover:scale-105 hover:-translate-y-0.5 disabled:transform-none disabled:hover:scale-100 disabled:hover:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed ${
+                            selectedProvider?.id === provider.id
+                              ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                              : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-blue-300 dark:hover:border-blue-400'
+                          } ${!provider.is_active ? 'opacity-50' : ''}`}
+                        >
+                          <Server className="w-5 h-5" />
+                          <div className="flex-1 text-left">
+                            <div className="font-medium">{provider.display_name}</div>
+                            <div className="text-xs opacity-75">
+                              {provider.is_active ? 'Active' : 'Inactive'}
+                            </div>
+                          </div>
+                          {selectedProvider?.id === provider.id && (
+                            <Check className="w-4 h-4 ml-auto text-blue-600 dark:text-blue-400" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {selectedProvider && (
+                    <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                      <div className="text-sm text-blue-800 dark:text-blue-200">
+                        <div className="font-medium">Current Provider: {selectedProvider.display_name}</div>
+                        <div className="text-xs mt-1 opacity-75">
+                          Models below are filtered to show only {selectedProvider.display_name} models
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
