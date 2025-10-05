@@ -93,13 +93,13 @@ graph TB
         M --> P[Claude/GPT/Gemini]
         N --> Q[Claude/GPT/Gemini]
         O --> R[Claude/GPT/Gemini]
-        SI --> S[Claude/GPT/Gemini]
+        SI --> SIM[Claude/GPT/Gemini]
     end
-    
+
     subgraph "ServiceNow Integration"
-        S[ServiceNow Helper Companion App] --> T[Staging Tables]
+        SN[ServiceNow Helper Companion App] --> T[Staging Tables]
         T --> U[ServiceNow Instance]
-        I --> S
+        I --> SN
     end
     
     A --> E
