@@ -68,6 +68,24 @@ export class AIModelManager {
   }
 
   async getUserModels(userId: string, providerId?: number): Promise<AIModel[]> {
+    // First, check if user has any models at all and seed if needed
+    const countResult = await this.db.query(
+      'SELECT COUNT(*) as count FROM "ai_models" WHERE user_id = $1',
+      [userId]
+    );
+    const count = (countResult.rows[0] as { count: string }).count;
+
+    // If user has no models, call the database function to seed them
+    if (parseInt(count) === 0) {
+      try {
+        await this.db.query('SELECT seed_ai_models_for_user($1)', [userId]);
+        console.log(`Seeded AI models for user: ${userId}`);
+      } catch (error) {
+        console.error('Failed to seed AI models:', error);
+        // Continue even if seeding fails
+      }
+    }
+
     const params: unknown[] = [userId];
     let whereClause = 'WHERE am.user_id = $1';
 
@@ -113,7 +131,7 @@ export class AIModelManager {
     `;
 
     const result = await this.db.query(query, params);
-    
+
     return result.rows.map((row: unknown) => {
       const r = row as {
         id: number;

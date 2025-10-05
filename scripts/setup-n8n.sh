@@ -2,10 +2,13 @@
 
 echo "🚀 Setting up N8N with credentials and workflow..."
 
-# Load environment variables
-if [ -f .env ]; then
-    source .env
-fi
+# Environment variables are already passed via docker-compose.yml
+# Just verify they exist
+echo "Checking environment variables..."
+echo "CLAUDE_API_KEY: ${CLAUDE_API_KEY:0:20}..."
+echo "OPENAI_API_KEY: ${OPENAI_API_KEY:0:20}..."
+echo "WEBHOOK_API_KEY: ${WEBHOOK_API_KEY:0:20}..."
+echo "OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:0:20}..."
 
 # Detect if we're running inside Docker
 if [ -f /.dockerenv ]; then
@@ -35,11 +38,24 @@ echo "🆕 N8N not initialized. Proceeding with setup..."
 echo "Waiting for N8N to be ready..."
 for i in {1..30}; do
     if curl -s http://$N8N_HOST/healthz > /dev/null 2>&1; then
-        echo "✅ N8N is ready!"
+        echo "✅ N8N healthcheck passed!"
         break
     fi
-    echo "Waiting... ($i/30)"
+    echo "Waiting for healthcheck... ($i/30)"
     sleep 2
+done
+
+# Additional wait for REST API to be fully available
+echo "Waiting for N8N REST API to be available..."
+for i in {1..20}; do
+    # Test if the owner setup endpoint is available
+    TEST_RESPONSE=$(curl -s -w "%{http_code}" -o /dev/null http://$N8N_HOST/rest/owner/setup)
+    if [ "$TEST_RESPONSE" = "200" ] || [ "$TEST_RESPONSE" = "400" ]; then
+        echo "✅ N8N REST API is ready!"
+        break
+    fi
+    echo "Waiting for REST API... ($i/20) - Status: $TEST_RESPONSE"
+    sleep 3
 done
 
 # Create admin user
@@ -49,84 +65,118 @@ curl -s -X POST "http://$N8N_HOST/rest/owner/setup" \
     -d '{"email": "admin@servicenow-helper.local", "firstName": "Admin", "lastName": "User", "password": "Admin123"}' > /dev/null
 echo "✅ Admin user created"
 
-# Login and save session
-echo "Logging in..."
-curl -s -c cookies.txt -X POST "http://$N8N_HOST/rest/login" \
+# Login and get session token
+echo "Logging in to n8n..."
+LOGIN_RESPONSE=$(curl -s -D /tmp/n8n-headers.txt -X POST "http://$N8N_HOST/rest/login" \
     -H "Content-Type: application/json" \
-    -d '{"emailOrLdapLoginId": "admin@servicenow-helper.local", "password": "Admin123"}' > /dev/null
-echo "✅ Session established"
+    -d '{"emailOrLdapLoginId": "admin@servicenow-helper.local", "password": "Admin123"}')
 
-# Create credentials
+# Debug: show response
+echo "Login response status: $(echo "$LOGIN_RESPONSE" | grep -o '"id"' | head -c 10)"
+
+# Extract session cookie value from Set-Cookie header
+# Try multiple extraction methods
+SESSION_TOKEN=$(grep -i "set-cookie: n8n-auth=" /tmp/n8n-headers.txt | sed 's/.*n8n-auth=//I' | cut -d';' -f1)
+
+# If that didn't work, try without case-insensitive flag
+if [ -z "$SESSION_TOKEN" ]; then
+    SESSION_TOKEN=$(grep "Set-Cookie: n8n-auth=" /tmp/n8n-headers.txt | sed 's/.*n8n-auth=//' | cut -d';' -f1)
+fi
+
+# If still empty, try lowercase
+if [ -z "$SESSION_TOKEN" ]; then
+    SESSION_TOKEN=$(grep "set-cookie: n8n-auth=" /tmp/n8n-headers.txt | sed 's/.*n8n-auth=//' | cut -d';' -f1)
+fi
+
+if [ -n "$SESSION_TOKEN" ]; then
+    echo "✅ Session established (token length: ${#SESSION_TOKEN})"
+    COOKIE_HEADER="Cookie: n8n-auth=$SESSION_TOKEN"
+else
+    echo "❌ Failed to get session token"
+    echo "Headers file content:"
+    cat /tmp/n8n-headers.txt
+    echo ""
+    echo "Login response:"
+    echo "$LOGIN_RESPONSE" | head -c 200
+    exit 1
+fi
+
+# Create credentials using n8n API
 echo "Creating credentials..."
 
 echo "  - Creating Anthropic credential..."
-curl -s -b cookies.txt -X POST "http://$N8N_HOST/rest/credentials" \
+ANTHRO_RESULT=$(curl -s -H "$COOKIE_HEADER" -X POST "http://$N8N_HOST/rest/credentials" \
     -H "Content-Type: application/json" \
-    -d "{\"name\": \"Anthropic account\", \"type\": \"anthropicApi\", \"data\": {\"apiKey\": \"$CLAUDE_API_KEY\"}}" > /dev/null
+    -d "{\"name\": \"Anthropic account\", \"type\": \"anthropicApi\", \"data\": {\"apiKey\": \"$CLAUDE_API_KEY\"}}")
+if echo "$ANTHRO_RESULT" | grep -q '"id"'; then
+    echo "    ✅ Created"
+else
+    echo "    ⚠️ May have failed: $(echo $ANTHRO_RESULT | head -c 100)"
+fi
 
 echo "  - Creating OpenAI credential..."
-curl -s -b cookies.txt -X POST "http://$N8N_HOST/rest/credentials" \
+OPENAI_RESULT=$(curl -s -H "$COOKIE_HEADER" -X POST "http://$N8N_HOST/rest/credentials" \
     -H "Content-Type: application/json" \
-    -d "{\"name\": \"OpenAi account\", \"type\": \"openAiApi\", \"data\": {\"apiKey\": \"$OPENAI_API_KEY\"}}" > /dev/null
+    -d "{\"name\": \"OpenAi account\", \"type\": \"openAiApi\", \"data\": {\"apiKey\": \"$OPENAI_API_KEY\"}}")
+if echo "$OPENAI_RESULT" | grep -q '"id"'; then
+    echo "    ✅ Created"
+else
+    echo "    ⚠️ May have failed"
+fi
 
 echo "  - Creating PostgreSQL credential..."
-curl -s -b cookies.txt -X POST "http://$N8N_HOST/rest/credentials" \
+PG_RESULT=$(curl -s -H "$COOKIE_HEADER" -X POST "http://$N8N_HOST/rest/credentials" \
     -H "Content-Type: application/json" \
-    -d '{"name": "Postgres account", "type": "postgres", "data": {"host": "postgres", "port": 5432, "database": "n8n", "user": "n8n", "password": "n8n_password", "ssl": "disable"}}' > /dev/null
+    -d '{"name": "Postgres account", "type": "postgres", "data": {"host": "postgres", "port": 5432, "database": "n8n", "user": "n8n", "password": "n8n_password", "ssl": "disable"}}')
+if echo "$PG_RESULT" | grep -q '"id"'; then
+    echo "    ✅ Created"
+else
+    echo "    ⚠️ May have failed"
+fi
 
 echo "  - Creating Header Auth credential..."
-curl -s -b cookies.txt -X POST "http://$N8N_HOST/rest/credentials" \
+HEADER_RESULT=$(curl -s -H "$COOKIE_HEADER" -X POST "http://$N8N_HOST/rest/credentials" \
     -H "Content-Type: application/json" \
-    -d "{\"name\": \"Header Auth account\", \"type\": \"httpHeaderAuth\", \"data\": {\"name\": \"apikey\", \"value\": \"$WEBHOOK_API_KEY\"}}" > /dev/null
+    -d "{\"name\": \"Header Auth account\", \"type\": \"httpHeaderAuth\", \"data\": {\"name\": \"apikey\", \"value\": \"$WEBHOOK_API_KEY\"}}")
+if echo "$HEADER_RESULT" | grep -q '"id"'; then
+    echo "    ✅ Created"
+else
+    echo "    ⚠️ May have failed"
+fi
 
 echo "  - Creating OpenRouter credential..."
-curl -s -b cookies.txt -X POST "http://$N8N_HOST/rest/credentials" \
+ROUTER_RESULT=$(curl -s -H "$COOKIE_HEADER" -X POST "http://$N8N_HOST/rest/credentials" \
     -H "Content-Type: application/json" \
-    -d "{\"name\": \"OpenRouter account\", \"type\": \"openRouterApi\", \"data\": {\"apiKey\": \"$OPENROUTER_API_KEY\"}}" > /dev/null
+    -d "{\"name\": \"OpenRouter account\", \"type\": \"openRouterApi\", \"data\": {\"apiKey\": \"$OPENROUTER_API_KEY\"}}")
+if echo "$ROUTER_RESULT" | grep -q '"id"'; then
+    echo "    ✅ Created"
+else
+    echo "    ⚠️ May have failed"
+fi
 
 echo "✅ Credentials created"
 
-# Get credential IDs
+# Wait for credentials to be persisted
+sleep 2
+
+# Get credential IDs using API
 echo "Getting credential IDs..."
-# Wait a bit more for n8n to fully initialize
-sleep 5
-CREDS_RESPONSE=$(curl -s -b cookies.txt "http://$N8N_HOST/rest/credentials")
-# If still getting startup message, wait and retry
-if echo "$CREDS_RESPONSE" | grep -q "starting up"; then
-    echo "N8N still starting up, waiting 10 more seconds..."
-    sleep 10
-    CREDS_RESPONSE=$(curl -s -b cookies.txt "http://$N8N_HOST/rest/credentials")
-fi
-# If unauthorized, re-login and retry
-if echo "$CREDS_RESPONSE" | grep -q "Unauthorized"; then
-    echo "Session expired, re-logging in..."
-    curl -s -c cookies.txt -X POST "http://$N8N_HOST/rest/login" \
-        -H "Content-Type: application/json" \
-        -d '{"emailOrLdapLoginId": "admin@servicenow-helper.local", "password": "Admin123"}' > /dev/null
-    sleep 2
-    CREDS_RESPONSE=$(curl -s -b cookies.txt "http://$N8N_HOST/rest/credentials")
-fi
+CREDS_RESPONSE=$(curl -s -H "$COOKIE_HEADER" "http://$N8N_HOST/rest/credentials")
 
-# Debug: show the response
-echo "Credentials response length: $(echo "$CREDS_RESPONSE" | wc -c)"
-echo "First 200 chars: $(echo "$CREDS_RESPONSE" | head -c 200)"
-
-# Simplified extraction using jq if available, otherwise fallback to grep
+# Extract IDs using jq or grep
 if command -v jq >/dev/null 2>&1; then
-    echo "Using jq for credential extraction..."
     ANTHROPIC_ID=$(echo "$CREDS_RESPONSE" | jq -r '.data[] | select(.type=="anthropicApi") | .id' 2>/dev/null || echo "")
     OPENAI_ID=$(echo "$CREDS_RESPONSE" | jq -r '.data[] | select(.type=="openAiApi") | .id' 2>/dev/null || echo "")
     POSTGRES_ID=$(echo "$CREDS_RESPONSE" | jq -r '.data[] | select(.type=="postgres") | .id' 2>/dev/null || echo "")
     HEADER_ID=$(echo "$CREDS_RESPONSE" | jq -r '.data[] | select(.type=="httpHeaderAuth") | .id' 2>/dev/null || echo "")
     OPENROUTER_ID=$(echo "$CREDS_RESPONSE" | jq -r '.data[] | select(.type=="openRouterApi") | .id' 2>/dev/null || echo "")
 else
-    echo "Using grep/sed for credential extraction..."
-    # Simpler pattern matching
-    ANTHROPIC_ID=$(echo "$CREDS_RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
-    OPENAI_ID=$(echo "$CREDS_RESPONSE" | grep -o '"id":"[^"]*"' | head -2 | tail -1 | cut -d'"' -f4)
-    POSTGRES_ID=$(echo "$CREDS_RESPONSE" | grep -o '"id":"[^"]*"' | head -3 | tail -1 | cut -d'"' -f4)
-    HEADER_ID=$(echo "$CREDS_RESPONSE" | grep -o '"id":"[^"]*"' | head -4 | tail -1 | cut -d'"' -f4)
-    OPENROUTER_ID=$(echo "$CREDS_RESPONSE" | grep -o '"id":"[^"]*"' | head -5 | tail -1 | cut -d'"' -f4)
+    # Fallback: get from database if jq not available
+    ANTHROPIC_ID=$(docker exec $POSTGRES_CONTAINER psql -U n8n -d n8n -t -c "SELECT id FROM public.credentials_entity WHERE type = 'anthropicApi' LIMIT 1" | tr -d ' ')
+    OPENAI_ID=$(docker exec $POSTGRES_CONTAINER psql -U n8n -d n8n -t -c "SELECT id FROM public.credentials_entity WHERE type = 'openAiApi' LIMIT 1" | tr -d ' ')
+    POSTGRES_ID=$(docker exec $POSTGRES_CONTAINER psql -U n8n -d n8n -t -c "SELECT id FROM public.credentials_entity WHERE type = 'postgres' LIMIT 1" | tr -d ' ')
+    HEADER_ID=$(docker exec $POSTGRES_CONTAINER psql -U n8n -d n8n -t -c "SELECT id FROM public.credentials_entity WHERE type = 'httpHeaderAuth' LIMIT 1" | tr -d ' ')
+    OPENROUTER_ID=$(docker exec $POSTGRES_CONTAINER psql -U n8n -d n8n -t -c "SELECT id FROM public.credentials_entity WHERE type = 'openRouterApi' LIMIT 1" | tr -d ' ')
 fi
 
 echo "Found credential IDs:"
@@ -146,25 +196,26 @@ if [ -f n8n/init/workflow-template.json ] && [ -n "$ANTHROPIC_ID" ]; then
         -e "s/OPENROUTER_CREDENTIAL_ID/$OPENROUTER_ID/g" \
         n8n/init/workflow-template.json > workflow-final.json
     
-    # Import main workflow
+    # Import main workflow using API
     echo "Importing main workflow..."
-    WORKFLOW_RESULT=$(curl -s -b cookies.txt -X POST "http://$N8N_HOST/rest/workflows" \
+
+    WORKFLOW_RESULT=$(curl -s -H "$COOKIE_HEADER" -X POST "http://$N8N_HOST/rest/workflows" \
         -H "Content-Type: application/json" \
         -d @workflow-final.json)
-    
-    if echo "$WORKFLOW_RESULT" | grep -q '"id":'; then
+
+    if echo "$WORKFLOW_RESULT" | grep -q '"id"'; then
         echo "✅ Main workflow imported successfully"
-        
+
         # Activate main workflow
         WORKFLOW_ID=$(echo "$WORKFLOW_RESULT" | jq -r '.data.id' 2>/dev/null || echo "$WORKFLOW_RESULT" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
         if [ -n "$WORKFLOW_ID" ]; then
-            echo "Activating main workflow..."
-            curl -s -b cookies.txt -X POST "http://$N8N_HOST/rest/workflows/$WORKFLOW_ID/activate" > /dev/null
+            echo "Activating main workflow (ID: $WORKFLOW_ID)..."
+            curl -s -H "$COOKIE_HEADER" -X POST "http://$N8N_HOST/rest/workflows/$WORKFLOW_ID/activate" > /dev/null
             echo "✅ Main workflow activated"
         fi
     else
         echo "❌ Main workflow import failed"
-        echo "Result: $WORKFLOW_RESULT"
+        echo "Result: $(echo $WORKFLOW_RESULT | head -c 200)"
     fi
     
     # Note: The add-qa-pair functionality is now integrated into the main workflow
@@ -268,15 +319,39 @@ if [ -f /.dockerenv ]; then
     CREATE INDEX IF NOT EXISTS idx_ai_models_user_id ON \"ai_models\"(user_id);
     CREATE INDEX IF NOT EXISTS idx_ai_models_is_default ON \"ai_models\"(user_id, is_default);
     " > /dev/null 2>&1 && echo "✅ Database tables and pgvector extension created"
-    
-    # Seed AI models for existing users
-    echo "Seeding default AI models..."
+
+    # Create providers table FIRST (required for ai_models seeding)
+    echo "Creating providers table..."
+    if [ -f scripts/create-providers-table.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/create-providers-table.sql > /dev/null 2>&1 && echo "✅ Providers table created" || echo "⚠️ Providers table creation failed"
+    else
+        echo "⚠️ Providers table creation script not found, skipping..."
+    fi
+
+    # Seed providers data SECOND (required before seeding ai_models)
+    echo "Seeding providers data..."
+    if [ -f scripts/seed-providers.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/seed-providers.sql > /dev/null 2>&1 && echo "✅ Providers data seeded" || echo "⚠️ Providers seeding failed"
+    else
+        echo "⚠️ Providers seeding script not found, skipping..."
+    fi
+
+    # Add provider column to ai_models table THIRD (before seeding models)
+    echo "Adding provider support to ai_models table..."
+    if [ -f scripts/add-provider-to-ai-models.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/add-provider-to-ai-models.sql > /dev/null 2>&1 && echo "✅ Provider column added to ai_models" || echo "⚠️ Provider migration failed"
+    else
+        echo "⚠️ Provider migration script not found, skipping..."
+    fi
+
+    # Seed AI models FOURTH (now that providers exist and column is added)
+    echo "Seeding default AI models with OpenRouter provider..."
     if [ -f scripts/seed-ai-models.sql ]; then
-        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/seed-ai-models.sql > /dev/null 2>&1 && echo "✅ AI models seeded" || echo "⚠️ AI models seeding failed (may be expected if no users exist yet)"
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/seed-ai-models.sql > /dev/null 2>&1 && echo "✅ AI models seeded with provider references" || echo "⚠️ AI models seeding failed (may be expected if no users exist yet)"
     else
         echo "⚠️ AI models seeding script not found, skipping..."
     fi
-    
+
     # Run multimodal capabilities migration
     echo "Adding multimodal capabilities support..."
     if [ -f scripts/add-multimodal-capabilities.sql ]; then
@@ -284,7 +359,7 @@ if [ -f /.dockerenv ]; then
     else
         echo "⚠️ Multimodal capabilities migration script not found, skipping..."
     fi
-    
+
     # Run agent models migration
     echo "Migrating to agent models system..."
     if [ -f scripts/migrate-to-agent-models.sql ]; then
@@ -292,7 +367,7 @@ if [ -f /.dockerenv ]; then
     else
         echo "⚠️ Agent models migration script not found, skipping..."
     fi
-    
+
     # Create ServiceNow integration table
     echo "Creating ServiceNow integration table..."
     if [ -f scripts/create-servicenow-integration-table.sql ]; then
@@ -300,7 +375,7 @@ if [ -f /.dockerenv ]; then
     else
         echo "⚠️ ServiceNow integration table migration script not found, skipping..."
     fi
-    
+
     # Mark as initialized inside container
     docker exec $N8N_CONTAINER touch /home/node/.n8n/.initialized > /dev/null 2>&1
 else
@@ -381,15 +456,39 @@ else
     CREATE INDEX IF NOT EXISTS idx_ai_models_user_id ON \"ai_models\"(user_id);
     CREATE INDEX IF NOT EXISTS idx_ai_models_is_default ON \"ai_models\"(user_id, is_default);
     " > /dev/null 2>&1 && echo "✅ Database tables and pgvector extension created"
-    
-    # Seed AI models for existing users
-    echo "Seeding default AI models..."
+
+    # Create providers table FIRST (required for ai_models seeding)
+    echo "Creating providers table..."
+    if [ -f scripts/create-providers-table.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/create-providers-table.sql > /dev/null 2>&1 && echo "✅ Providers table created" || echo "⚠️ Providers table creation failed"
+    else
+        echo "⚠️ Providers table creation script not found, skipping..."
+    fi
+
+    # Seed providers data SECOND (required before seeding ai_models)
+    echo "Seeding providers data..."
+    if [ -f scripts/seed-providers.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/seed-providers.sql > /dev/null 2>&1 && echo "✅ Providers data seeded" || echo "⚠️ Providers seeding failed"
+    else
+        echo "⚠️ Providers seeding script not found, skipping..."
+    fi
+
+    # Add provider column to ai_models table THIRD (before seeding models)
+    echo "Adding provider support to ai_models table..."
+    if [ -f scripts/add-provider-to-ai-models.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/add-provider-to-ai-models.sql > /dev/null 2>&1 && echo "✅ Provider column added to ai_models" || echo "⚠️ Provider migration failed"
+    else
+        echo "⚠️ Provider migration script not found, skipping..."
+    fi
+
+    # Seed AI models FOURTH (now that providers exist and column is added)
+    echo "Seeding default AI models with OpenRouter provider..."
     if [ -f scripts/seed-ai-models.sql ]; then
-        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/seed-ai-models.sql > /dev/null 2>&1 && echo "✅ AI models seeded" || echo "⚠️ AI models seeding failed (may be expected if no users exist yet)"
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/seed-ai-models.sql > /dev/null 2>&1 && echo "✅ AI models seeded with provider references" || echo "⚠️ AI models seeding failed (may be expected if no users exist yet)"
     else
         echo "⚠️ AI models seeding script not found, skipping..."
     fi
-    
+
     # Run multimodal capabilities migration
     echo "Adding multimodal capabilities support..."
     if [ -f scripts/add-multimodal-capabilities.sql ]; then
@@ -397,7 +496,7 @@ else
     else
         echo "⚠️ Multimodal capabilities migration script not found, skipping..."
     fi
-    
+
     # Run agent models migration
     echo "Migrating to agent models system..."
     if [ -f scripts/migrate-to-agent-models.sql ]; then
@@ -405,7 +504,7 @@ else
     else
         echo "⚠️ Agent models migration script not found, skipping..."
     fi
-    
+
     # Create ServiceNow integration table
     echo "Creating ServiceNow integration table..."
     if [ -f scripts/create-servicenow-integration-table.sql ]; then
@@ -413,13 +512,13 @@ else
     else
         echo "⚠️ ServiceNow integration table migration script not found, skipping..."
     fi
-    
+
     # Mark as initialized inside container
     docker exec $N8N_CONTAINER touch /home/node/.n8n/.initialized > /dev/null 2>&1
 fi
 
 # Clean up
-rm -f cookies.txt
+rm -f /tmp/n8n-headers.txt
 
 echo ""
 echo "🎉 N8N Setup Complete!"
