@@ -4,7 +4,7 @@ import React, { lazy, Suspense, useMemo, memo } from 'react';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 
-import { markdownComponents } from '@/lib/markdown-components';
+import { createMarkdownComponents } from '@/lib/markdown-components';
 import { isMobileDevice } from '@/lib/streaming-buffer';
 
 // Lazy load ReactMarkdown and VirtualizedMarkdownRenderer
@@ -42,6 +42,12 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
 }: StreamingMarkdownRendererProps) {
 
   const isMobile = useMemo(() => isMobileDevice(), []);
+
+  // Create markdown components with streaming state
+  const markdownComponents = useMemo(
+    () => createMarkdownComponents(isStreaming),
+    [isStreaming]
+  );
 
   // For mobile devices, use progressive rendering threshold
   const progressiveRenderingThreshold = isMobile ? 500 : 200;
