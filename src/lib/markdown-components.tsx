@@ -3,8 +3,8 @@ import React from 'react';
 import CodeBlock from '@/components/CodeBlock';
 import StepGuide, { parseStepSequence } from '@/components/StepGuide';
 
-// Memoized ReactMarkdown components to prevent recreation on every render
-export const markdownComponents = {
+// Create markdown components with optional isStreaming prop
+export const createMarkdownComponents = (isStreaming?: boolean) => ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   a: ({ href, children, ...props }: any) => (
     <a
@@ -114,10 +114,14 @@ export const markdownComponents = {
     return (
       <CodeBlock
         className={className}
+        isStreaming={isStreaming}
         {...props}
       >
         {children}
       </CodeBlock>
     );
   },
-};
+});
+
+// Default markdown components (not streaming)
+export const markdownComponents = createMarkdownComponents(false);

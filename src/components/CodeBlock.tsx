@@ -1,20 +1,25 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
-import { Copy, Check, Maximize2, X } from 'lucide-react';
+import { Copy, Check, Maximize2, X, Eye, Code } from 'lucide-react';
 
 import SendScriptButton from './SendScriptButton';
+
+// Lazy load MermaidDiagram component
+const MermaidDiagram = lazy(() => import('./MermaidDiagram'));
 
 interface CodeBlockProps {
   children: React.ReactNode;
   className?: string;
+  isStreaming?: boolean;
 }
 
-const CodeBlock = React.memo(({ children, className, ...props }: CodeBlockProps & React.HTMLAttributes<HTMLElement>) => {
+const CodeBlock = React.memo(({ children, className, isStreaming = false, ...props }: CodeBlockProps & React.HTMLAttributes<HTMLElement>) => {
   const [copied, setCopied] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showSource, setShowSource] = useState(false);
 
   const handleCopy = async () => {
     const code = extractTextContent(children);
@@ -66,6 +71,7 @@ const CodeBlock = React.memo(({ children, className, ...props }: CodeBlockProps 
   }, [isFullscreen, handleKeyDown]);
 
   const isCodeBlock = className?.includes('language-');
+  const isMermaid = className?.includes('language-mermaid');
   
   // Extract text content from React elements recursively
   const extractTextContent = (element: React.ReactNode): string => {
@@ -246,9 +252,90 @@ const CodeBlock = React.memo(({ children, className, ...props }: CodeBlockProps 
     );
   };
 
+  // Mermaid Diagram Rendering
+  if (isMermaid) {
+    const code = extractTextContent(children);
+
+    return (
+      <>
+        {/* Mermaid Diagram View */}
+        {!showSource ? (
+          <div className="relative my-4">
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center py-8 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  <span className="ml-2 text-gray-600 dark:text-gray-400 text-sm">
+                    Loading diagram...
+                  </span>
+                </div>
+              }
+            >
+              <MermaidDiagram code={code} isStreaming={isStreaming} />
+            </Suspense>
+
+            {/* Action buttons */}
+            <div className="flex items-center justify-end gap-2 mt-2">
+              <button
+                onClick={() => setShowSource(!showSource)}
+                className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
+                title="View source code"
+              >
+                <Code className="w-3 h-3" />
+                View Source
+              </button>
+
+              <button
+                onClick={handleCopy}
+                className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
+                title="Copy diagram code"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-3 h-3" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3" />
+                    Copy
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* Source Code View */
+          <div className="relative my-4">
+            <div className="bg-gray-50 dark:bg-gray-800/80 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  Mermaid Source Code
+                </span>
+                <button
+                  onClick={() => setShowSource(!showSource)}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
+                  title="View diagram"
+                >
+                  <Eye className="w-3 h-3" />
+                  View Diagram
+                </button>
+              </div>
+              <pre className="text-sm leading-relaxed overflow-x-auto whitespace-pre-wrap">
+                <code className="block text-gray-800 dark:text-gray-200">
+                  {code}
+                </code>
+              </pre>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
   if (isCodeBlock) {
     const { truncatedChildren, hasMore } = getCodeSnippet();
-    
+
     return (
       <>
         {/* Mobile Code Preview */}

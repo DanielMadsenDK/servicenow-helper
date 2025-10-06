@@ -25,6 +25,7 @@ import {
   drawCodeBlockBackground,
   drawBlockquoteBackground,
 } from './pdf-styles';
+import { renderMermaidToImage, calculateImageDimensions, svgToPngDataUrl } from './mermaid-export';
 
 /**
  * Generate default filename with timestamp
@@ -151,7 +152,7 @@ export async function exportAsMarkdown(options: ExportOptions): Promise<void> {
 /**
  * Parse markdown and render to PDF
  */
-function renderMarkdownToPDF(doc: jsPDF, content: string): void {
+async function renderMarkdownToPDF(doc: jsPDF, content: string): Promise<void> {
   let currentY: number = PDFPageSettings.margin;
   const usableWidth = getUsableWidth();
   const leftMargin = PDFPageSettings.margin;
@@ -249,8 +250,12 @@ function renderMarkdownToPDF(doc: jsPDF, content: string): void {
       continue;
     }
 
-    // Check for code blocks
+    // Check for code blocks (including Mermaid diagrams)
     if (line.startsWith('```')) {
+      const languageMatch = line.match(/^```(\w+)/);
+      const language = languageMatch ? languageMatch[1] : '';
+      const isMermaid = language === 'mermaid';
+
       const codeLines: string[] = [];
       i++; // Skip the opening ```
 
@@ -260,6 +265,116 @@ function renderMarkdownToPDF(doc: jsPDF, content: string): void {
       }
       i++; // Skip the closing ```
 
+      // Handle Mermaid diagrams
+      if (isMermaid) {
+        const mermaidCode = codeLines.join('\n');
+
+        try {
+          console.log('Attempting to render Mermaid diagram for PDF export...');
+
+          // Render Mermaid to SVG (use 'default' theme for PDF - better visibility on white background)
+          const svg = await renderMermaidToImage(mermaidCode, 'default');
+
+          console.log('Mermaid diagram rendered successfully, SVG length:', svg.length);
+
+          // Parse SVG to get dimensions
+          const parser = new DOMParser();
+          const svgDoc = parser.parseFromString(svg, 'image/svg+xml');
+          const svgElement = svgDoc.documentElement;
+
+          // Get SVG dimensions (viewBox or width/height attributes)
+          const viewBox = svgElement.getAttribute('viewBox');
+          let svgWidth = 800; // Default width
+          let svgHeight = 600; // Default height
+
+          if (viewBox) {
+            const [, , w, h] = viewBox.split(' ').map(Number);
+            svgWidth = w;
+            svgHeight = h;
+          } else {
+            const width = svgElement.getAttribute('width');
+            const height = svgElement.getAttribute('height');
+            if (width) svgWidth = parseFloat(width);
+            if (height) svgHeight = parseFloat(height);
+          }
+
+          console.log('SVG dimensions:', svgWidth, 'x', svgHeight);
+
+          // Calculate display dimensions to fit page
+          const { width: displayWidth, height: displayHeight } = calculateImageDimensions(
+            svgWidth,
+            svgHeight,
+            usableWidth,
+            200 // Max height in PDF units
+          );
+
+          console.log('PDF display dimensions:', displayWidth, 'x', displayHeight);
+
+          // CRITICAL: Convert SVG to PNG at native resolution for quality
+          // addSvgAsImage creates low-res canvas, so we do it ourselves at high-res
+          console.log('Converting SVG to PNG at native resolution:', svgWidth, 'x', svgHeight);
+          const pngDataUrl = await svgToPngDataUrl(svg, svgWidth, svgHeight);
+          console.log('PNG conversion complete');
+
+          // Check if we need a new page
+          if (needsNewPage(doc, currentY, displayHeight + 15)) {
+            currentY = addNewPage(doc);
+          }
+
+          // Add title
+          applyCodeStyle(doc);
+          doc.text('[Mermaid Diagram]', leftMargin, currentY);
+          currentY += 6;
+
+          // Add high-resolution PNG scaled to fit page
+          doc.addImage(
+            pngDataUrl,
+            'PNG',
+            leftMargin,
+            currentY,
+            displayWidth,
+            displayHeight
+          );
+          currentY += displayHeight + 6;
+
+          applyBodyStyle(doc);
+          console.log('Mermaid diagram added successfully to PDF');
+        } catch (error) {
+          console.error('Failed to render Mermaid diagram in PDF:', error);
+          console.error('Error details:', error instanceof Error ? error.message : String(error));
+
+          // Fallback: Show as text
+          if (needsNewPage(doc, currentY, 20)) {
+            currentY = addNewPage(doc);
+          }
+
+          applyCodeStyle(doc);
+          doc.text('[Mermaid Diagram - rendering failed]', leftMargin, currentY);
+          currentY += 6;
+
+          // Show code as fallback
+          const codeHeight = Math.min(codeLines.length * 5, 100); // Limit height
+          drawCodeBlockBackground(doc, leftMargin, currentY - 2, usableWidth, codeHeight);
+
+          codeLines.slice(0, 20).forEach((codeLine) => {
+            const splitCode = doc.splitTextToSize(codeLine || ' ', usableWidth - 4);
+            doc.text(splitCode, leftMargin + 2, currentY);
+            currentY += splitCode.length * 4.5;
+          });
+
+          if (codeLines.length > 20) {
+            doc.text('... (truncated)', leftMargin + 2, currentY);
+            currentY += 5;
+          }
+
+          currentY += PDFTypography.margins.code;
+          applyBodyStyle(doc);
+        }
+
+        continue;
+      }
+
+      // Regular code blocks (non-Mermaid)
       // Calculate code block height
       const codeHeight = codeLines.length * 5 + 4;
 
@@ -378,8 +493,8 @@ export async function exportAsPDF(options: ExportOptions): Promise<void> {
   // Initialize PDF
   const doc = initializePDF();
 
-  // Render markdown content to PDF
-  renderMarkdownToPDF(doc, content);
+  // Render markdown content to PDF (now async for Mermaid support)
+  await renderMarkdownToPDF(doc, content);
 
   // Generate PDF blob
   const pdfBlob = doc.output('blob');
