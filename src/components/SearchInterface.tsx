@@ -189,6 +189,17 @@ export default function SearchInterface() {
     }
   }, [response, isLoadedFromHistory, isStreaming]);
 
+  // Auto-select first visible mode if current type is hidden
+  useEffect(() => {
+    const visibleModes = settings.visible_request_types ||
+      ['documentation', 'recommendation', 'script', 'troubleshoot', 'ai-agent'];
+
+    if (!visibleModes.includes(selectedType)) {
+      // Auto-switch to first visible mode
+      setSelectedType(visibleModes[0]);
+    }
+  }, [settings.visible_request_types, selectedType]);
+
 
   // Scroll to results when streaming starts is now handled in onChunk callback
 
@@ -589,6 +600,7 @@ export default function SearchInterface() {
                 selectedType={selectedType}
                 onTypeChange={setSelectedType}
                 disabled={isLoading}
+                visibleTypes={settings.visible_request_types}
               />
 
               {/* Separator */}

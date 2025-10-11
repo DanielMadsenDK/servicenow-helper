@@ -376,6 +376,14 @@ if [ -f /.dockerenv ]; then
         echo "⚠️ ServiceNow integration table migration script not found, skipping..."
     fi
 
+    # Add visible request types setting
+    echo "Adding visible request types setting..."
+    if [ -f scripts/add-visible-request-types.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/add-visible-request-types.sql > /dev/null 2>&1 && echo "✅ Visible request types setting added" || echo "⚠️ Visible request types migration failed"
+    else
+        echo "⚠️ Visible request types migration script not found, skipping..."
+    fi
+
     # Mark as initialized inside container
     docker exec $N8N_CONTAINER touch /home/node/.n8n/.initialized > /dev/null 2>&1
 else
@@ -511,6 +519,14 @@ else
         docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/create-servicenow-integration-table.sql > /dev/null 2>&1 && echo "✅ ServiceNow integration table created" || echo "⚠️ ServiceNow integration table creation failed"
     else
         echo "⚠️ ServiceNow integration table migration script not found, skipping..."
+    fi
+
+    # Add visible request types setting
+    echo "Adding visible request types setting..."
+    if [ -f scripts/add-visible-request-types.sql ]; then
+        docker exec -i $POSTGRES_CONTAINER psql -U n8n -d n8n < scripts/add-visible-request-types.sql > /dev/null 2>&1 && echo "✅ Visible request types setting added" || echo "⚠️ Visible request types migration failed"
+    else
+        echo "⚠️ Visible request types migration script not found, skipping..."
     fi
 
     # Mark as initialized inside container

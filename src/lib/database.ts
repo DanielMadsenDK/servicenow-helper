@@ -387,7 +387,8 @@ export class UserSettingsManager {
       default_search_mode: false,
       default_request_type: 'recommendation',
       servicenow_instance_url: '',
-      default_ai_model: 'anthropic/claude-sonnet-4'
+      default_ai_model: 'anthropic/claude-sonnet-4',
+      visible_request_types: ['recommendation', 'script', 'troubleshoot', 'ai-agent']
     };
 
     if (result.rows.length === 0) {

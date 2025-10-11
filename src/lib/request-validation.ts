@@ -4,6 +4,12 @@ export function validateRequest(body: StreamingRequest): string | null {
     if (!body.question || !body.type) {
         return 'Missing required fields: question and type are required';
     }
+
+    // Validate request type
+    const allowedTypes = ['documentation', 'recommendation', 'script', 'troubleshoot', 'ai-agent'];
+    if (!allowedTypes.includes(body.type)) {
+        return `Invalid request type: ${body.type}. Allowed types: ${allowedTypes.join(', ')}`;
+    }
     if (!body.aiModel && (!body.agentModels || body.agentModels.length === 0)) {
         return 'Either aiModel or agentModels with at least one agent configuration must be provided';
     }

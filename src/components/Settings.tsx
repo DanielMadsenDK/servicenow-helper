@@ -8,6 +8,7 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { useAIModels } from '@/contexts/AIModelContext';
 import { useAgentModels } from '@/contexts/AgentModelContext';
 import { useProviders } from '@/contexts/ProviderContext';
+import { DEFAULT_VISIBLE_MODES, RequestType } from '@/lib/constants';
 
 import BurgerMenu from './BurgerMenu';
 import ThemeToggle from './ThemeToggle';
@@ -120,18 +121,60 @@ export default function Settings() {
     }
   };
 
-  const handleRequestTypeChange = async (value: 'documentation' | 'recommendation' | 'script' | 'troubleshoot') => {
+  const handleRequestTypeChange = async (value: 'documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent') => {
     setSaving('default_request_type');
     setFeedback(null);
-    
+
     try {
       await updateSetting('default_request_type', value);
       setFeedback({ type: 'success', message: 'Default request type saved!' });
       setTimeout(() => setFeedback(null), 3000);
     } catch (err) {
-      setFeedback({ 
-        type: 'error', 
-        message: err instanceof Error ? err.message : 'Failed to save setting' 
+      setFeedback({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Failed to save setting'
+      });
+      setTimeout(() => setFeedback(null), 5000);
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const handleVisibilityToggle = async (type: RequestType) => {
+    const current = settings.visible_request_types || DEFAULT_VISIBLE_MODES;
+
+    // Prevent hiding all modes
+    if (current.length === 1 && current.includes(type)) {
+      setFeedback({
+        type: 'error',
+        message: 'At least one request type must be visible'
+      });
+      setTimeout(() => setFeedback(null), 5000);
+      return;
+    }
+
+    const updated = current.includes(type)
+      ? current.filter(t => t !== type)
+      : [...current, type];
+
+    setSaving('visible_request_types');
+    setFeedback(null);
+
+    try {
+      await updateSetting('visible_request_types', updated);
+
+      // If the current default request type is being hidden, switch to the first visible mode
+      if (settings.default_request_type === type && !updated.includes(type)) {
+        await updateSetting('default_request_type', updated[0]);
+        setFeedback({ type: 'success', message: 'Visible modes updated! Default request type changed to ' + requestTypeOptions.find(opt => opt.value === updated[0])?.label });
+      } else {
+        setFeedback({ type: 'success', message: 'Visible modes updated!' });
+      }
+      setTimeout(() => setFeedback(null), 3000);
+    } catch (err) {
+      setFeedback({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Failed to update modes'
       });
       setTimeout(() => setFeedback(null), 5000);
     } finally {
@@ -233,6 +276,7 @@ export default function Settings() {
     { value: 'documentation' as const, label: 'Documentation', icon: FileText },
     { value: 'script' as const, label: 'Script', icon: Code2 },
     { value: 'troubleshoot' as const, label: 'Troubleshoot', icon: Wrench },
+    { value: 'ai-agent' as const, label: 'AI Agent', icon: Bot },
   ];
 
   const isModelMultimodal = (model: typeof models[0]) => {
@@ -449,36 +493,84 @@ export default function Settings() {
                 </div>
 
                 {/* Default Request Type */}
+                <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-700/30">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <Lightbulb className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <div>
+                      <label className="text-gray-900 dark:text-gray-100 font-medium">Default Request Type</label>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">The default request type for new sessions</p>
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <select
+                      value={settings.default_request_type}
+                      onChange={(e) => handleRequestTypeChange(e.target.value as RequestType)}
+                      disabled={saving === 'default_request_type' || isLoading || !isAuthenticated}
+                      className="w-full px-4 py-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+                    >
+                      {requestTypeOptions
+                        .filter(({ value }) => (settings.visible_request_types || DEFAULT_VISIBLE_MODES).includes(value))
+                        .map(({ value, label, icon: Icon }) => (
+                          <option key={value} value={value}>
+                            {label}
+                          </option>
+                        ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      {saving === 'default_request_type' ? (
+                        <div className="animate-spin w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    Only visible modes are available for selection
+                  </p>
+                </div>
+
+                {/* Visible Modes Configuration */}
                 <div className="space-y-4">
                   <div>
-                    <label className="text-gray-900 dark:text-gray-100 font-medium">Default Request Type</label>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">The default request type for new sessions</p>
+                    <label className="text-gray-900 dark:text-gray-100 font-medium">Visible Modes</label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Choose which request types to show in the interface</p>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {requestTypeOptions.map(({ value, label, icon: Icon }) => (
-                      <button
-                        key={value}
-                        onClick={() => handleRequestTypeChange(value)}
-                        disabled={saving === 'default_request_type' || isLoading || !isAuthenticated}
-                        className={`p-4 rounded-xl border-2 transition-all duration-200 flex items-center space-x-3 shadow-sm hover:shadow-md transform hover:scale-105 hover:-translate-y-0.5 disabled:transform-none disabled:hover:scale-100 disabled:hover:translate-y-0 ${
-                          settings.default_request_type === value
-                            ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                            : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-blue-300 dark:hover:border-blue-400'
-                        }`}
-                      >
-                        {saving === 'default_request_type' && settings.default_request_type === value ? (
-                          <div className="animate-spin w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
-                        ) : (
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {requestTypeOptions.map(({ value, label, icon: Icon }) => {
+                      const visibleModes = settings.visible_request_types || DEFAULT_VISIBLE_MODES;
+                      const isVisible = visibleModes.includes(value);
+
+                      return (
+                        <button
+                          key={value}
+                          onClick={() => handleVisibilityToggle(value)}
+                          disabled={!isAuthenticated || (visibleModes.length === 1 && isVisible)}
+                          className={`p-4 rounded-xl border-2 flex items-center space-x-3 transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                            isVisible
+                              ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                              : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/30 text-gray-700 dark:text-gray-300 hover:border-blue-300 dark:hover:border-blue-400'
+                          }`}
+                        >
+                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                            isVisible
+                              ? 'bg-blue-500 border-blue-500'
+                              : 'border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700'
+                          }`}>
+                            {isVisible && <Check className="w-3 h-3 text-white" />}
+                          </div>
                           <Icon className="w-5 h-5" />
-                        )}
-                        <span className="font-medium">{label}</span>
-                        {settings.default_request_type === value && saving !== 'default_request_type' && (
-                          <Check className="w-4 h-4 ml-auto text-blue-600 dark:text-blue-400" />
-                        )}
-                      </button>
-                    ))}
+                          <span className="font-medium flex-1 text-left">{label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
+
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    At least one mode must be visible
+                  </p>
                 </div>
               </div>
             </div>
