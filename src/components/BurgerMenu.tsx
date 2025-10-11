@@ -47,7 +47,7 @@ export default function BurgerMenu() {
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label="Open menu"
-        className="flex flex-col items-center justify-center w-10 h-10 p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600"
+        className="flex flex-col items-center justify-center w-10 h-10 p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 hover:scale-110 active:scale-95 hover:shadow-md"
       >
         <div className="space-y-1">
           <div className={`w-5 h-0.5 bg-current transition-transform duration-200 ${isOpen ? 'rotate-45 translate-y-1.5' : ''}`}></div>
@@ -57,8 +57,8 @@ export default function BurgerMenu() {
       </button>
 
       {isOpen && (
-        <div 
-          className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 py-2 z-50"
+        <div
+          className="absolute top-full right-0 mt-2 w-48 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg shadow-blue-500/5 dark:shadow-blue-500/10 border border-gray-200/50 dark:border-gray-700/50 py-2 z-50 animate-in slide-in-from-top-2 fade-in-0 duration-200"
           role="menu"
           aria-label="User menu"
           onKeyDown={handleKeyDown}
@@ -75,10 +75,10 @@ export default function BurgerMenu() {
                 setIsOpen(false);
               }
             }}
-            className="flex items-center w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700"
+            className="flex items-center w-full px-4 py-3 text-left hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-200 focus:outline-none focus:bg-blue-50 dark:focus:bg-blue-900/30 rounded-lg mx-1"
             role="menuitem"
           >
-            <Settings className="w-4 h-4 mr-3" />
+            <Settings className="w-4 h-4 mr-3 transition-transform duration-200 group-hover:scale-110" />
             <span className="text-sm font-medium">Settings</span>
           </button>
           <button
@@ -93,10 +93,10 @@ export default function BurgerMenu() {
                 setIsOpen(false);
               }
             }}
-            className="flex items-center w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700"
+            className="flex items-center w-full px-4 py-3 text-left hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/30 dark:hover:to-pink-900/30 text-gray-700 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-300 transition-all duration-200 focus:outline-none focus:bg-purple-50 dark:focus:bg-purple-900/30 rounded-lg mx-1"
             role="menuitem"
           >
-            <Database className="w-4 h-4 mr-3" />
+            <Database className="w-4 h-4 mr-3 transition-transform duration-200 group-hover:scale-110" />
             <span className="text-sm font-medium">Knowledge Store</span>
           </button>
           <button
@@ -111,10 +111,10 @@ export default function BurgerMenu() {
                 setIsOpen(false);
               }
             }}
-            className="flex items-center w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700"
+            className="flex items-center w-full px-4 py-3 text-left hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 dark:hover:from-green-900/30 dark:hover:to-emerald-900/30 text-gray-700 dark:text-gray-300 hover:text-green-700 dark:hover:text-green-300 transition-all duration-200 focus:outline-none focus:bg-green-50 dark:focus:bg-green-900/30 rounded-lg mx-1"
             role="menuitem"
           >
-            <BookOpen className="w-4 h-4 mr-3" />
+            <BookOpen className="w-4 h-4 mr-3 transition-transform duration-200 group-hover:scale-110" />
             <span className="text-sm font-medium">User Manual</span>
           </button>
           <div className="border-t border-gray-200 dark:border-gray-600 my-1"></div>
@@ -130,10 +130,10 @@ export default function BurgerMenu() {
                 setIsOpen(false);
               }
             }}
-            className="flex items-center w-full px-4 py-3 text-left hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors duration-200 focus:outline-none focus:bg-red-50 dark:focus:bg-red-900/30"
+            className="flex items-center w-full px-4 py-3 text-left hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all duration-200 focus:outline-none focus:bg-red-50 dark:focus:bg-red-900/30 rounded-lg mx-1"
             role="menuitem"
           >
-            <LogOut className="w-4 h-4 mr-3" />
+            <LogOut className="w-4 h-4 mr-3 transition-transform duration-200 group-hover:scale-110" />
             <span className="text-sm font-medium">Sign Out</span>
           </button>
         </div>

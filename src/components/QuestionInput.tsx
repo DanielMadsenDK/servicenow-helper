@@ -15,7 +15,7 @@ interface QuestionInputProps {
 
 const QuestionInput = forwardRef<HTMLTextAreaElement, QuestionInputProps>(
   ({ value, onChange, onKeyDown, placeholder, disabled, isLoadedFromHistory, onClearHistory }, ref) => {
-    
+
     // Auto-resize textarea based on content
     useEffect(() => {
       if (ref && typeof ref === 'object' && 'current' in ref && ref.current) {
@@ -25,7 +25,7 @@ const QuestionInput = forwardRef<HTMLTextAreaElement, QuestionInputProps>(
         const scrollHeight = ref.current.scrollHeight;
         const minHeight = 100; // Minimum height in pixels (matches min-h-[100px])
         const maxHeight = 400; // Maximum height before scrolling
-        
+
         const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
         ref.current.style.height = `${newHeight}px`;
       }
@@ -33,13 +33,13 @@ const QuestionInput = forwardRef<HTMLTextAreaElement, QuestionInputProps>(
 
     return (
       <div className="relative group">
-        <div className="absolute top-3 sm:top-4 left-0 pl-3 sm:pl-4 flex items-start pointer-events-none transition-colors duration-200">
-          <Pen className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400" />
+        <div className="absolute top-3 sm:top-4 left-0 pl-3 sm:pl-4 flex items-start pointer-events-none transition-all duration-200">
+          <Pen className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 group-focus-within:scale-110 transition-all" />
         </div>
         <div className="hidden sm:block absolute bottom-2 sm:bottom-3 right-2 sm:right-3 text-xs text-gray-400 dark:text-gray-500 pointer-events-none opacity-0 group-focus-within:opacity-100 transition-opacity duration-200">
-          <kbd className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">Ctrl</kbd>
+          <kbd className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded shadow-sm">Ctrl</kbd>
           <span className="mx-1">+</span>
-          <kbd className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">Enter</kbd>
+          <kbd className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded shadow-sm">Enter</kbd>
           <span className="ml-1">to submit</span>
         </div>
         <textarea
@@ -54,9 +54,26 @@ const QuestionInput = forwardRef<HTMLTextAreaElement, QuestionInputProps>(
           }}
           onKeyDown={onKeyDown}
           placeholder={placeholder}
-          className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 text-base sm:text-lg border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition-all resize-none overflow-y-auto min-h-[100px] sm:min-h-[120px] text-gray-900 dark:text-gray-100 dark:bg-gray-700 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+          className="
+            w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4
+            text-base sm:text-lg
+            border-2 border-gray-200 dark:border-gray-600
+            rounded-xl
+            focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+            focus:border-blue-500 dark:focus:border-blue-400
+            outline-none
+            transition-all duration-200
+            resize-none overflow-y-auto
+            min-h-[100px] sm:min-h-[120px]
+            text-gray-900 dark:text-gray-100
+            bg-white dark:bg-gray-700
+            placeholder:text-gray-400 dark:placeholder:text-gray-500
+            shadow-sm
+            hover:border-gray-300 dark:hover:border-gray-500
+            disabled:opacity-60 disabled:cursor-not-allowed
+          "
           disabled={disabled}
-          
+
         />
       </div>
     );

@@ -39,7 +39,7 @@ export default function UserManual() {
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => router.back()}
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
                 title="Go back"
               >
                 <ArrowLeft className="w-5 h-5" />

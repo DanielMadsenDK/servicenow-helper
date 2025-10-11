@@ -551,8 +551,9 @@ export default function SearchInterface() {
               <ThemeToggle />
               <button
                 onClick={() => setIsHistoryOpen(true)}
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
                 title="View conversation history"
+                aria-label="View conversation history"
               >
                 <History className="w-5 h-5" />
               </button>
@@ -570,7 +571,7 @@ export default function SearchInterface() {
         />
 
         {/* Search Form */}
-        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-4 sm:p-8 md:p-10 mb-4 sm:mb-8 relative overflow-hidden animate-in slide-in-from-bottom-4 fade-in-0 duration-500">
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg shadow-blue-500/5 dark:shadow-blue-500/10 border border-gray-200/50 dark:border-gray-700/50 p-6 sm:p-8 md:p-10 mb-6 sm:mb-8 relative overflow-hidden animate-in slide-in-from-bottom-4 fade-in-0 duration-500 transition-all hover:shadow-xl hover:shadow-blue-500/10">
           {/* Enhanced Processing Overlay */}
           <ProcessingOverlay 
             isVisible={isLoading} 
@@ -606,10 +607,10 @@ export default function SearchInterface() {
               {/* Separator */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                  <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-3 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Options</span>
+                <div className="relative flex justify-center">
+                  <span className="px-4 py-1 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 text-xs font-medium rounded-full">Options</span>
                 </div>
               </div>
 
@@ -628,10 +629,10 @@ export default function SearchInterface() {
                   {/* Separator */}
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                      <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
                     </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-3 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Attachment</span>
+                    <div className="relative flex justify-center">
+                      <span className="px-4 py-1 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 text-xs font-medium rounded-full">Attachment</span>
                     </div>
                   </div>
 
@@ -647,7 +648,7 @@ export default function SearchInterface() {
 
           {/* Submit Button - Outside animated area */}
           <form onSubmit={handleSubmit}>
-            <div className="mt-4 sm:mt-6">
+            <div className="mt-4 sm:mt-6 relative z-20">
               <SubmitButton
                 isLoading={isLoading || isStreaming}
                 hasQuestion={!!question.trim()}

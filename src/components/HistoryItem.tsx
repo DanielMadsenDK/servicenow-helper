@@ -66,24 +66,24 @@ const HistoryItem = memo(({ conversation, onDelete, onSelect }: HistoryItemProps
   };
 
   return (
-    <div className="border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+    <div className="border border-gray-200/50 dark:border-gray-700/50 rounded-2xl hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 dark:hover:from-blue-900/20 dark:hover:to-indigo-900/20 transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-blue-500/10 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
       {/* Clickable main area */}
-      <div 
+      <div
         className="p-4 cursor-pointer"
         onClick={handleSelect}
       >
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-2 flex-wrap">
               <Clock className="w-4 h-4" />
               <span>{formatDate(conversation.created_at)}</span>
               {conversation.model && (
-                <span className="bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2 py-1 rounded text-xs">
+                <span className="bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2.5 py-1 rounded-full text-xs font-medium">
                   {conversation.model}
                 </span>
               )}
               {conversation.type && (
-                <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded text-xs capitalize">
+                <span className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-1 rounded-full text-xs font-medium capitalize">
                   {conversation.type}
                 </span>
               )}
@@ -100,11 +100,13 @@ const HistoryItem = memo(({ conversation, onDelete, onSelect }: HistoryItemProps
 
             {conversation.response && (
               <div className="mt-2">
-                <div className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Response available - click to load</span>
+                <div className="flex items-center gap-1.5 text-sm">
+                  <span className="px-2.5 py-1 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 text-green-700 dark:text-green-300 rounded-full text-xs font-medium flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                    Response available - click to load
+                  </span>
                 </div>
-                
+
                 {/* Preview/expand functionality */}
                 <div className="mt-2">
                   <button
@@ -112,7 +114,7 @@ const HistoryItem = memo(({ conversation, onDelete, onSelect }: HistoryItemProps
                       e.stopPropagation();
                       setIsExpanded(!isExpanded);
                     }}
-                    className="flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                    className="flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-all duration-200 px-2.5 py-1 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 font-medium"
                   >
                     {isExpanded ? (
                       <>
@@ -128,7 +130,7 @@ const HistoryItem = memo(({ conversation, onDelete, onSelect }: HistoryItemProps
                   </button>
                   
                   {isExpanded && (
-                    <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
+                    <div className="mt-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-700/50 rounded-xl border border-gray-200/50 dark:border-gray-600/50 animate-in slide-in-from-top-2 fade-in-0 duration-200">
                       <div className="prose prose-sm max-w-none dark:prose-invert">
                         <Suspense fallback={
                           <div className="animate-pulse">
@@ -163,7 +165,8 @@ const HistoryItem = memo(({ conversation, onDelete, onSelect }: HistoryItemProps
             )}
 
             {conversation.state !== 'done' && (
-              <div className="mt-2 text-sm text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/30 px-2 py-1 rounded">
+              <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 text-yellow-700 dark:text-yellow-300 rounded-full text-xs font-medium">
+                <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></div>
                 Status: {conversation.state}
               </div>
             )}
@@ -178,7 +181,7 @@ const HistoryItem = memo(({ conversation, onDelete, onSelect }: HistoryItemProps
                   handleDelete(e);
                 }}
                 disabled={isDeleting}
-                className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
                 title="Delete conversation"
               >
                 {isDeleting ? (

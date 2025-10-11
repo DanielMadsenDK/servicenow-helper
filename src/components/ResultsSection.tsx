@@ -124,12 +124,12 @@ const ResultsSection = memo(function ResultsSection({
   const showStreamingIndicators = isStreaming && streamingStatus !== StreamingStatus.COMPLETE;
 
   return (
-    <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-4 sm:p-8 md:p-10 animate-in slide-in-from-bottom-4 duration-300">
+    <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg shadow-blue-500/5 dark:shadow-blue-500/10 border border-gray-200/50 dark:border-gray-700/50 p-6 sm:p-8 md:p-10 animate-in slide-in-from-bottom-4 duration-300 transition-all hover:shadow-xl hover:shadow-blue-500/10">
       {/* History indicator */}
       {isLoadedFromHistory && (
-        <div className="mb-4 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-2 rounded-lg">
-          <History className="w-4 h-4" />
-          <span>Loaded from conversation history</span>
+        <div className="mb-6 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 px-4 py-2.5 rounded-full border border-blue-200 dark:border-blue-700 shadow-sm">
+          <History className="w-4 h-4 flex-shrink-0" />
+          <span className="font-medium">Loaded from conversation history</span>
         </div>
       )}
       {error && (
@@ -170,15 +170,15 @@ const ResultsSection = memo(function ResultsSection({
                 </div>
               )}
 
-              {/* Export button - styled like Send/Toggle/Copy buttons */}
+              {/* Export button - chip style */}
               {response && !isStreaming && (
                 <button
                   onClick={() => setIsExportModalOpen(true)}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-full shadow-sm border border-gray-200 dark:border-gray-600 backdrop-blur-sm hover:bg-gray-50 dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95"
                   title="Export answer"
                   aria-label="Export answer as Markdown or PDF"
                 >
-                  <Download className="w-3 h-3" />
+                  <Download className="w-3.5 h-3.5" />
                   Export
                 </button>
               )}
@@ -253,21 +253,21 @@ const ResultsSection = memo(function ResultsSection({
                   <button
                     onClick={handleSaveQA}
                     disabled={isSaving || isSaved}
-                    className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm ${
+                    className={`flex items-center gap-2.5 min-h-[44px] px-6 py-3 rounded-full font-medium transition-all duration-200 shadow-md ${
                       isSaved
-                        ? 'bg-green-500 text-white cursor-default'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white hover:shadow-md transform hover:scale-105'
+                        ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white cursor-default shadow-green-500/25'
+                        : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white hover:shadow-lg hover:shadow-blue-500/30 hover:scale-105 active:scale-95'
                     } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                     title={isSaved ? 'Successfully added to Knowledge Store' : 'Add this Q&A pair to the Knowledge Store'}
                   >
                     {isSaving ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     ) : isSaved ? (
-                      <Check className="w-4 h-4" />
+                      <Check className="w-5 h-5 flex-shrink-0" />
                     ) : (
-                      <Database className="w-4 h-4" />
+                      <Database className="w-5 h-5 flex-shrink-0" />
                     )}
-                    <span>
+                    <span className="text-sm sm:text-base">
                       {isSaving ? 'Adding...' : isSaved ? 'Added!' : 'Add to Knowledge Store'}
                     </span>
                   </button>

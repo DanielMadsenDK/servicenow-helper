@@ -52,7 +52,7 @@ export default function ProcessingOverlay({
       
       {/* Animated processing indicator */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-8 max-w-sm mx-4 animate-in slide-in-from-bottom-4 duration-700">
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-blue-500/10 dark:shadow-blue-500/20 border border-gray-200/50 dark:border-gray-700/50 p-8 max-w-sm mx-4 animate-in slide-in-from-bottom-4 duration-700">
           <div className="text-center space-y-6">
             {/* Friendly AI Assistant Icon */}
             <div className="relative">

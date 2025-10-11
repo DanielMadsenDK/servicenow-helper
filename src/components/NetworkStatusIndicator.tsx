@@ -123,7 +123,7 @@ export default function NetworkStatusIndicator({
     <div className={`flex items-center gap-2 ${className}`}>
       {getStatusIcon()}
 
-      <div className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor()}`}>
+      <div className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor()}`}>
         {getStatusText()}
       </div>
 
