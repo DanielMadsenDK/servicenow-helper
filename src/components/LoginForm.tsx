@@ -35,7 +35,7 @@ export default function LoginForm() {
 
   return (
     <div className="min-h-screen bg-stone-100 flex items-center justify-center px-4">
-      <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 md:p-10 w-full max-w-md">
+      <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 border border-gray-200/50 p-8 md:p-10 w-full max-w-md">
         <div className="text-center mb-8">
           <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mb-4">
             <Lock className="h-8 w-8 text-white" />
@@ -85,13 +85,13 @@ export default function LoginForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center hover:scale-110 active:scale-95 transition-all duration-200"
                 disabled={isLoading}
               >
                 {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
                 ) : (
-                  <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
                 )}
               </button>
             </div>
@@ -106,7 +106,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105 active:scale-95 disabled:hover:scale-100"
           >
             {isLoading ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>

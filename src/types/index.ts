@@ -5,7 +5,7 @@ export interface AgentModel {
 
 export interface ServiceNowRequest {
   question: string;
-  type: 'documentation' | 'recommendation' | 'script' | 'troubleshoot';
+  type: 'documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent';
   sessionkey: string;
   searching: boolean;
   aiModel: string; // Legacy field for backward compatibility
@@ -84,11 +84,12 @@ export interface UserSetting {
 export interface UserSettings {
   welcome_section_visible: boolean;
   default_search_mode: boolean;
-  default_request_type: 'documentation' | 'recommendation' | 'script' | 'troubleshoot';
+  default_request_type: 'documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent';
   servicenow_instance_url: string;
   default_ai_model: string; // Legacy field for backward compatibility
   agent_models?: Record<string, string>; // New field: { agent_name: model_name }
   selected_provider_id?: number; // New field: selected provider for filtering models
+  visible_request_types?: ('documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent')[]; // New field: modes to show in UI
 }
 
 export interface Capability {

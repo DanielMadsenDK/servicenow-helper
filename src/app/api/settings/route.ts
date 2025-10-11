@@ -64,7 +64,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse<SettingsAp
     const agentModelManager = new AgentModelManager();
     
     // Validate the settings object structure
-    const validKeys = ['welcome_section_visible', 'default_search_mode', 'default_request_type', 'servicenow_instance_url', 'default_ai_model', 'agent_models'];
+    const validKeys = ['welcome_section_visible', 'default_search_mode', 'default_request_type', 'servicenow_instance_url', 'default_ai_model', 'agent_models', 'visible_request_types'];
     const settings: Partial<UserSettings> = {};
     let agentModelsToUpdate: Record<string, string> | null = null;
     
@@ -88,11 +88,27 @@ export async function PUT(request: NextRequest): Promise<NextResponse<SettingsAp
           }
           agentModelsToUpdate = value as Record<string, string>;
         } else if (key === 'default_request_type') {
-          if (!['documentation', 'recommendation', 'script', 'troubleshoot'].includes(value as string)) {
+          if (!['documentation', 'recommendation', 'script', 'troubleshoot', 'ai-agent'].includes(value as string)) {
             return NextResponse.json(
               { success: false, error: `Invalid value for ${key}` },
               { status: 400 }
             );
+          }
+        } else if (key === 'visible_request_types') {
+          if (!Array.isArray(value) || value.length === 0) {
+            return NextResponse.json(
+              { success: false, error: 'visible_request_types must be a non-empty array' },
+              { status: 400 }
+            );
+          }
+          const validTypes = ['documentation', 'recommendation', 'script', 'troubleshoot', 'ai-agent'];
+          for (const type of value) {
+            if (typeof type !== 'string' || !validTypes.includes(type)) {
+              return NextResponse.json(
+                { success: false, error: `Invalid request type in visible_request_types: ${type}` },
+                { status: 400 }
+              );
+            }
           }
         } else if (key === 'servicenow_instance_url' || key === 'default_ai_model') {
           if (typeof value !== 'string') {

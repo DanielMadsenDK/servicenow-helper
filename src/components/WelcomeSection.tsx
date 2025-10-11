@@ -13,11 +13,11 @@ export default function WelcomeSection({ isVisible, onClose }: WelcomeSectionPro
 
   return (
     <div className="text-center mb-4 sm:mb-8 relative animate-in slide-in-from-top-4 fade-in-0 duration-700 delay-200">
-      <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-3xl shadow-lg border border-white/30 dark:border-gray-700/30 p-4 sm:p-6 md:p-8 mb-4 sm:mb-8 relative">
+      <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-lg shadow-blue-500/5 dark:shadow-blue-500/10 border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-6 md:p-8 mb-4 sm:mb-8 relative transition-all hover:shadow-xl hover:shadow-blue-500/10">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
           title="Hide welcome section"
         >
           <X className="w-4 h-4" />

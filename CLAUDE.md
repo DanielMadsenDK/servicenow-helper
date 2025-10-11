@@ -167,7 +167,108 @@ The `848250f153632210030191e0a0490ed5/` directory contains a ServiceNow applicat
 - **No Testing**: Jest and Playwright tests are not applicable to ServiceNow applications
 - **Manual Management**: This companion app follows ServiceNow development and deployment practices, not Node.js/React workflows
 
-## Detailed Documentation
+## UI Design Principles
+
+This project follows a modern, cohesive design system with consistent styling across all components. **All UI changes must maintain this consistency.**
+
+### Design System Standards
+
+#### Chip-Style Buttons
+- **Border Radius**: Use `rounded-full` for all primary and secondary buttons
+- **Gradients**: Primary buttons use `bg-gradient-to-r from-blue-500 to-indigo-600` with hover states `hover:from-blue-600 hover:to-indigo-700`
+- **Shadows**: Apply colored shadows with opacity variants: `shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30`
+- **Animations**: Always include `hover:scale-105 active:scale-95` for tactile feedback
+- **Disabled States**: Use `disabled:from-gray-400 disabled:to-gray-400 disabled:hover:scale-100`
+- **Font Weight**: Use `font-medium` for button text
+
+#### Pill-Style Badges
+- **Shape**: Use `rounded-full` for all badges and status indicators
+- **Padding**: Apply `px-2.5 py-1` for consistent sizing
+- **Typography**: Use `text-xs font-medium` for badge text
+- **Colors**: Use semantic colors with dark mode variants (e.g., `bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400`)
+
+#### Modern Cards & Containers
+- **Border Radius**: Use `rounded-2xl` or `rounded-3xl` for cards
+- **Glassmorphism**: Apply `bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl` for semi-transparent backgrounds
+- **Borders**: Use semi-transparent borders: `border border-gray-200/50 dark:border-gray-700/50`
+- **Shadows**: Apply colored shadows for depth: `shadow-lg shadow-blue-500/5` or `shadow-2xl shadow-blue-500/10`
+- **Hover Effects**: Cards should have `hover:shadow-xl hover:shadow-blue-500/10` transitions
+
+#### Modal Overlays
+- **Backdrop**: Use `backdrop-blur-md bg-black/40` for modal overlays
+- **Animations**: Include `animate-in fade-in-0 duration-200` for overlay entrance
+- **Modal Container**: Apply glassmorphism with `bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl`
+- **Modal Animation**: Use `animate-in slide-in-from-bottom-4 duration-300` for modal entrance
+
+#### Interactive Elements
+- **Scale Animations**: All clickable elements should have `hover:scale-110 active:scale-95` (small elements) or `hover:scale-105 active:scale-95` (buttons)
+- **Transitions**: Use `transition-all duration-200` for smooth animations
+- **Hover Backgrounds**: Apply `hover:bg-gray-100 dark:hover:bg-gray-700` for icon buttons
+- **Icon Sizes**: Standard icon size is `w-5 h-5` for most UI elements, `w-4 h-4` for smaller contexts
+
+#### Close Buttons
+- **Styling**: Use `p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg`
+- **Animations**: Include `hover:scale-110 active:scale-95 hover:bg-gray-100 dark:hover:bg-gray-700`
+- **Transitions**: Apply `transition-all duration-200`
+
+#### Color System
+- **Primary**: Blue-to-indigo gradients (`from-blue-500 to-indigo-600`)
+- **Shadows**: Use opacity variants `/5`, `/10`, `/25`, `/30` for colored shadows
+- **Borders**: Semi-transparent borders with `/50` opacity
+- **Backgrounds**: Use `/95` opacity for glassmorphism effects
+
+### Component-Specific Patterns
+
+#### Forms & Inputs
+- Use `border-2` for input borders to create stronger visual hierarchy
+- Apply `focus:ring-2 focus:ring-blue-500 focus:border-transparent` for focus states
+- Secondary buttons should have `border-2 border-gray-300 dark:border-gray-600`
+
+#### Navigation & Menus
+- Back buttons and navigation icons should have `hover:scale-110 active:scale-95`
+- Menu items should include smooth hover backgrounds
+
+#### Status Indicators
+- Use pill-style badges with semantic colors
+- Include appropriate icons from `lucide-react`
+
+### Accessibility Requirements
+- All interactive elements must have proper `aria-label` and `title` attributes
+- Maintain color contrast ratios (WCAG AA minimum)
+- Ensure keyboard navigation works with visible focus states
+- Disabled states must be visually distinct and include `disabled:cursor-not-allowed`
+
+### Dark Mode Support
+- All components must support dark mode with appropriate `dark:` variants
+- Use semantic color classes that work in both light and dark themes
+- Test all UI changes in both light and dark modes
+
+### Consistency Enforcement
+When creating or modifying UI components:
+1. **Reference existing components** (e.g., `AIModelModal`, `FilterModal`, `SendScriptModal`) as examples
+2. **Apply all design patterns** listed above consistently
+3. **Test hover states, animations, and transitions** thoroughly
+4. **Verify dark mode** appearance
+5. **Check accessibility** with keyboard navigation
+
+## Documentation & Best Practices
+
+### Context7 Tool for Latest Documentation
+When working with libraries or frameworks, **use the Context7 tool (via MCP)** to access the latest documentation and best practice information. The Context7 tool provides:
+- **Up-to-date documentation** for libraries like Next.js, React, TailwindCSS, TypeScript, and more
+- **Code examples** and implementation patterns
+- **Best practices** and recommended approaches
+- **Version-specific information** to ensure compatibility
+
+**Example usage**: Before implementing new features or making significant changes to existing libraries, use Context7 to:
+1. Verify current best practices for the library version in use
+2. Check for new features or patterns that might improve the implementation
+3. Ensure compatibility with the project's tech stack
+4. Access code examples for reference
+
+This ensures that all code follows current best practices and takes advantage of the latest library features.
+
+### Detailed Documentation
 
 *   [Getting Started & Setup](./docs/SETUP.md)
 *   [Progressive Web App (PWA)](./docs/PWA.md)

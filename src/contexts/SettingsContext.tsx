@@ -25,7 +25,8 @@ const defaultSettings: UserSettings = {
     business_rule: 'anthropic/claude-sonnet-4',
     client_script: 'anthropic/claude-sonnet-4',
     script_include: 'anthropic/claude-sonnet-4'
-  }
+  },
+  visible_request_types: ['recommendation', 'script', 'troubleshoot', 'ai-agent']
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);

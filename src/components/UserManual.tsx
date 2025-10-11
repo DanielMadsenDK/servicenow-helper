@@ -39,7 +39,7 @@ export default function UserManual() {
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => router.back()}
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
                 title="Go back"
               >
                 <ArrowLeft className="w-5 h-5" />
@@ -81,10 +81,10 @@ export default function UserManual() {
               </h2>
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-6">
                 <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-3">Basic Usage</h3>
-                <StepGuide 
+                <StepGuide
                   steps={[
                     "Type your ServiceNow question in the main text area",
-                    "Select a request type (Recommendation, Documentation, Script, or Troubleshoot)",
+                    "Select a request type (Recommendation, Script Solution, Troubleshoot, or AI Agent)",
                     "Click 'Get Help' or press Ctrl+Enter to submit",
                     "Review the AI-generated response with actionable guidance"
                   ]}
@@ -134,6 +134,16 @@ export default function UserManual() {
                   </div>
                   <p className="text-sm text-red-800 dark:text-red-200">
                     Diagnose issues, debug problems, and get solutions for ServiceNow configuration challenges.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl border border-cyan-200 dark:border-cyan-700 bg-cyan-50 dark:bg-cyan-900/20">
+                  <div className="flex items-center mb-3">
+                    <Bot className="w-5 h-5 mr-2 text-cyan-600 dark:text-cyan-400" />
+                    <h3 className="font-semibold text-cyan-900 dark:text-cyan-100">AI Agent</h3>
+                  </div>
+                  <p className="text-sm text-cyan-800 dark:text-cyan-200">
+                    Build intelligent AI agents for automated workflows, ticket classification, and complex ServiceNow automation tasks.
                   </p>
                 </div>
               </div>
@@ -336,6 +346,10 @@ export default function UserManual() {
                   <div className="flex items-start space-x-3">
                     <Bot className="w-5 h-5 text-indigo-500 mt-0.5 flex-shrink-0" />
                     <span><strong>AI Agent Models:</strong> Configure individual AI models for specialized agents with advanced filtering</span>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <Eye className="w-5 h-5 text-cyan-500 mt-0.5 flex-shrink-0" />
+                    <span><strong>Visible Modes:</strong> Choose which request types to display in the interface - customize your workspace by showing only the modes you use</span>
                   </div>
                 </div>
               </div>

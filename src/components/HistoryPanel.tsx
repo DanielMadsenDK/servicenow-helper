@@ -185,41 +185,47 @@ export default function HistoryPanel({ isOpen, onClose, onSelectConversation }: 
   return (
     <div className="fixed inset-0 z-50 flex">
       {/* Overlay */}
-      <div 
-        className="fixed inset-0 backdrop-blur-sm bg-gray-900/10 dark:bg-black/20 transition-all duration-200"
+      <div
+        className="fixed inset-0 backdrop-blur-md bg-gray-900/20 dark:bg-black/40 transition-all duration-300 animate-in fade-in-0"
         onClick={onClose}
       />
-      
+
       {/* Panel */}
-      <div className="relative ml-auto w-full max-w-md bg-white dark:bg-gray-800 shadow-xl">
+      <div className="relative ml-auto w-full max-w-md bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl shadow-blue-500/10 animate-in slide-in-from-right-full duration-300">
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-600">
+          <div className="p-4 border-b border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <History className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <History className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">History</h2>
-                <span className="text-sm text-gray-500 dark:text-gray-400">({total})</span>
+                <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                  {total}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleRefresh}
                   disabled={loading}
-                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
+                  className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
                   title="Refresh"
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 </button>
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  className={`p-2 transition-all duration-200 hover:scale-110 active:scale-95 rounded-lg ${
+                    showFilters
+                      ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                  }`}
                   title="Filters"
                 >
                   <Filter className="w-4 h-4" />
                 </button>
                 <button
                   onClick={onClose}
-                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 hover:scale-110 active:scale-95 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
                   title="Close"
                 >
                   <X className="w-4 h-4" />
@@ -228,25 +234,25 @@ export default function HistoryPanel({ isOpen, onClose, onSelectConversation }: 
             </div>
 
             {/* Search */}
-            <div className="mt-3 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
+            <div className="mt-3 relative group">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 group-focus-within:scale-110 transition-all" />
               <input
                 type="text"
                 placeholder="Search conversations..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 outline-none transition-all duration-200 shadow-sm hover:border-gray-300 dark:hover:border-gray-500"
               />
             </div>
 
             {/* Filters */}
             {showFilters && (
-              <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-xl border border-blue-200/50 dark:border-blue-700/50 animate-in slide-in-from-top-2 fade-in-0 duration-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</span>
                   <button
                     onClick={resetFilters}
-                    className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                    className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 px-2 py-1 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/30 transition-all duration-200"
                   >
                     Reset
                   </button>
@@ -313,7 +319,7 @@ export default function HistoryPanel({ isOpen, onClose, onSelectConversation }: 
                 <button
                   onClick={handleLoadMore}
                   disabled={loading}
-                  className="px-4 py-2 text-sm bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="min-h-[44px] px-6 py-2.5 text-sm font-medium bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-full shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   {loading ? 'Loading...' : 'Load More'}
                 </button>

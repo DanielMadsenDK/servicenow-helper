@@ -259,41 +259,47 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
   return (
     <div className="fixed inset-0 z-50 flex">
       {/* Overlay */}
-      <div 
-        className="fixed inset-0 backdrop-blur-sm bg-gray-900/10 dark:bg-black/20 transition-all duration-200"
+      <div
+        className="fixed inset-0 backdrop-blur-md bg-gray-900/20 dark:bg-black/40 transition-all duration-300 animate-in fade-in-0"
         onClick={onClose}
       />
-      
+
       {/* Panel */}
-      <div className="relative ml-auto w-full max-w-2xl bg-white dark:bg-gray-800 shadow-xl">
+      <div className="relative ml-auto w-full max-w-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl shadow-purple-500/10 animate-in slide-in-from-right-full duration-300">
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-600">
+          <div className="p-4 border-b border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Database className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <Database className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Knowledge Store</h2>
-                <span className="text-sm text-gray-500 dark:text-gray-400">({total})</span>
+                <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full">
+                  {total}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleRefresh}
                   disabled={loading}
-                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
+                  className="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20"
                   title="Refresh"
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 </button>
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  className={`p-2 transition-all duration-200 hover:scale-110 active:scale-95 rounded-lg ${
+                    showFilters
+                      ? 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                  }`}
                   title="Filters"
                 >
                   <Filter className="w-4 h-4" />
                 </button>
                 <button
                   onClick={onClose}
-                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 hover:scale-110 active:scale-95 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
                   title="Close"
                 >
                   <X className="w-4 h-4" />
@@ -302,25 +308,25 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
             </div>
 
             {/* Search */}
-            <div className="mt-3 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
+            <div className="mt-3 relative group">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4 group-focus-within:text-purple-500 dark:group-focus-within:text-purple-400 group-focus-within:scale-110 transition-all" />
               <input
                 type="text"
                 placeholder="Search questions and answers..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400 outline-none transition-all duration-200 shadow-sm hover:border-gray-300 dark:hover:border-gray-500"
               />
             </div>
 
             {/* Bulk Actions */}
             {showBulkActions && (
-              <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl border border-purple-200/50 dark:border-purple-700/50 animate-in slide-in-from-top-2 fade-in-0 duration-200">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleSelectAll}
-                      className="flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                      className="flex items-center gap-1.5 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 px-2.5 py-1 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800/30 transition-all duration-200"
                     >
                       {allSelected ? (
                         <CheckSquare className="w-4 h-4" />
@@ -329,14 +335,14 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
                       )}
                       {allSelected ? 'Deselect All' : 'Select All'}
                     </button>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-full text-xs font-medium">
                       {selectedItems.size} selected
                     </span>
                   </div>
                   <button
                     onClick={handleBulkDelete}
                     disabled={bulkDeleting}
-                    className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    className="flex items-center gap-1.5 min-h-[36px] px-4 py-1.5 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-full shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/30 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
                   >
                     {bulkDeleting ? (
                       <div className="animate-spin w-3 h-3 border border-white border-t-transparent rounded-full"></div>
@@ -351,12 +357,12 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
 
             {/* Filters */}
             {showFilters && (
-              <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl border border-purple-200/50 dark:border-purple-700/50 animate-in slide-in-from-top-2 fade-in-0 duration-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filters</span>
                   <button
                     onClick={resetFilters}
-                    className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                    className="text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 px-2 py-1 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800/30 transition-all duration-200"
                   >
                     Reset
                   </button>
@@ -425,10 +431,10 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
 
             {/* Load More Button */}
             {!loading && hasMore && items.length > 0 && (
-              <div className="p-4 text-center border-t border-gray-200 dark:border-gray-600">
+              <div className="p-4 text-center border-t border-gray-200/50 dark:border-gray-700/50">
                 <button
                   onClick={handleLoadMore}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="min-h-[44px] px-6 py-2.5 text-sm font-medium bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-full shadow-md shadow-purple-500/25 hover:shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   Load More
                 </button>

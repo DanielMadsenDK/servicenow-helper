@@ -1,6 +1,6 @@
-import { FileText, Lightbulb, Code2, Wrench } from 'lucide-react';
+import { FileText, Lightbulb, Code2, Wrench, Bot } from 'lucide-react';
 
-export type RequestType = 'documentation' | 'recommendation' | 'script' | 'troubleshoot';
+export type RequestType = 'documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent';
 
 export const PLACEHOLDER_EXAMPLES = [
   "How do I create a custom widget in ServiceNow?",
@@ -10,7 +10,9 @@ export const PLACEHOLDER_EXAMPLES = [
   "Explain ServiceNow Flow Designer best practices",
   "How to troubleshoot slow performance in ServiceNow?",
   "Create a script to update user records in bulk",
-  "What are the differences between UI Actions and Client Scripts?"
+  "What are the differences between UI Actions and Client Scripts?",
+  "Help me build an AI agent for automated ticket classification",
+  "Design an intelligent workflow agent for approval routing"
 ];
 
 export const TYPE_OPTIONS = [
@@ -18,6 +20,11 @@ export const TYPE_OPTIONS = [
   { value: 'recommendation' as const, label: 'Recommendation', icon: Lightbulb },
   { value: 'script' as const, label: 'Script Solution', icon: Code2 },
   { value: 'troubleshoot' as const, label: 'Troubleshoot', icon: Wrench },
+  { value: 'ai-agent' as const, label: 'AI Agent', icon: Bot },
+];
+
+export const DEFAULT_VISIBLE_MODES: RequestType[] = [
+  'recommendation', 'script', 'troubleshoot', 'ai-agent'
 ];
 
 export const QUICK_ACTIONS = [

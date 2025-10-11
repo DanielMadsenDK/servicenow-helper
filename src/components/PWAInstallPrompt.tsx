@@ -70,7 +70,7 @@ export default function PWAInstallPrompt({ className = '' }: PWAInstallPromptPro
 
   return (
     <div className={`fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-50 ${className}`}>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 animate-in slide-in-from-bottom-2 fade-in-0 duration-300">
+      <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-blue-500/10 border border-gray-200/50 dark:border-gray-700/50 p-4 animate-in slide-in-from-bottom-2 fade-in-0 duration-300">
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -88,7 +88,7 @@ export default function PWAInstallPrompt({ className = '' }: PWAInstallPromptPro
           </div>
           <button
             onClick={handleDismiss}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg p-1"
             aria-label="Dismiss install prompt"
           >
             <X className="w-4 h-4" />
@@ -111,13 +111,13 @@ export default function PWAInstallPrompt({ className = '' }: PWAInstallPromptPro
         <div className="flex gap-2">
           <button
             onClick={handleInstall}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors"
+            className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-sm font-medium py-2 px-4 rounded-full shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 hover:scale-105 active:scale-95"
           >
             Install
           </button>
           <button
             onClick={handleDismiss}
-            className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+            className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 font-medium"
           >
             Not now
           </button>
