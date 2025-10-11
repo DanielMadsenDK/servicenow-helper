@@ -19,28 +19,28 @@
 
 </div>
 
-## ✨ Features
+## Features
 
-- **🤖 Multi-Agent AI Architecture** - Specialized AI agents (Orchestration, Business Rules, Client Scripts, Script Includes) with individual model configuration
-- **🔌 Multi-Provider Support** - OpenRouter, Hugging Face, and extensible provider system for cost optimization
-- **⚡ Real-time Streaming** - ChatGPT-like live response generation with Server-Sent Events (SSE)
-- **🔐 Robust Security** - JWT authentication, httpOnly cookies, comprehensive security headers
-- **💬 Conversation Management** - Full history tracking, search/filtering, session continuity
-- **📚 Knowledge Store** - Curated Q&A management with bulk operations and quality metrics
-- **📊 Mermaid Diagrams** - AI-generated flowcharts and diagrams with streaming support
-- **📥 Answer Export** - Export as Markdown or PDF with rendered diagrams
-- **🚀 Script Deployment** - Send generated scripts directly to ServiceNow
-- **🎨 Modern UI** - TailwindCSS 4.1, dark/light theme, PWA support, full accessibility
-- **✅ Comprehensive Testing** - 347 passing tests with Jest and Playwright
+- **Multi-Agent AI Architecture** - Specialized AI agents (Orchestration, Business Rules, Client Scripts, Script Includes) with individual model configuration
+- **Multi-Provider Support** - OpenRouter, Hugging Face, and extensible provider system for cost optimization
+- **Real-time Streaming** - ChatGPT-like live response generation with Server-Sent Events (SSE)
+- **Robust Security** - JWT authentication, httpOnly cookies, comprehensive security headers
+- **Conversation Management** - Full history tracking, search/filtering, session continuity
+- **Knowledge Store** - Curated Q&A management with bulk operations and quality metrics
+- **Mermaid Diagrams** - AI-generated flowcharts and diagrams with streaming support
+- **Answer Export** - Export as Markdown or PDF with rendered diagrams
+- **Script Deployment** - Send generated scripts directly to ServiceNow
+- **Modern UI** - TailwindCSS 4.1, dark/light theme, PWA support, full accessibility
+- **Comprehensive Testing** - 347 passing tests with Jest and Playwright
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
 ```bash
-✅ Node.js 22+
-✅ Docker & Docker Compose
-✅ Git
+ Node.js 22+
+ Docker & Docker Compose
+ Git
 ```
 
 ### One-Click Setup with Docker
@@ -73,7 +73,7 @@ docker compose up -d
 
 > **New:** Real-time streaming responses enabled by default, providing ChatGPT-like live response generation!
 
-## 🏗️ Architecture
+## Architecture
 
 ### System Overview
 
@@ -124,9 +124,9 @@ graph TB
 - **PostgreSQL 15.4 + pgvector** - Data persistence, vector search, user settings
 - **ServiceNow Companion App** - Secure integration with ServiceNow instance
 
-📖 **[View Detailed Architecture Documentation](./docs/ARCHITECTURE.md)**
+ **[View Detailed Architecture Documentation](./docs/ARCHITECTURE.md)**
 
-## 📘 Usage
+## Usage
 
 ### Getting Started
 
@@ -146,10 +146,10 @@ graph TB
 - Optimize performance and cost
 
 **Question Types:**
-- 📖 **Documentation** - Comprehensive guides
-- 💡 **Recommendation** - Best practice advice
-- 💻 **Script** - Code generation
-- 🔧 **Troubleshoot** - Debug and resolve issues
+- **Documentation** - Comprehensive guides
+- **Recommendation** - Best practice advice
+- **Script** - Code generation
+- **Troubleshoot** - Debug and resolve issues
 
 **Multimodal Support:**
 - Attach images, PDFs, audio files
@@ -166,9 +166,9 @@ graph TB
 - Automatic rendering with theme support
 - Export as code (Markdown) or images (PDF)
 
-📖 **[View Complete Usage Guide](./docs/USAGE.md)**
+**[View Complete Usage Guide](./docs/USAGE.md)**
 
-## 🗄️ Database Configuration
+## Database Configuration
 
 ServiceNow Helper uses PostgreSQL with comprehensive multi-provider and multi-agent support.
 
@@ -190,9 +190,9 @@ This automatically:
 - Runs agent model migration
 - Configures multimodal capabilities
 
-📖 **[View Database Documentation](./docs/DATABASE.md)**
+**[View Database Documentation](./docs/DATABASE.md)**
 
-## 🎨 UI Design System
+## UI Design System
 
 The application follows a **modern, cohesive design system** with glassmorphism, smooth animations, and full accessibility.
 
@@ -204,9 +204,9 @@ The application follows a **modern, cohesive design system** with glassmorphism,
 - **Dark Mode Support** - Complete theme support with semantic colors
 - **Accessibility** - WCAG AA compliance, keyboard navigation, ARIA labels
 
-📖 **[View UI Design System Documentation](./docs/UI_DESIGN.md)**
+**[View UI Design System Documentation](./docs/UI_DESIGN.md)**
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Unit Tests
@@ -221,15 +221,14 @@ npm run test:e2e:debug      # Debug mode
 ```
 
 **Test Coverage:**
-- ✅ 347 passing tests
-- ✅ Authentication flows
-- ✅ UI component interactions
-- ✅ Cross-browser compatibility
-- ✅ Performance validation
+- Authentication flows
+- UI component interactions
+- Cross-browser compatibility
+- Performance validation
 
-📖 **[View Testing Documentation](./docs/TESTING.md)**
+**[View Testing Documentation](./docs/TESTING.md)**
 
-## 💻 Tech Stack
+## Tech Stack
 
 <div align="center">
 
@@ -259,7 +258,7 @@ npm run test:e2e:debug      # Debug mode
 
 </div>
 
-## 🛠️ Available Commands
+## Available Commands
 
 <div align="center">
 
@@ -281,7 +280,7 @@ npm run test:e2e:debug      # Debug mode
 
 </div>
 
-## 📚 Documentation
+## Documentation
 
 <div align="center">
 
@@ -301,7 +300,7 @@ npm run test:e2e:debug      # Debug mode
 
 </div>
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](./docs/CONTRIBUTING.md) for details on:
 
@@ -310,16 +309,12 @@ We welcome contributions! Please see our [Contributing Guide](./docs/CONTRIBUTIN
 - Documentation improvements
 - Testing and quality assurance
 
-## 📄 License
+## License
 
 <div align="center">
 
 **MIT License**
 
 *This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.*
-
----
-
-**Built with ❤️ using Next.js 15, TypeScript, and modern web technologies**
 
 </div>
