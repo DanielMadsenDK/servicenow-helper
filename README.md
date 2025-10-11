@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![ServiceNow Helper](https://github.com/user-attachments/assets/cc464f72-58f4-42b0-93fe-dac9daed6973)
+![ServiceNow Helper](https://github.com/user-attachments/assets/1e05b675-d21b-476d-bf03-4059e206ac88)
 
 **AI-Powered ServiceNow Assistance Tool**
 
