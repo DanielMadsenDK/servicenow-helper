@@ -33,16 +33,18 @@ export default function HistoryPanel({ isOpen, onClose, onSelectConversation }: 
 
   const ITEMS_PER_PAGE = 20;
 
-  const fetchConversations = useCallback(async (reset = false, pageOverride?: number) => {
+  // Memoize fetchConversations with useCallback to prevent infinite loops
+  // Only depends on primitive filter values, not the filters object itself
+  const fetchConversations = useCallback(async (reset = false, page?: number) => {
     if (fetchingRef.current) return;
-    
+
     fetchingRef.current = true;
     setLoading(true);
     setError(null);
 
     try {
-      const page = pageOverride !== undefined ? pageOverride : currentPage;
-      const offset = reset ? 0 : page * ITEMS_PER_PAGE;
+      const pageToUse = page !== undefined ? page : currentPage;
+      const offset = reset ? 0 : pageToUse * ITEMS_PER_PAGE;
       const params = new URLSearchParams({
         limit: ITEMS_PER_PAGE.toString(),
         offset: offset.toString(),
@@ -83,7 +85,7 @@ export default function HistoryPanel({ isOpen, onClose, onSelectConversation }: 
           ...conv,
           created_at: new Date(conv.created_at)
         }));
-        
+
         if (reset) {
           setConversations(conversationsWithDates);
           setCurrentPage(1);
@@ -102,7 +104,14 @@ export default function HistoryPanel({ isOpen, onClose, onSelectConversation }: 
       setLoading(false);
       fetchingRef.current = false;
     }
-  }, [filters, currentPage]);
+  }, [
+    currentPage,
+    filters.search,
+    filters.dateRange.start,
+    filters.dateRange.end,
+    filters.showCompleted,
+    filters.showPending
+  ]);
 
   const handleSearch = useCallback((searchTerm: string) => {
     if (searchTimeoutRef.current) {
@@ -143,6 +152,8 @@ export default function HistoryPanel({ isOpen, onClose, onSelectConversation }: 
 
   const handleLoadMore = () => {
     if (!fetchingRef.current && hasMore) {
+      // Pass currentPage explicitly to fetch the next page
+      // fetchConversations will increment the page state after successful fetch
       fetchConversations(false, currentPage);
     }
   };
@@ -159,12 +170,29 @@ export default function HistoryPanel({ isOpen, onClose, onSelectConversation }: 
     setConversations([]);
   };
 
-  // Load conversations when filters change
+  // Load conversations when panel opens or filters change
+  // Use a ref to track filter changes and avoid infinite loops
+  const prevFiltersRef = useRef(filters);
+
   useEffect(() => {
     if (isOpen) {
-      fetchConversations(true);
+      // Check if filters actually changed (not just object reference)
+      const filtersChanged =
+        prevFiltersRef.current.search !== filters.search ||
+        prevFiltersRef.current.dateRange.start !== filters.dateRange.start ||
+        prevFiltersRef.current.dateRange.end !== filters.dateRange.end ||
+        prevFiltersRef.current.showCompleted !== filters.showCompleted ||
+        prevFiltersRef.current.showPending !== filters.showPending;
+
+      if (filtersChanged) {
+        prevFiltersRef.current = filters;
+        fetchConversations(true);
+      } else if (conversations.length === 0 && !fetchingRef.current) {
+        // Initial load when panel opens
+        fetchConversations(true);
+      }
     }
-  }, [isOpen, filters, fetchConversations]);
+  }, [isOpen, filters, fetchConversations, conversations.length]);
 
   // Handle search input changes
   useEffect(() => {

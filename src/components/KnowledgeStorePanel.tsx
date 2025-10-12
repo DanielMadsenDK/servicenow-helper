@@ -35,6 +35,8 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
   // Pagination constants
   const ITEMS_PER_PAGE = 20;
 
+  // Memoize fetchItems with useCallback to prevent infinite loops
+  // Only depends on primitive filter values, not the filters object itself
   const fetchItems = useCallback(async (page: number = 1, reset: boolean = true) => {
     setLoading(true);
     setError(null);
@@ -71,7 +73,7 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
           created_at: new Date(item.created_at),
           updated_at: new Date(item.updated_at)
         }));
-        
+
         if (reset) {
           setItems(itemsWithDates);
           setCurrentPage(page);
@@ -80,7 +82,7 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
           setItems(prev => [...prev, ...itemsWithDates]);
           setCurrentPage(page);
         }
-        
+
         setTotal(result.total);
         setHasMore(result.hasMore);
       } else {
@@ -91,7 +93,7 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
     } finally {
       setLoading(false);
     }
-  }, [filters, ITEMS_PER_PAGE]);
+  }, [filters.search, filters.category]);
 
   const handleSearch = useCallback((searchTerm: string) => {
     if (searchTimeoutRef.current) {
@@ -201,12 +203,26 @@ export default function KnowledgeStorePanel({ isOpen, onClose, onSelectItem }: K
     setCurrentPage(1);
   }, []);
 
-  // Load items when filters change
+  // Load items when panel opens or filters change
+  // Use a ref to track filter changes and avoid infinite loops
+  const prevFiltersRef = useRef(filters);
+
   useEffect(() => {
     if (isOpen) {
-      fetchItems(1, true);
+      // Check if filters actually changed (not just object reference)
+      const filtersChanged =
+        prevFiltersRef.current.search !== filters.search ||
+        prevFiltersRef.current.category !== filters.category;
+
+      if (filtersChanged) {
+        prevFiltersRef.current = filters;
+        fetchItems(1, true);
+      } else if (items.length === 0 && !loading) {
+        // Initial load when panel opens
+        fetchItems(1, true);
+      }
     }
-  }, [isOpen, filters, fetchItems]);
+  }, [isOpen, filters, fetchItems, items.length, loading]);
 
   // Handle search input changes
   useEffect(() => {
