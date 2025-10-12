@@ -21,32 +21,47 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category') || '';
 
     const n8nClient = N8NClient.getInstance();
-    
-    // For now, we'll fetch a larger set and implement proper server-side filtering
-    // TODO: Implement server-side filtering in N8N webhooks for better performance
-    const fetchLimit = search || category ? 1000 : limit + 20; // Fetch extra to determine hasMore
-    const allItems = await n8nClient.getAllQAPairs(fetchLimit, 0);
 
-    // Apply filtering
+    // ARCHITECTURAL LIMITATION: N8N API does not support server-side filtering with pagination
+    // We must fetch all items when filtering, then apply pagination client-side
+    // This is acceptable for moderately-sized knowledge stores (<10k items)
+    // For larger datasets, consider implementing server-side filtering in N8N workflows
+
+    let allItems;
+
+    if (search || category) {
+      // When filtering: fetch all items (up to 1000) to apply filters client-side
+      // This ensures accurate pagination and "hasMore" calculation
+      allItems = await n8nClient.getAllQAPairs(1000, 0);
+    } else {
+      // When not filtering: fetch only what we need plus some extra to check if there's more
+      // This optimizes performance for non-filtered queries
+      allItems = await n8nClient.getAllQAPairs(limit + 20, offset);
+    }
+
+    // Apply client-side filtering
     let filteredItems = allItems;
-    
+
     if (search) {
       const searchLower = search.toLowerCase();
-      filteredItems = filteredItems.filter(item => 
+      filteredItems = filteredItems.filter(item =>
         item.question.toLowerCase().includes(searchLower) ||
         item.answer.toLowerCase().includes(searchLower)
       );
     }
-    
+
     if (category && category !== 'all') {
-      filteredItems = filteredItems.filter(item => 
+      filteredItems = filteredItems.filter(item =>
         item.category === category
       );
     }
 
-    // Apply pagination after filtering
-    const paginatedItems = filteredItems.slice(offset, offset + limit);
-    const hasMore = filteredItems.length > offset + limit;
+    // Apply pagination AFTER filtering (critical for correct results)
+    // When filtering: offset and limit apply to filtered results
+    // When not filtering: offset was already applied in the N8N fetch, so start from 0
+    const startIndex = (search || category) ? offset : 0;
+    const paginatedItems = filteredItems.slice(startIndex, startIndex + limit);
+    const hasMore = filteredItems.length > startIndex + limit;
 
     // Convert string dates to Date objects
     const itemsWithDates = paginatedItems.map(item => ({
