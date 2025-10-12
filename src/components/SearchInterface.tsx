@@ -146,7 +146,17 @@ export default function SearchInterface() {
   };
 
   // Get current model and check if it's multimodal
+  // Uses orchestration agent's model since it handles file attachments
   const getCurrentModel = () => {
+    // Get the orchestration agent's model name
+    const orchestrationModelName = agentModels['orchestration'];
+
+    // If orchestration agent has a model assigned, use it
+    if (orchestrationModelName) {
+      return models.find(m => m.model_name === orchestrationModelName);
+    }
+
+    // Fallback to default_ai_model for backward compatibility
     return models.find(m => m.model_name === settings.default_ai_model);
   };
 
