@@ -73,14 +73,14 @@ export default function SendScriptButton({
   };
 
   const buttonSizeClasses = {
-    sm: 'px-2 py-1',
-    md: 'px-3 py-2',
-    lg: 'px-4 py-3'
+    sm: 'px-3 py-1.5',
+    md: 'px-4 py-2',
+    lg: 'px-5 py-3'
   };
 
   const iconSizeClasses = {
-    sm: 'w-3 h-3',
-    md: 'w-4 h-4', 
+    sm: 'w-3.5 h-3.5',
+    md: 'w-4 h-4',
     lg: 'w-5 h-5'
   };
 
@@ -90,8 +90,14 @@ export default function SendScriptButton({
     lg: 'text-base'
   };
 
+  const gapClasses = {
+    sm: 'gap-1.5',
+    md: 'gap-2',
+    lg: 'gap-2.5'
+  };
+
   // Default button styling - can be overridden by className prop
-  const defaultButtonClasses = `inline-flex items-center gap-1 ${buttonSizeClasses[size]} bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 ${textSizeClasses[size]} font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200`;
+  const defaultButtonClasses = `inline-flex items-center ${gapClasses[size]} ${buttonSizeClasses[size]} bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 ${textSizeClasses[size]} font-medium rounded-full shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95`;
 
   return (
     <>

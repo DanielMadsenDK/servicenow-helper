@@ -90,6 +90,7 @@ export interface UserSettings {
   agent_models?: Record<string, string>; // New field: { agent_name: model_name }
   selected_provider_id?: number; // New field: selected provider for filtering models
   visible_request_types?: ('documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent')[]; // New field: modes to show in UI
+  agent_block_display_mode?: 'raw' | 'styled'; // New field: how to display agent block content (default: 'raw')
 }
 
 export interface Capability {

@@ -2,17 +2,14 @@
 
 import React, { lazy, Suspense, useMemo, memo } from 'react';
 import remarkGfm from 'remark-gfm';
+import remarkFlexibleContainers from 'remark-flexible-containers';
 import rehypeHighlight from 'rehype-highlight';
 
 import { createMarkdownComponents } from '@/lib/markdown-components';
 import { isMobileDevice } from '@/lib/streaming-buffer';
 
-// Lazy load ReactMarkdown and VirtualizedMarkdownRenderer
+// Lazy load ReactMarkdown
 const ReactMarkdown = lazy(() => import('react-markdown'));
-const VirtualizedMarkdownRenderer = lazy(() => import('./VirtualizedMarkdownRenderer'));
-
-// Note: Progress estimation was removed from mobile view as it was unreliable for streaming content
-// const PROGRESS_ESTIMATION_FACTOR = 1000;
 
 interface StreamingMarkdownRendererProps {
   content: string;
@@ -43,10 +40,10 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
 
   const isMobile = useMemo(() => isMobileDevice(), []);
 
-  // Create markdown components with streaming state
+  // Create markdown components with streaming state and full content for raw extraction
   const markdownComponents = useMemo(
-    () => createMarkdownComponents(isStreaming),
-    [isStreaming]
+    () => createMarkdownComponents(isStreaming, content),
+    [isStreaming, content]
   );
 
   // For mobile devices, use progressive rendering threshold
@@ -54,39 +51,8 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
   const shouldUseProgressiveRendering = enableProgressiveRendering &&
     content.length > progressiveRenderingThreshold;
 
-  // Virtual scrolling threshold - use for large content
-  const virtualScrollingThreshold = 10000; // 10k characters
-  const shouldUseVirtualScrolling = content.length > virtualScrollingThreshold;
-
   // Unified streaming approach for all devices
   if (isStreaming) {
-    // For very large content, use virtual scrolling during streaming
-    if (shouldUseVirtualScrolling) {
-      return (
-        <div className={className} data-testid="markdown-content">
-          <Suspense fallback={
-            <div className="streaming-raw-content">
-              <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base will-change-contents">
-                {content.slice(0, 1000)}...
-                {showStreamingCursor && (
-                  <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
-                )}
-              </div>
-            </div>
-          }>
-            <VirtualizedMarkdownRenderer
-              content={content}
-              height={isMobile ? 300 : 400}
-              className="streaming-virtualized-content"
-            />
-            {showStreamingCursor && (
-              <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
-            )}
-          </Suspense>
-        </div>
-      );
-    }
-
     // For long content when progressive rendering is enabled,
     // use ReactMarkdown even during streaming to provide better UX
     if (shouldUseProgressiveRendering && content.length > progressiveRenderingThreshold) {
@@ -94,7 +60,7 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
         <div className={className} data-testid="markdown-content">
           <Suspense fallback={
             <div className="streaming-raw-content">
-              <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base will-change-contents">
+              <div className="whitespace-break-spaces break-words overflow-wrap-anywhere text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base will-change-contents">
                 {content}
                 {showStreamingCursor && (
                   <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
@@ -103,7 +69,7 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
             </div>
           }>
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
+              remarkPlugins={[remarkGfm, remarkFlexibleContainers]}
               rehypePlugins={[rehypeHighlight]}
               components={markdownComponents}
             >
@@ -121,7 +87,7 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
     return (
       <div className={className}>
         <div className="streaming-raw-content" data-testid="markdown-content">
-          <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base will-change-contents">
+          <div className="whitespace-break-spaces break-words overflow-wrap-anywhere text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base will-change-contents">
             {content}
             {showStreamingCursor && (
               <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
@@ -132,27 +98,7 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
     );
   }
 
-  // When streaming is complete: Use ReactMarkdown rendering with performance optimizations
-  // For very large content, use virtual scrolling even when complete
-  if (shouldUseVirtualScrolling) {
-    return (
-      <div className={className} data-testid="markdown-content">
-        <Suspense fallback={
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <span className="ml-2 text-gray-600 dark:text-gray-400">Loading large content...</span>
-          </div>
-        }>
-          <VirtualizedMarkdownRenderer
-            content={content}
-            height={isMobile ? 400 : 600}
-            className="completed-virtualized-content"
-          />
-        </Suspense>
-      </div>
-    );
-  }
-
+  // When streaming is complete: Use ReactMarkdown rendering for all content sizes
   return (
     <div className={className} data-testid="markdown-content">
       <Suspense fallback={
@@ -162,8 +108,8 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
         </div>
       }>
         <ReactMarkdown
-          remarkPlugins={[remarkGfm]} // Always enable GFM for consistent rendering across devices
-          rehypePlugins={[rehypeHighlight]} // Enable syntax highlighting for all devices when streaming is complete
+          remarkPlugins={[remarkGfm, remarkFlexibleContainers]} // Always enable GFM and containers for consistent rendering
+          rehypePlugins={[rehypeHighlight]} // Enable syntax highlighting when streaming is complete
           components={markdownComponents}
         >
           {content || ''}

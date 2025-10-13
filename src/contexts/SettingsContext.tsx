@@ -26,7 +26,8 @@ const defaultSettings: UserSettings = {
     client_script: 'anthropic/claude-sonnet-4',
     script_include: 'anthropic/claude-sonnet-4'
   },
-  visible_request_types: ['recommendation', 'script', 'troubleshoot', 'ai-agent']
+  visible_request_types: ['recommendation', 'script', 'troubleshoot', 'ai-agent'],
+  agent_block_display_mode: 'styled' // Default to styled markdown display
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);

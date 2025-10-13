@@ -77,6 +77,16 @@ body {
   line-height: 1.7;
 }
 
+/* Text wrapping utilities */
+.wrap-break-word {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+}
+
 /* Custom list styling removed - handled by component styling */
 
 /* Enhanced focus and hover states */
@@ -90,6 +100,12 @@ body {
   border-radius: 0.5rem;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Table cell padding - uses specificity to override defaults */
+.prose table thead th,
+.prose table tbody td {
+  padding: 0.75rem 5px;
 }
 
 .prose thead th {
@@ -109,6 +125,12 @@ body {
 /* Dark mode table styling */
 .dark .prose table {
   box-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode table cell padding */
+.dark .prose table thead th,
+.dark .prose table tbody td {
+  padding: 0.75rem 5px;
 }
 
 .dark .prose thead th {
