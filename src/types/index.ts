@@ -91,6 +91,7 @@ export interface UserSettings {
   selected_provider_id?: number; // New field: selected provider for filtering models
   visible_request_types?: ('documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent')[]; // New field: modes to show in UI
   agent_block_display_mode?: 'raw' | 'styled'; // New field: how to display agent block content (default: 'raw')
+  agent_tool_block_display_mode?: 'raw' | 'styled'; // New field: how to display agent tool block content (default: 'styled')
 }
 
 export interface Capability {

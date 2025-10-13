@@ -3,6 +3,7 @@ import React from 'react';
 import CodeBlock from '@/components/CodeBlock';
 import StepGuide, { parseStepSequence } from '@/components/StepGuide';
 import AgentBlock from '@/components/AgentBlock';
+import AgentToolBlock from '@/components/AgentToolBlock';
 import { extractContainerContent } from './markdown-utils';
 
 // Cache for extracted container content to avoid re-running regex on every render
@@ -13,6 +14,9 @@ const extractionCache = new Map<string, string>();
 export const createMarkdownComponents = (isStreaming?: boolean, fullContent?: string) => {
   // Count newlines in content for cache key (only re-extract when newlines change)
   const lineCount = fullContent ? (fullContent.match(/\n/g) || []).length : 0;
+
+  // Track which occurrence index of each container type we're currently rendering
+  const containerIndexTracker = new Map<string, number>();
 
   return {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -144,18 +148,23 @@ export const createMarkdownComponents = (isStreaming?: boolean, fullContent?: st
         return <div className={className} {...props}>{children}</div>;
       }
 
+      // Get the current index for this container type
+      // Each time we render a container of a specific type, we increment its index
+      const currentIndex = containerIndexTracker.get(containerType) || 0;
+      containerIndexTracker.set(containerType, currentIndex + 1);
+
       // Extract raw markdown for this container type with caching
-      // Cache key format: "containerType:lineCount" - only re-extract when newlines change
+      // Cache key format: "containerType:index:lineCount" - only re-extract when newlines change
       let rawMarkdown = '';
       if (fullContent) {
-        const cacheKey = `${containerType}:${lineCount}`;
+        const cacheKey = `${containerType}:${currentIndex}:${lineCount}`;
 
         // Check cache first
         if (extractionCache.has(cacheKey)) {
           rawMarkdown = extractionCache.get(cacheKey)!;
         } else {
           // Cache miss - extract and store
-          rawMarkdown = extractContainerContent(fullContent, containerType, 0);
+          rawMarkdown = extractContainerContent(fullContent, containerType, currentIndex);
           extractionCache.set(cacheKey, rawMarkdown);
 
           // Cleanup old cache entries to prevent memory leaks
@@ -178,10 +187,15 @@ export const createMarkdownComponents = (isStreaming?: boolean, fullContent?: st
         );
       }
 
+      if (containerType === 'agent-tool') {
+        return (
+          <AgentToolBlock rawMarkdown={rawMarkdown} {...props}>
+            {children}
+          </AgentToolBlock>
+        );
+      }
+
       // Future container types can be added here:
-      // if (containerType === 'agent-tool') {
-      //   return <AgentToolBlock rawMarkdown={rawMarkdown} {...props}>{children}</AgentToolBlock>;
-      // }
       // if (containerType === 'agent-description') {
       //   return <AgentDescriptionBlock rawMarkdown={rawMarkdown} {...props}>{children}</AgentDescriptionBlock>;
       // }
