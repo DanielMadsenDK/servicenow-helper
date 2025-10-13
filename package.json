@@ -40,6 +40,7 @@
     "react-window": "^2.1.0",
     "react-window-infinite-loader": "^1.0.10",
     "rehype-highlight": "^7.0.2",
+    "remark-flexible-containers": "^1.5.1",
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {

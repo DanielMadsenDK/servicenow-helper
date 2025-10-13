@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import mermaid from 'mermaid';
+import { Workflow, Copy, Check } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 
 interface MermaidDiagramProps {
@@ -49,26 +50,34 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, isStreaming = fal
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isWaitingForComplete, setIsWaitingForComplete] = useState(false);
+  const [copied, setCopied] = useState(false);
+  // Don't show loading state initially - only show it when we actually start rendering (after streaming completes)
+  const [isLoading, setIsLoading] = useState(false);
   const renderCountRef = useRef(0);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy diagram code:', err);
+    }
+  };
 
   useEffect(() => {
     const renderDiagram = async () => {
       if (!containerRef.current || !code) return;
 
-      // CRITICAL: During streaming, NEVER attempt to render
+      // CRITICAL: During streaming, NEVER attempt to render or show loading state
       // Only render when streaming is complete (isStreaming = false)
-      // This prevents multiple render attempts and performance issues
+      // This prevents multiple render attempts, performance issues, and the loading overlay from flickering
       if (isStreaming) {
-        setIsWaitingForComplete(true);
-        setIsLoading(true);
-        setError(null);
+        // Don't update any state during streaming - this prevents the overlay from appearing
         return; // Exit early - don't even try to validate or render
       }
 
       // Streaming is complete - now we can render
-      setIsWaitingForComplete(false);
       setIsLoading(true);
       setError(null);
 
@@ -195,54 +204,71 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, isStreaming = fal
   }
 
   return (
-    <div className="my-4 sm:my-6">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 overflow-x-auto">
-        {isLoading && (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="relative">
-              {/* Animated diagram icon */}
-              <svg
-                className="w-16 h-16 text-blue-500 dark:text-blue-400 animate-pulse"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                />
-              </svg>
-              {/* Spinning loader ring */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-20 w-20 border-t-2 border-b-2 border-blue-500"></div>
+    <div className="relative my-4">
+      <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg shadow-amber-500/10 dark:shadow-amber-500/20 border border-amber-200/50 dark:border-amber-700/50 overflow-hidden transition-all duration-200 hover:shadow-xl hover:shadow-amber-500/20">
+        {/* Header with Workflow Icon and Action Buttons */}
+        <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border-b border-amber-200/50 dark:border-amber-700/50">
+          <div className="flex items-center gap-2">
+            <Workflow className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+            <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
+              Diagram
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleCopy}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-full shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95"
+              title="Copy diagram code to clipboard"
+              aria-label="Copy diagram code to clipboard"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  Copy
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800 overflow-x-auto">
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="relative">
+                {/* Animated diagram icon */}
+                <Workflow className="w-16 h-16 text-amber-500 dark:text-amber-400 animate-pulse" />
+                {/* Spinning loader ring */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-20 w-20 border-t-2 border-b-2 border-amber-500"></div>
+                </div>
+              </div>
+              <div className="mt-4 text-center">
+                <p className="text-gray-700 dark:text-gray-300 text-sm font-medium">
+                  Rendering diagram...
+                </p>
+                <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                  Processing Mermaid syntax
+                </p>
               </div>
             </div>
-            <div className="mt-4 text-center">
-              <p className="text-gray-700 dark:text-gray-300 text-sm font-medium">
-                {isWaitingForComplete && isStreaming
-                  ? 'Generating diagram...'
-                  : 'Rendering diagram...'}
-              </p>
-              <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
-                {isWaitingForComplete && isStreaming
-                  ? 'Waiting for complete code from AI'
-                  : 'Processing Mermaid syntax'}
-              </p>
-            </div>
-          </div>
-        )}
-        <div
-          ref={containerRef}
-          className="mermaid-diagram flex justify-center items-center w-full"
-          style={{
-            minHeight: isLoading ? '100px' : 'auto',
-            display: isLoading ? 'none' : 'flex',
-            maxWidth: '100%',
-          }}
-        />
+          )}
+          <div
+            ref={containerRef}
+            className="mermaid-diagram flex justify-center items-center w-full"
+            style={{
+              minHeight: isLoading ? '100px' : 'auto',
+              display: isLoading ? 'none' : 'flex',
+              maxWidth: '100%',
+            }}
+          />
+        </div>
       </div>
       <style jsx global>{`
         .mermaid-diagram svg {

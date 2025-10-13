@@ -2,9 +2,19 @@ import React from 'react';
 
 import CodeBlock from '@/components/CodeBlock';
 import StepGuide, { parseStepSequence } from '@/components/StepGuide';
+import AgentBlock from '@/components/AgentBlock';
+import { extractContainerContent } from './markdown-utils';
 
-// Create markdown components with optional isStreaming prop
-export const createMarkdownComponents = (isStreaming?: boolean) => ({
+// Cache for extracted container content to avoid re-running regex on every render
+// Key format: "containerType:lineCount"
+const extractionCache = new Map<string, string>();
+
+// Create markdown components with optional isStreaming prop and full content for raw extraction
+export const createMarkdownComponents = (isStreaming?: boolean, fullContent?: string) => {
+  // Count newlines in content for cache key (only re-extract when newlines change)
+  const lineCount = fullContent ? (fullContent.match(/\n/g) || []).length : 0;
+
+  return {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   a: ({ href, children, ...props }: any) => (
     <a
@@ -121,7 +131,74 @@ export const createMarkdownComponents = (isStreaming?: boolean) => ({
       </CodeBlock>
     );
   },
-});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  div: ({ className, children, ...props }: any) => {
+    // Check for any remark-container (scalable for multiple container types)
+    if (className?.includes('remark-container')) {
+      // Extract container type from className
+      // Format: "remark-container agent" or "remark-container agent-tool"
+      const classNames = className.split(' ');
+      const containerType = classNames.find((c: string) => c !== 'remark-container');
+
+      if (!containerType) {
+        return <div className={className} {...props}>{children}</div>;
+      }
+
+      // Extract raw markdown for this container type with caching
+      // Cache key format: "containerType:lineCount" - only re-extract when newlines change
+      let rawMarkdown = '';
+      if (fullContent) {
+        const cacheKey = `${containerType}:${lineCount}`;
+
+        // Check cache first
+        if (extractionCache.has(cacheKey)) {
+          rawMarkdown = extractionCache.get(cacheKey)!;
+        } else {
+          // Cache miss - extract and store
+          rawMarkdown = extractContainerContent(fullContent, containerType, 0);
+          extractionCache.set(cacheKey, rawMarkdown);
+
+          // Cleanup old cache entries to prevent memory leaks
+          // Keep only last 10 entries per container type
+          const typePrefix = `${containerType}:`;
+          const typeKeys = Array.from(extractionCache.keys()).filter(k => k.startsWith(typePrefix));
+          if (typeKeys.length > 10) {
+            // Remove oldest entries (assuming keys are in chronological order)
+            typeKeys.slice(0, typeKeys.length - 10).forEach(k => extractionCache.delete(k));
+          }
+        }
+      }
+
+      // Route to appropriate component based on type
+      if (containerType === 'agent') {
+        return (
+          <AgentBlock rawMarkdown={rawMarkdown} {...props}>
+            {children}
+          </AgentBlock>
+        );
+      }
+
+      // Future container types can be added here:
+      // if (containerType === 'agent-tool') {
+      //   return <AgentToolBlock rawMarkdown={rawMarkdown} {...props}>{children}</AgentToolBlock>;
+      // }
+      // if (containerType === 'agent-description') {
+      //   return <AgentDescriptionBlock rawMarkdown={rawMarkdown} {...props}>{children}</AgentDescriptionBlock>;
+      // }
+
+      // Default: pass rawMarkdown as data attribute for future use
+      return (
+        <div className={className} data-raw-markdown={rawMarkdown} {...props}>
+          {children}
+        </div>
+      );
+    }
+
+    // Regular div - return as-is
+    return <div className={className} {...props}>{children}</div>;
+  },
+  };
+};
 
 // Default markdown components (not streaming)
 export const markdownComponents = createMarkdownComponents(false);

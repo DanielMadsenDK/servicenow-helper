@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
-import { Copy, Check, Maximize2, X, Eye, Code } from 'lucide-react';
+import { Copy, Check, Maximize2, X, Code as CodeIcon } from 'lucide-react';
 
 import SendScriptButton from './SendScriptButton';
 
@@ -19,7 +19,6 @@ const CodeBlock = React.memo(({ children, className, isStreaming = false, ...pro
   const [copied, setCopied] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [showSource, setShowSource] = useState(false);
 
   const handleCopy = async () => {
     const code = extractTextContent(children);
@@ -252,84 +251,38 @@ const CodeBlock = React.memo(({ children, className, isStreaming = false, ...pro
     );
   };
 
-  // Mermaid Diagram Rendering
+  // Mermaid Diagram Rendering - handled by the MermaidDiagram component itself
+  // which now has its own container with header
   if (isMermaid) {
     const code = extractTextContent(children);
 
     return (
-      <>
-        {/* Mermaid Diagram View */}
-        {!showSource ? (
+      <Suspense
+        fallback={
           <div className="relative my-4">
-            <Suspense
-              fallback={
-                <div className="flex items-center justify-center py-8 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg shadow-amber-500/10 dark:shadow-amber-500/20 border border-amber-200/50 dark:border-amber-700/50 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border-b border-amber-200/50 dark:border-amber-700/50">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-amber-600 dark:bg-amber-400 rounded animate-pulse"></div>
+                  <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                    Diagram
+                  </span>
+                </div>
+              </div>
+              <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800">
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
                   <span className="ml-2 text-gray-600 dark:text-gray-400 text-sm">
                     Loading diagram...
                   </span>
                 </div>
-              }
-            >
-              <MermaidDiagram code={code} isStreaming={isStreaming} />
-            </Suspense>
-
-            {/* Action buttons */}
-            <div className="flex items-center justify-end gap-2 mt-2">
-              <button
-                onClick={() => setShowSource(!showSource)}
-                className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
-                title="View source code"
-              >
-                <Code className="w-3 h-3" />
-                View Source
-              </button>
-
-              <button
-                onClick={handleCopy}
-                className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
-                title="Copy diagram code"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-3 h-3" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3 h-3" />
-                    Copy
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        ) : (
-          /* Source Code View */
-          <div className="relative my-4">
-            <div className="bg-gray-50 dark:bg-gray-800/80 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                  Mermaid Source Code
-                </span>
-                <button
-                  onClick={() => setShowSource(!showSource)}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
-                  title="View diagram"
-                >
-                  <Eye className="w-3 h-3" />
-                  View Diagram
-                </button>
               </div>
-              <pre className="text-sm leading-relaxed overflow-x-auto whitespace-pre-wrap">
-                <code className="block text-gray-800 dark:text-gray-200">
-                  {code}
-                </code>
-              </pre>
             </div>
           </div>
-        )}
-      </>
+        }
+      >
+        <MermaidDiagram code={code} isStreaming={isStreaming} />
+      </Suspense>
     );
   }
 
@@ -340,40 +293,58 @@ const CodeBlock = React.memo(({ children, className, isStreaming = false, ...pro
       <>
         {/* Mobile Code Preview */}
         {isMobile ? (
-          <div className="relative group my-3 sm:my-4 w-full">
-            <div 
-              className="relative cursor-pointer bg-gray-50 dark:bg-gray-100 rounded-xl shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98]"
-              onClick={handleFullscreen}
-            >
-              <div className="p-3 sm:p-4">
-                
+          <div className="relative my-4">
+            <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg shadow-emerald-500/10 dark:shadow-emerald-500/20 border border-emerald-200/50 dark:border-emerald-700/50 overflow-hidden">
+              {/* Header with Code Icon */}
+              <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border-b border-emerald-200/50 dark:border-emerald-700/50">
+                <div className="flex items-center gap-2">
+                  <CodeIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                  <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
+                    Code
+                  </span>
+                </div>
+                <button
+                  onClick={handleFullscreen}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-full shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95"
+                  title="View fullscreen"
+                  aria-label="Toggle fullscreen view"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Content Area - Clickable preview */}
+              <div
+                className="p-4 bg-gray-50 dark:bg-gray-800 cursor-pointer active:bg-gray-100 dark:active:bg-gray-700 transition-colors"
+                onClick={handleFullscreen}
+              >
                 <div className="relative">
-                  <pre 
+                  <pre
                     className="text-sm leading-relaxed overflow-hidden whitespace-pre-wrap"
-                    style={{ 
+                    style={{
                       fontFamily: "'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', monospace",
-                      maxHeight: '12rem', // Approximately 8 lines for mobile optimization
+                      maxHeight: '12rem',
                       lineHeight: '1.5rem'
                     }}
                   >
-                    <code 
-                      className={`${className} block`} 
+                    <code
+                      className={`${className} block`}
                       {...props}
                     >
                       {truncatedChildren}
                     </code>
                   </pre>
-                  
+
                   {/* Subtle fade at bottom if more content */}
                   {hasMore && (
-                    <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-gray-50 dark:from-gray-100 to-transparent pointer-events-none" />
+                    <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-gray-50 dark:from-gray-800 to-transparent pointer-events-none" />
                   )}
                 </div>
-                
+
                 {hasMore && (
-                  <div className="mt-2 sm:mt-3 text-center">
-                    <div className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 text-sm font-medium">
-                      <span>Show full code</span>
+                  <div className="mt-3 text-center">
+                    <div className="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
+                      <span>Tap to view full code</span>
                       <Maximize2 className="w-4 h-4" />
                     </div>
                   </div>
@@ -383,56 +354,66 @@ const CodeBlock = React.memo(({ children, className, isStreaming = false, ...pro
           </div>
         ) : (
           /* Desktop Code Block */
-          <div className="relative group my-3 sm:my-4 w-full">
-            <div 
-              className="relative bg-gray-50 dark:bg-gray-800/80 rounded-xl shadow-sm transition-all duration-200 hover:shadow-md"
-            >
-              <div className="p-3 sm:p-4">
-                {/* Action buttons - positioned at top right */}
-                <div className="flex items-center justify-end gap-1 sm:gap-2 mb-2 sm:mb-3">
-                  <SendScriptButton 
+          <div className="relative my-4">
+            <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg shadow-emerald-500/10 dark:shadow-emerald-500/20 border border-emerald-200/50 dark:border-emerald-700/50 overflow-hidden transition-all duration-200 hover:shadow-xl hover:shadow-emerald-500/20">
+              {/* Header with Code Icon and Action Buttons */}
+              <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border-b border-emerald-200/50 dark:border-emerald-700/50">
+                <div className="flex items-center gap-2">
+                  <CodeIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                  <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
+                    Code
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <SendScriptButton
                     scriptContent={extractTextContent(children)}
                     size="sm"
                   />
-                  
+
                   <button
                     onClick={handleFullscreen}
-                    className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-full shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95"
                     title="View fullscreen"
+                    aria-label="Toggle fullscreen view"
                   >
-                    <Maximize2 className="w-3 h-3" />
+                    <Maximize2 className="w-3.5 h-3.5" />
                     Toggle full screen
                   </button>
-                  
+
                   <button
                     onClick={handleCopy}
-                    className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-md shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
-                    title="Copy code"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 text-xs font-medium rounded-full shadow-sm border border-gray-200/60 dark:border-gray-600/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95"
+                    title="Copy code to clipboard"
+                    aria-label="Copy code to clipboard"
                   >
                     {copied ? (
                       <>
-                        <Check className="w-3 h-3" />
+                        <Check className="w-3.5 h-3.5" />
                         Copied!
                       </>
                     ) : (
                       <>
-                        <Copy className="w-3 h-3" />
+                        <Copy className="w-3.5 h-3.5" />
                         Copy
                       </>
                     )}
                   </button>
                 </div>
-                
+              </div>
+
+              {/* Content Area */}
+              <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800">
                 <div className="relative">
-                  <pre 
+                  <pre
                     className="text-sm sm:text-base leading-relaxed overflow-x-auto whitespace-pre-wrap"
-                    style={{ 
+                    style={{
                       fontFamily: "'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', monospace",
                       WebkitOverflowScrolling: 'touch'
                     }}
                   >
-                    <code 
-                      className={`${className} block`} 
+                    <code
+                      className={`${className} block`}
                       {...props}
                     >
                       {children}
@@ -464,5 +445,7 @@ const CodeBlock = React.memo(({ children, className, isStreaming = false, ...pro
     </code>
   );
 });
+
+CodeBlock.displayName = 'CodeBlock';
 
 export default CodeBlock;
