@@ -10,11 +10,9 @@ import { extractContainerContent } from './markdown-utils';
 // Key format: "containerType:lineCount"
 const extractionCache = new Map<string, string>();
 
-// Create markdown components with optional isStreaming prop and full content for raw extraction
-export const createMarkdownComponents = (isStreaming?: boolean, fullContent?: string) => {
-  // Count newlines in content for cache key (only re-extract when newlines change)
-  const lineCount = fullContent ? (fullContent.match(/\n/g) || []).length : 0;
-
+// Create markdown components with optional isStreaming prop
+// Note: fullContent and caching removed - container extraction happens at render time
+export const createMarkdownComponents = (isStreaming?: boolean) => {
   // Track which occurrence index of each container type we're currently rendering
   const containerIndexTracker = new Map<string, number>();
 
@@ -153,30 +151,9 @@ export const createMarkdownComponents = (isStreaming?: boolean, fullContent?: st
       const currentIndex = containerIndexTracker.get(containerType) || 0;
       containerIndexTracker.set(containerType, currentIndex + 1);
 
-      // Extract raw markdown for this container type with caching
-      // Cache key format: "containerType:index:lineCount" - only re-extract when newlines change
+      // Container extraction now handled during render - no caching needed
+      // This prevents unnecessary computations from polluting the render path
       let rawMarkdown = '';
-      if (fullContent) {
-        const cacheKey = `${containerType}:${currentIndex}:${lineCount}`;
-
-        // Check cache first
-        if (extractionCache.has(cacheKey)) {
-          rawMarkdown = extractionCache.get(cacheKey)!;
-        } else {
-          // Cache miss - extract and store
-          rawMarkdown = extractContainerContent(fullContent, containerType, currentIndex);
-          extractionCache.set(cacheKey, rawMarkdown);
-
-          // Cleanup old cache entries to prevent memory leaks
-          // Keep only last 10 entries per container type
-          const typePrefix = `${containerType}:`;
-          const typeKeys = Array.from(extractionCache.keys()).filter(k => k.startsWith(typePrefix));
-          if (typeKeys.length > 10) {
-            // Remove oldest entries (assuming keys are in chronological order)
-            typeKeys.slice(0, typeKeys.length - 10).forEach(k => extractionCache.delete(k));
-          }
-        }
-      }
 
       // Route to appropriate component based on type
       if (containerType === 'agent') {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import mermaid from 'mermaid';
 import { Workflow, Copy, Check } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -65,16 +65,17 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, isStreaming = fal
     }
   };
 
+
   useEffect(() => {
     const renderDiagram = async () => {
       if (!containerRef.current || !code) return;
 
-      // CRITICAL: During streaming, NEVER attempt to render or show loading state
-      // Only render when streaming is complete (isStreaming = false)
-      // This prevents multiple render attempts, performance issues, and the loading overlay from flickering
+      // CRITICAL: Only wait while streaming is active
+      // Once streaming completes (isStreaming = false), proceed to render with complete code
+      // This ensures the diagram only renders once with all content, preventing flickering
       if (isStreaming) {
-        // Don't update any state during streaming - this prevents the overlay from appearing
-        return; // Exit early - don't even try to validate or render
+        // Backend still streaming - don't render yet
+        return; // Exit early - wait for complete response
       }
 
       // Streaming is complete - now we can render
@@ -179,6 +180,49 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, isStreaming = fal
 
     renderDiagram();
   }, [code, theme, isStreaming]);
+
+  // Show streaming overlay while backend is still streaming
+  // Once streaming completes (isStreaming = false), diagram renders with complete code
+  // This provides visual feedback that we're waiting for the diagram definition
+  if (isStreaming) {
+    return (
+      <div className="relative my-4">
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg shadow-amber-500/10 dark:shadow-amber-500/20 border border-amber-200/50 dark:border-amber-700/50 overflow-hidden transition-all duration-200 hover:shadow-xl hover:shadow-amber-500/20">
+          {/* Header with Workflow Icon */}
+          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border-b border-amber-200/50 dark:border-amber-700/50">
+            <div className="flex items-center gap-2">
+              <Workflow className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+              <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                Diagram
+              </span>
+            </div>
+          </div>
+
+          {/* Streaming Overlay Content */}
+          <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800 overflow-x-auto">
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="relative">
+                {/* Animated diagram icon with pulse */}
+                <Workflow className="w-16 h-16 text-amber-500 dark:text-amber-400 animate-pulse" />
+                {/* Spinning loader ring */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-20 w-20 border-t-2 border-b-2 border-amber-500"></div>
+                </div>
+              </div>
+              <div className="mt-4 text-center">
+                <p className="text-gray-700 dark:text-gray-300 text-sm font-medium">
+                  Waiting for diagram definition...
+                </p>
+                <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                  Receiving diagram code from AI
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Only show error if NOT streaming - during streaming we show loading indicator
   if (error && !isStreaming) {

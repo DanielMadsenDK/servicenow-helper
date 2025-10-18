@@ -20,13 +20,19 @@ interface StreamingMarkdownRendererProps {
 }
 
 // Custom comparison function for React.memo
+// Returns true if props are EQUAL (skip re-render), false if DIFFERENT (do re-render)
 const arePropsEqual = (prevProps: StreamingMarkdownRendererProps, nextProps: StreamingMarkdownRendererProps): boolean => {
-  // Deep comparison for content changes
+  // Content changes require re-render - return false if changed
   if (prevProps.content !== nextProps.content) return false;
+  // Streaming state changes require re-render - return false if changed
   if (prevProps.isStreaming !== nextProps.isStreaming) return false;
+  // Cursor visibility changes require re-render - return false if changed
   if (prevProps.showStreamingCursor !== nextProps.showStreamingCursor) return false;
+  // Class changes require re-render - return false if changed
   if (prevProps.className !== nextProps.className) return false;
+  // Progressive rendering setting changes require re-render - return false if changed
   if (prevProps.enableProgressiveRendering !== nextProps.enableProgressiveRendering) return false;
+  // All props are equal - skip re-render
   return true;
 };
 
@@ -40,10 +46,13 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
 
   const isMobile = useMemo(() => isMobileDevice(), []);
 
-  // Create markdown components with streaming state and full content for raw extraction
+  // Create markdown components with streaming state
+  // IMPORTANT: Only depend on isStreaming, NOT content!
+  // Content changes trigger full re-renders unnecessarily.
+  // Mermaid logic is now handled in MermaidDiagram itself.
   const markdownComponents = useMemo(
-    () => createMarkdownComponents(isStreaming, content),
-    [isStreaming, content]
+    () => createMarkdownComponents(isStreaming),
+    [isStreaming]
   );
 
   // For mobile devices, use progressive rendering threshold
@@ -53,9 +62,8 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
 
   // Unified streaming approach for all devices
   if (isStreaming) {
-    // For long content when progressive rendering is enabled,
-    // use ReactMarkdown even during streaming to provide better UX
-    if (shouldUseProgressiveRendering && content.length > progressiveRenderingThreshold) {
+    // Use ReactMarkdown when content is long enough (progressive rendering)
+    if (shouldUseProgressiveRendering) {
       return (
         <div className={className} data-testid="markdown-content">
           <Suspense fallback={

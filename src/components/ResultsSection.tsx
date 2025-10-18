@@ -22,8 +22,11 @@ interface ResultsSectionProps {
 }
 
 // Custom comparison function for React.memo
+// Returns true if props are EQUAL (skip re-render), false if DIFFERENT (do re-render)
 const areResultsEqual = (prevProps: ResultsSectionProps, nextProps: ResultsSectionProps): boolean => {
-  // Deep comparison for props that affect rendering
+  // Compare all props that affect rendering
+  // With the architecture fixes in place (memoized components, no StreamingContext),
+  // streamingContent changes won't cause unnecessary cascading re-renders
   if (prevProps.response?.message !== nextProps.response?.message) return false;
   if (prevProps.response?.type !== nextProps.response?.type) return false;
   if (prevProps.error !== nextProps.error) return false;
