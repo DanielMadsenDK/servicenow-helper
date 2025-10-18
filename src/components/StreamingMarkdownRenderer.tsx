@@ -46,13 +46,12 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
 
   const isMobile = useMemo(() => isMobileDevice(), []);
 
-  // Create markdown components with streaming state
-  // IMPORTANT: Only depend on isStreaming, NOT content!
-  // Content changes trigger full re-renders unnecessarily.
-  // Mermaid logic is now handled in MermaidDiagram itself.
+  // Create markdown components with streaming state and full content for raw extraction
+  // IMPORTANT: Content is needed for raw markdown extraction in AgentBlock/AgentToolBlock
+  // The caching mechanism prevents unnecessary re-extractions when only content changes
   const markdownComponents = useMemo(
-    () => createMarkdownComponents(isStreaming),
-    [isStreaming]
+    () => createMarkdownComponents(isStreaming, content),
+    [isStreaming, content]
   );
 
   // For mobile devices, use progressive rendering threshold
@@ -71,7 +70,11 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
               <div className="whitespace-break-spaces break-words overflow-wrap-anywhere text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base will-change-contents">
                 {content}
                 {showStreamingCursor && (
-                  <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
+                  <span className="inline-flex space-x-1 ml-1">
+                    <span className="streaming-dot streaming-dot-shimmer-1"></span>
+                    <span className="streaming-dot streaming-dot-shimmer-2"></span>
+                    <span className="streaming-dot streaming-dot-shimmer-3"></span>
+                  </span>
                 )}
               </div>
             </div>
@@ -84,7 +87,11 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
               {content || ''}
             </ReactMarkdown>
             {showStreamingCursor && (
-              <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
+              <span className="inline-flex space-x-1 ml-1">
+                <span className="streaming-dot streaming-dot-shimmer-1"></span>
+                <span className="streaming-dot streaming-dot-shimmer-2"></span>
+                <span className="streaming-dot streaming-dot-shimmer-3"></span>
+              </span>
             )}
           </Suspense>
         </div>
@@ -98,7 +105,11 @@ const StreamingMarkdownRenderer = memo(function StreamingMarkdownRenderer({
           <div className="whitespace-break-spaces break-words overflow-wrap-anywhere text-gray-700 dark:text-gray-200 font-sans leading-relaxed text-sm sm:text-base will-change-contents">
             {content}
             {showStreamingCursor && (
-              <span className="inline-block w-2 h-5 bg-blue-500 streaming-cursor ml-1"></span>
+              <span className="inline-flex space-x-1 ml-1">
+                <span className="streaming-dot streaming-dot-shimmer-1"></span>
+                <span className="streaming-dot streaming-dot-shimmer-2"></span>
+                <span className="streaming-dot streaming-dot-shimmer-3"></span>
+              </span>
             )}
           </div>
         </div>

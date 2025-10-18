@@ -102,9 +102,83 @@
   opacity: 0.9;
 }
 
-/* Typewriter cursor effect */
+/* Typewriter cursor effect - DEPRECATED: Use .streaming-cursor-shimmer instead */
 .streaming-cursor {
   animation: streamingPulse 1s ease-in-out infinite;
+}
+
+/* Modern Gradient Shimmer Cursor - DEPRECATED: Use .streaming-dot instead */
+.streaming-cursor-shimmer {
+  display: inline-block;
+  position: relative;
+  width: 0.125rem; /* 2px - thin elegant line */
+  height: 1.25rem; /* 20px */
+  background: linear-gradient(135deg, #3b82f6, #6366f1, #8b5cf6);
+  background-size: 200% 200%;
+  border-radius: 0.125rem;
+  animation: shimmerFlow 2s ease-in-out infinite, shimmerPulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+  vertical-align: middle;
+}
+
+/* Streaming Dots with Gradient Shimmer - Matches ProcessingOverlay pattern */
+.streaming-dot {
+  display: inline-block;
+  width: 0.25rem; /* 4px - slightly larger than ProcessingOverlay for visibility */
+  height: 0.25rem; /* 4px */
+  border-radius: 9999px; /* fully rounded */
+  background: linear-gradient(135deg, #3b82f6, #6366f1, #8b5cf6);
+  background-size: 200% 200%;
+  animation: shimmerFlow 2s ease-in-out infinite, dotBounce 1.4s ease-in-out infinite;
+}
+
+/* Staggered animation delays - creates wave effect */
+.streaming-dot-shimmer-1 {
+  animation-delay: 0ms, 0ms;
+}
+
+.streaming-dot-shimmer-2 {
+  animation-delay: 0ms, 0.2s; /* 200ms delay for bounce */
+}
+
+.streaming-dot-shimmer-3 {
+  animation-delay: 0ms, 0.4s; /* 400ms delay for bounce */
+}
+
+/* Shimmer wave effect - gradient flows through the dots */
+@keyframes shimmerFlow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Smooth bounce animation for dots */
+@keyframes dotBounce {
+  0%, 80%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-0.375rem) scale(1.1); /* 6px up, slightly larger */
+    opacity: 0.8;
+  }
+}
+
+/* Old pulse animation - kept for backward compatibility */
+@keyframes shimmerPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scaleY(1);
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scaleY(0.85);
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
+  }
 }
 
 /* Connection status animations */
@@ -152,6 +226,31 @@
   /* No will-change on mobile to avoid GPU layer thrashing */
 }
 
+/* Dark mode optimization for shimmer dots */
+@media (prefers-color-scheme: dark) {
+  .streaming-dot {
+    box-shadow: 0 0 4px rgba(147, 197, 253, 0.4);
+  }
+
+  /* Old cursor for backward compatibility */
+  .streaming-cursor-shimmer {
+    box-shadow: 0 0 10px rgba(147, 197, 253, 0.5);
+  }
+
+  @keyframes shimmerPulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scaleY(1);
+      box-shadow: 0 0 10px rgba(147, 197, 253, 0.5);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scaleY(0.85);
+      box-shadow: 0 0 14px rgba(147, 197, 253, 0.7);
+    }
+  }
+}
+
 /* Mobile Safari optimizations */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
   /* Reduce animation complexity on high-DPI mobile devices (like iPhones) */
@@ -159,13 +258,21 @@
   .streaming-glow {
     animation-duration: 3s; /* Slower animations to reduce CPU load */
   }
-  
+
   .streaming-dots {
     animation-duration: 2s;
   }
-  
+
   .streaming-cursor {
     animation-duration: 1.5s;
+  }
+
+  .streaming-cursor-shimmer {
+    animation: shimmerPulse 2s ease-in-out infinite;
+  }
+
+  .streaming-dot {
+    animation: shimmerFlow 2.5s ease-in-out infinite, dotBounce 1.6s ease-in-out infinite;
   }
 }
 
@@ -190,6 +297,19 @@
   .streaming-raw-content {
     contain: layout style; /* Reduce paint containment on mobile */
   }
+
+  /* Simplified shimmer cursor animation on mobile */
+  .streaming-cursor-shimmer {
+    animation: shimmerPulse 2s ease-in-out infinite;
+    box-shadow: 0 0 6px rgba(99, 102, 241, 0.3);
+  }
+
+  /* Simplified shimmer dots animation on mobile */
+  .streaming-dot {
+    animation: dotBounce 1.6s ease-in-out infinite;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    box-shadow: 0 0 3px rgba(99, 102, 241, 0.3);
+  }
 }
 
 /* Simplified pulse animation for mobile */
@@ -212,12 +332,36 @@
   .connection-status {
     animation: none;
   }
-  
+
+  /* Reduced motion for shimmer cursor - simple fade only */
+  .streaming-cursor-shimmer {
+    animation: shimmerPulseSimple 2s ease-in-out infinite;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    box-shadow: 0 0 6px rgba(99, 102, 241, 0.3);
+  }
+
+  /* Reduced motion for shimmer dots - simple pulse instead of bounce */
+  .streaming-dot {
+    animation: dotPulseSimple 1.5s ease-in-out infinite;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    box-shadow: 0 0 4px rgba(99, 102, 241, 0.3);
+  }
+
+  @keyframes shimmerPulseSimple {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes dotPulseSimple {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
   .streaming-content,
   .streaming-raw-content {
     transition: none;
   }
-  
+
   .will-change-contents {
     will-change: auto;
     transform: none;

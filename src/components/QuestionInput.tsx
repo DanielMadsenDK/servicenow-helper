@@ -36,12 +36,6 @@ const QuestionInput = forwardRef<HTMLTextAreaElement, QuestionInputProps>(
         <div className="absolute top-3 sm:top-4 left-0 pl-3 sm:pl-4 flex items-start pointer-events-none transition-all duration-200">
           <Pen className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 group-focus-within:scale-110 transition-all" />
         </div>
-        <div className="hidden sm:block absolute bottom-2 sm:bottom-3 right-2 sm:right-3 text-xs text-gray-400 dark:text-gray-500 pointer-events-none opacity-0 group-focus-within:opacity-100 transition-opacity duration-200">
-          <kbd className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded shadow-sm">Ctrl</kbd>
-          <span className="mx-1">+</span>
-          <kbd className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded shadow-sm">Enter</kbd>
-          <span className="ml-1">to submit</span>
-        </div>
         <textarea
           ref={ref}
           value={value}
