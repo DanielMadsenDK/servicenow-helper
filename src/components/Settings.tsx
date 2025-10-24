@@ -121,7 +121,7 @@ export default function Settings() {
     }
   };
 
-  const handleRequestTypeChange = async (value: 'documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent') => {
+  const handleRequestTypeChange = async (value: RequestType) => {
     setSaving('default_request_type');
     setFeedback(null);
 
