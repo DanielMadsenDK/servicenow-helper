@@ -1,4 +1,4 @@
-import { FileText, Lightbulb, Code2, Wrench, Bot, Sparkles } from 'lucide-react';
+import { FileText, Lightbulb, Code2, Wrench, Bot, Brain } from 'lucide-react';
 
 export type RequestType = 'documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent' | 'ai-skill';
 
@@ -21,7 +21,7 @@ export const TYPE_OPTIONS = [
   { value: 'script' as const, label: 'Script Solution', icon: Code2 },
   { value: 'troubleshoot' as const, label: 'Troubleshoot', icon: Wrench },
   { value: 'ai-agent' as const, label: 'AI Agent', icon: Bot },
-  { value: 'ai-skill' as const, label: 'AI Skill', icon: Sparkles },
+  { value: 'ai-skill' as const, label: 'AI Skill', icon: Brain },
 ];
 
 export const DEFAULT_VISIBLE_MODES: RequestType[] = [
