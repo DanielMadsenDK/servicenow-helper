@@ -13,7 +13,7 @@ import { useAIModels } from '@/contexts/AIModelContext';
 import { useAgentModels } from '@/contexts/AgentModelContext';
 import { usePlaceholderRotation } from '@/hooks/usePlaceholderRotation';
 import { useSessionManager } from '@/hooks/useSessionManager';
-import { RequestType } from '@/lib/constants';
+import { RequestType, DEFAULT_VISIBLE_MODES } from '@/lib/constants';
 
 import BurgerMenu from './BurgerMenu';
 import ThemeToggle from './ThemeToggle';
@@ -234,8 +234,7 @@ export default function SearchInterface() {
 
   // Memoize visible modes calculation
   const visibleModes = useMemo(() => {
-    return settings.visible_request_types ||
-      ['documentation', 'recommendation', 'script', 'troubleshoot', 'ai-agent'];
+    return settings.visible_request_types || DEFAULT_VISIBLE_MODES;
   }, [settings.visible_request_types]);
 
   // Auto-select first visible mode if current type is hidden

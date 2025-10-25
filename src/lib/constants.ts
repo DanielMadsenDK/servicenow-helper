@@ -1,6 +1,6 @@
-import { FileText, Lightbulb, Code2, Wrench, Bot } from 'lucide-react';
+import { FileText, Lightbulb, Code2, Wrench, Bot, Brain } from 'lucide-react';
 
-export type RequestType = 'documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent';
+export type RequestType = 'documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent' | 'ai-skill';
 
 export const PLACEHOLDER_EXAMPLES = [
   "How do I create a custom widget in ServiceNow?",
@@ -21,10 +21,11 @@ export const TYPE_OPTIONS = [
   { value: 'script' as const, label: 'Script Solution', icon: Code2 },
   { value: 'troubleshoot' as const, label: 'Troubleshoot', icon: Wrench },
   { value: 'ai-agent' as const, label: 'AI Agent', icon: Bot },
+  { value: 'ai-skill' as const, label: 'AI Skill', icon: Brain },
 ];
 
 export const DEFAULT_VISIBLE_MODES: RequestType[] = [
-  'recommendation', 'script', 'troubleshoot', 'ai-agent'
+  'recommendation', 'script', 'troubleshoot', 'ai-agent', 'ai-skill'
 ];
 
 export const QUICK_ACTIONS = [

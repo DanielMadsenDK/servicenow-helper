@@ -1,3 +1,5 @@
+import { RequestType } from '@/lib/constants';
+
 export interface AgentModel {
   agent: string;
   model: string;
@@ -5,7 +7,7 @@ export interface AgentModel {
 
 export interface ServiceNowRequest {
   question: string;
-  type: 'documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent';
+  type: RequestType;
   sessionkey: string;
   searching: boolean;
   aiModel: string; // Legacy field for backward compatibility
@@ -84,12 +86,12 @@ export interface UserSetting {
 export interface UserSettings {
   welcome_section_visible: boolean;
   default_search_mode: boolean;
-  default_request_type: 'documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent';
+  default_request_type: RequestType;
   servicenow_instance_url: string;
   default_ai_model: string; // Legacy field for backward compatibility
   agent_models?: Record<string, string>; // New field: { agent_name: model_name }
   selected_provider_id?: number; // New field: selected provider for filtering models
-  visible_request_types?: ('documentation' | 'recommendation' | 'script' | 'troubleshoot' | 'ai-agent')[]; // New field: modes to show in UI
+  visible_request_types?: RequestType[]; // New field: modes to show in UI
   agent_block_display_mode?: 'raw' | 'styled'; // New field: how to display agent block content (default: 'raw')
   agent_tool_block_display_mode?: 'raw' | 'styled'; // New field: how to display agent tool block content (default: 'styled')
 }

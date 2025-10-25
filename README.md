@@ -24,6 +24,7 @@
 - **Multi-Agent AI Architecture** - Specialized AI agents (Orchestration, Business Rules, Client Scripts, Script Includes) with individual model configuration
 - **Multi-Provider Support** - OpenRouter, Hugging Face, and extensible provider system for cost optimization
 - **Real-time Streaming** - ChatGPT-like live response generation with Server-Sent Events (SSE)
+- **Custom AI Skills** - Create tailored AI solutions for unique organizational challenges like intelligent triage and automated categorization
 - **Robust Security** - JWT authentication, httpOnly cookies, comprehensive security headers
 - **Conversation Management** - Full history tracking, search/filtering, session continuity
 - **Knowledge Store** - Curated Q&A management with bulk operations and quality metrics
@@ -146,10 +147,12 @@ graph TB
 - Optimize performance and cost
 
 **Question Types:**
-- **Documentation** - Comprehensive guides
-- **Recommendation** - Best practice advice
-- **Script** - Code generation
-- **Troubleshoot** - Debug and resolve issues
+- **Documentation** - Comprehensive guides and reference materials
+- **Recommendation** - Best practice advice and optimization suggestions
+- **Script** - Code generation for Business Rules, Client Scripts, and Script Includes
+- **Troubleshoot** - Debug and resolve issues with detailed analysis
+- **AI Agent** - Build intelligent automation agents for workflow orchestration
+- **AI Skill** - Create custom AI solutions tailored to unique organizational needs, such as intelligent triage, automated categorization, and process optimization
 
 **Multimodal Support:**
 - Attach images, PDFs, audio files
