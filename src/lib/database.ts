@@ -1,4 +1,5 @@
 import { Pool, PoolClient } from 'pg';
+import { DEFAULT_VISIBLE_MODES } from './constants';
 
 // Database row interfaces for type safety
 interface ServiceNowSupportToolRow {
@@ -388,7 +389,7 @@ export class UserSettingsManager {
       default_request_type: 'recommendation',
       servicenow_instance_url: '',
       default_ai_model: 'anthropic/claude-sonnet-4',
-      visible_request_types: ['recommendation', 'script', 'troubleshoot', 'ai-agent']
+      visible_request_types: DEFAULT_VISIBLE_MODES
     };
 
     if (result.rows.length === 0) {

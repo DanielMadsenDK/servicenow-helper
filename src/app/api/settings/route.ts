@@ -88,7 +88,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse<SettingsAp
           }
           agentModelsToUpdate = value as Record<string, string>;
         } else if (key === 'default_request_type') {
-          if (!['documentation', 'recommendation', 'script', 'troubleshoot', 'ai-agent'].includes(value as string)) {
+          if (!['documentation', 'recommendation', 'script', 'troubleshoot', 'ai-agent', 'ai-skill'].includes(value as string)) {
             return NextResponse.json(
               { success: false, error: `Invalid value for ${key}` },
               { status: 400 }
@@ -101,7 +101,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse<SettingsAp
               { status: 400 }
             );
           }
-          const validTypes = ['documentation', 'recommendation', 'script', 'troubleshoot', 'ai-agent'];
+          const validTypes = ['documentation', 'recommendation', 'script', 'troubleshoot', 'ai-agent', 'ai-skill'];
           for (const type of value) {
             if (typeof type !== 'string' || !validTypes.includes(type)) {
               return NextResponse.json(

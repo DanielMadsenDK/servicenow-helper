@@ -6,7 +6,7 @@ DECLARE
     user_record RECORD;
     total_users INTEGER := 0;
     users_updated INTEGER := 0;
-    default_visible_types TEXT := '["recommendation","script","troubleshoot","ai-agent"]';
+    default_visible_types TEXT := '["recommendation","script","troubleshoot","ai-agent","ai-skill"]';
 BEGIN
     RAISE NOTICE 'Starting visible_request_types migration...';
 

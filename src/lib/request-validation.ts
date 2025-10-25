@@ -6,7 +6,7 @@ export function validateRequest(body: StreamingRequest): string | null {
     }
 
     // Validate request type
-    const allowedTypes = ['documentation', 'recommendation', 'script', 'troubleshoot', 'ai-agent'];
+    const allowedTypes = ['documentation', 'recommendation', 'script', 'troubleshoot', 'ai-agent', 'ai-skill'];
     if (!allowedTypes.includes(body.type)) {
         return `Invalid request type: ${body.type}. Allowed types: ${allowedTypes.join(', ')}`;
     }

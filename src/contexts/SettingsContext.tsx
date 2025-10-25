@@ -3,6 +3,7 @@
 import { createContext, useContext, ReactNode, useState, useEffect, useCallback } from 'react';
 
 import type { UserSettings, SettingsApiResponse } from '../types/index';
+import { DEFAULT_VISIBLE_MODES } from '@/lib/constants';
 
 interface SettingsContextType {
   settings: UserSettings;
@@ -26,7 +27,7 @@ const defaultSettings: UserSettings = {
     client_script: 'anthropic/claude-sonnet-4',
     script_include: 'anthropic/claude-sonnet-4'
   },
-  visible_request_types: ['recommendation', 'script', 'troubleshoot', 'ai-agent'],
+  visible_request_types: DEFAULT_VISIBLE_MODES,
   agent_block_display_mode: 'styled' // Default to styled markdown display
 };
 

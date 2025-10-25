@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Image, Headphones, Bot, Zap, Server, Monitor, Filter } from 'lucide-react';
+import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Image, Headphones, Bot, Brain, Zap, Server, Monitor, Filter } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { useSettings } from '@/contexts/SettingsContext';
@@ -277,6 +277,7 @@ export default function Settings() {
     { value: 'script' as const, label: 'Script', icon: Code2 },
     { value: 'troubleshoot' as const, label: 'Troubleshoot', icon: Wrench },
     { value: 'ai-agent' as const, label: 'AI Agent', icon: Bot },
+    { value: 'ai-skill' as const, label: 'AI Skill', icon: Brain },
   ];
 
   const isModelMultimodal = (model: typeof models[0]) => {
