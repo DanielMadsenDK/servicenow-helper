@@ -4,6 +4,12 @@ import CodeBlock from '@/components/CodeBlock';
 import StepGuide, { parseStepSequence } from '@/components/StepGuide';
 import AgentBlock from '@/components/AgentBlock';
 import AgentToolBlock from '@/components/AgentToolBlock';
+import SkillConfigurationBlock from '@/components/SkillConfigurationBlock';
+import SkillInputsBlock from '@/components/SkillInputsBlock';
+import ToolNodeBlock from '@/components/ToolNodeBlock';
+import SkillOutputsBlock from '@/components/SkillOutputsBlock';
+import PromptBlock from '@/components/PromptBlock';
+
 import { extractContainerContent } from './markdown-utils';
 
 // Cache for extracted container content to avoid re-running regex on every render
@@ -195,10 +201,47 @@ export const createMarkdownComponents = (isStreaming?: boolean, fullContent?: st
         );
       }
 
-      // Future container types can be added here:
-      // if (containerType === 'agent-description') {
-      //   return <AgentDescriptionBlock rawMarkdown={rawMarkdown} {...props}>{children}</AgentDescriptionBlock>;
-      // }
+      if (containerType === 'skill-configuration') {
+        return (
+          <SkillConfigurationBlock rawMarkdown={rawMarkdown} {...props}>
+            {children}
+          </SkillConfigurationBlock>
+        );
+      }
+
+      if (containerType === 'skill-inputs') {
+        return (
+          <SkillInputsBlock rawMarkdown={rawMarkdown} {...props}>
+            {children}
+          </SkillInputsBlock>
+        );
+      }
+
+      if (containerType === 'tool-node') {
+        return (
+          <ToolNodeBlock rawMarkdown={rawMarkdown} {...props}>
+            {children}
+          </ToolNodeBlock>
+        );
+      }
+
+      if (containerType === 'skill-outputs') {
+        return (
+          <SkillOutputsBlock rawMarkdown={rawMarkdown} {...props}>
+            {children}
+          </SkillOutputsBlock>
+        );
+      }
+
+      if (containerType === 'prompt') {
+        return (
+          <PromptBlock rawMarkdown={rawMarkdown} {...props}>
+            {children}
+          </PromptBlock>
+        );
+      }
+
+      // Future container types can be added here
 
       // Default: pass rawMarkdown as data attribute for future use
       return (
