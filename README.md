@@ -6,10 +6,10 @@
 
 **AI-Powered ServiceNow Assistance Tool**
 
-*Built with Next.js 15.5.2 • Multi-Provider AI Architecture • Security-First Design*
+*Built with Next.js 16.0.0 • Multi-Provider AI Architecture • Security-First Design*
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.0.0-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
 
@@ -121,9 +121,9 @@ graph TB
 ```
 
 **Core Components:**
-- **Next.js 15.5.2 Frontend** - User interface, authentication, streaming responses
-- **n8n Workflow Engine** - AI processing, multi-agent orchestration, ServiceNow integration
-- **PostgreSQL 15.4 + pgvector** - Data persistence, vector search, user settings
+- **Next.js 16.0.0 Frontend** - User interface, authentication, streaming responses
+- **n8n Workflow Engine 1.118.2** - AI processing, multi-agent orchestration, ServiceNow integration
+- **PostgreSQL 15.x + pgvector 0.8.1** - Data persistence, vector search, user settings
 - **ServiceNow Companion App** - Secure integration with ServiceNow instance
 
  **[View Detailed Architecture Documentation](./docs/ARCHITECTURE.md)**
@@ -237,28 +237,28 @@ npm run test:e2e:debug      # Debug mode
 <div align="center">
 
 ### Frontend
-![Next.js](https://img.shields.io/badge/Next.js-15.5.2-000000?style=flat-square&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-3178C6?style=flat-square&logo=typescript)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1.11-06B6D4?style=flat-square&logo=tailwindcss)
-![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
+![Next.js](https://img.shields.io/badge/Next.js-16.0.0-000000?style=flat-square&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?style=flat-square&logo=typescript)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1.16-06B6D4?style=flat-square&logo=tailwindcss)
+![React](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react)
 
 ### Backend
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.4-336791?style=flat-square&logo=postgresql)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.x-336791?style=flat-square&logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker)
-![n8n](https://img.shields.io/badge/n8n-Workflows-FF6D5A?style=flat-square&logo=n8n)
-![Mermaid](https://img.shields.io/badge/Mermaid-11+-FF3670?style=flat-square&logo=mermaid)
+![n8n](https://img.shields.io/badge/n8n-1.118.2-FF6D5A?style=flat-square&logo=n8n)
+![Mermaid](https://img.shields.io/badge/Mermaid-11.12.1-FF3670?style=flat-square&logo=mermaid)
 
 ### Performance & Quality
 ![Jest](https://img.shields.io/badge/Jest-30.1.1-C21325?style=flat-square&logo=jest)
-![Playwright](https://img.shields.io/badge/Playwright-1.55.0-2EAD33?style=flat-square&logo=playwright)
-![ESLint](https://img.shields.io/badge/ESLint-9.34.0-4B32C3?style=flat-square&logo=eslint)
+![Playwright](https://img.shields.io/badge/Playwright-1.56.1-2EAD33?style=flat-square&logo=playwright)
+![ESLint](https://img.shields.io/badge/ESLint-9.39.1-4B32C3?style=flat-square&logo=eslint)
 ![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square&logo=pwa)
 
 ### AI & Security
 ![Multi-Provider](https://img.shields.io/badge/Multi--Provider-OpenRouter%20%2B%20HuggingFace-FF4B4B?style=flat-square)
 ![JWT](https://img.shields.io/badge/JWT-Authentication-000000?style=flat-square&logo=jsonwebtokens)
-![Axios](https://img.shields.io/badge/Axios-1.11.0-5A29E4?style=flat-square&logo=axios)
-![pgvector](https://img.shields.io/badge/pgvector-0.8.0-4169E1?style=flat-square)
+![Axios](https://img.shields.io/badge/Axios-1.13.2-5A29E4?style=flat-square&logo=axios)
+![pgvector](https://img.shields.io/badge/pgvector-0.8.1-4169E1?style=flat-square)
 
 </div>
 

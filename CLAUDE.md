@@ -7,9 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a multi-service application called "ServiceNow Helper" that provides an AI-powered interface for ServiceNow assistance featuring **multi-agent AI architecture**. The entire system is containerized using Docker Compose.
 
 The core components are:
-- **Next.js 15.5.2 Frontend**: A web application for user interaction, authentication, and displaying results with agent model configuration, knowledge store management, and multimodal capabilities.
-- **n8n Workflow Engine**: Handles the backend AI processing with multi-agent support, integrating with services like Anthropic Claude.
-- **PostgreSQL Database**: Provides data storage for n8n, session storage, agent model configurations, and knowledge store for the Next.js app.
+- **Next.js 16.0.0 Frontend**: A web application for user interaction, authentication, and displaying results with agent model configuration, knowledge store management, and multimodal capabilities.
+- **n8n Workflow Engine (1.118.2)**: Handles the backend AI processing with multi-agent support, integrating with services like Anthropic Claude.
+- **PostgreSQL Database (15.x with pgvector 0.8.1)**: Provides data storage for n8n, session storage, agent model configurations, and knowledge store for the Next.js app.
 - **ServiceNow Helper Companion App**: A ServiceNow application that facilitates integration using staging table architecture for secure data synchronization.
 
 ## Development Commands
@@ -126,18 +126,18 @@ The application follows a containerized, multi-service architecture orchestrated
 
 ## Technical Stack
 
-- **Frontend**: Next.js 15.5.2 (App Router), React 19.0.0, TypeScript 5.9.2, TailwindCSS 4.1.11
-- **Backend/Workflow**: n8n
-- **Database**: PostgreSQL 15.4 with pgvector 0.8.0 (with tables: `ServiceNowSupportTool` for conversations, `user_settings` for user preferences, `agent_models` for agent model configurations)
-- **Containerization**: Docker, Docker Compose (Dockerfile and docker-compose.yml in root)
-- **Libraries**: Axios 1.11.0, ReactMarkdown 10.1.0, Lucide React 0.542.0, JWT 9.0.2, highlight.js 11.11.1
+- **Frontend**: Next.js 16.0.0 (App Router), React 19.2.0, TypeScript 5.9.3, TailwindCSS 4.1.16
+- **Backend/Workflow**: n8n 1.118.2
+- **Database**: PostgreSQL 15.x with pgvector 0.8.1 (with tables: `ServiceNowSupportTool` for conversations, `user_settings` for user preferences, `agent_models` for agent model configurations)
+- **Containerization**: Docker, Docker Compose (Dockerfile with Node.js 22 and docker-compose.yml in root)
+- **Libraries**: Axios 1.13.2, ReactMarkdown 10.1.0, Lucide React 0.553.0, JWT 9.0.2, highlight.js 11.11.1, Mermaid 11.12.1
 - **Performance**: Dynamic imports, lazy loading, React.memo, code splitting, bundle analysis, and Core Web Vitals monitoring
 - **Streaming**: Server-Sent Events (SSE), real-time UI updates, connection pooling, retry logic, and performance monitoring
 - **Security**: Comprehensive security headers, XSS protection, CSRF prevention, streaming validation, and rate limiting
 - **Accessibility**: ARIA attributes, keyboard navigation, screen reader support, and WCAG compliance
 - **PWA Support**: Advanced Progressive Web App with offline support, install prompts, and app shortcuts
-- **Testing**: Jest 30.1.1 with coverage reporting, Playwright 1.55.0 for E2E, enhanced ESLint rules, and pre-commit quality gates
-- **Quality Assurance**: Husky pre-commit hooks, lint-staged, TypeScript strict mode, and automated testing
+- **Testing**: Jest 30.1.1 with coverage reporting, Playwright 1.56.1 for E2E, enhanced ESLint 9.39.1 rules, and pre-commit quality gates
+- **Quality Assurance**: Husky 9.1.7 pre-commit hooks, lint-staged 16.1.6, TypeScript strict mode, and automated testing
 
 ## Project Structure
 
@@ -310,9 +310,9 @@ await expect(element).toBeEnabled({ timeout: 10000 });
 - Focus on user-visible behavior rather than internal state
 - Use mocking for external API calls to ensure test reliability
 
-## Next.js 15 Best Practices Implementation
+## Next.js 16 Best Practices Implementation
 
-This codebase implements comprehensive Next.js 15 best practices:
+This codebase implements comprehensive Next.js 16 best practices:
 
 ### Performance Optimizations
 - **Dynamic Imports**: Heavy components (`HistoryPanel`, `ReactMarkdown`) are lazy-loaded
@@ -338,10 +338,10 @@ This codebase implements comprehensive Next.js 15 best practices:
 - **Focus Management**: Proper focus handling for modals and dropdowns
 
 ### Architecture Benefits
-- **App Router**: Full utilization of Next.js 15 App Router features
+- **App Router**: Full utilization of Next.js 16 App Router features with async APIs
 - **Server Components**: Optimal mix of server and client components
-- **Modern React**: Latest React 19 patterns with concurrent features
-- **Type Safety**: Enhanced TypeScript with strict mode compliance
+- **Modern React**: Latest React 19.2 patterns with concurrent features and useEffectEvent hook
+- **Type Safety**: Enhanced TypeScript 5.9.3 with strict mode compliance
 
 ### Key Files for Best Practices
 - `src/app/error.tsx` - Route-level error handling
@@ -429,11 +429,14 @@ The application includes comprehensive performance monitoring and Core Web Vital
 - **Bundle Size Tracking**: Automated bundle size validation
 - **Memory Usage**: Leak detection and cleanup verification
 
-### Next.js 15 Stable Features (Latest Implementation)
-- **Turbopack**: 5-10x faster development builds with `npm run dev --turbopack`
+### Next.js 16 Features (Latest Implementation)
+- **Turbopack Stable**: Now the default bundler, 5-10x faster development builds with `npm run dev --turbopack`
+- **React Compiler Support**: Built-in support for React Compiler for automatic performance optimizations
 - **Enhanced Package Optimization**: Optimized imports for `lucide-react`, `react-markdown`, `highlight.js`, `axios`, `jsonwebtoken`
 - **Advanced Bundle Analysis**: Integrated webpack bundle analyzer with `npm run build:analyze`
-- **Improved Development DX**: Faster HMR and compilation with Turbopack
+- **Improved Development DX**: Faster HMR and compilation with Turbopack as default
+- **Async Request APIs**: Modern async/await patterns for params, searchParams, cookies, and headers
+- **Node.js 22 LTS**: Requires Node.js 20.9.0+ (project uses Node.js 22)
 
 ### Streaming Performance Optimizations (Phase 1)
 - **Virtual Scrolling**: Efficient rendering of large content (>10k characters)
