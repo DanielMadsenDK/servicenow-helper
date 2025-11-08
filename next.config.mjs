@@ -1,7 +1,7 @@
-import type { NextConfig } from "next";
 import withBundleAnalyzer from '@next/bundle-analyzer';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import withPWAInit from "next-pwa";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,7 +10,7 @@ const bundleAnalyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
-const withPWA = require("next-pwa")({
+const withPWA = withPWAInit({
   dest: "public",
   register: true,
   skipWaiting: true,
@@ -134,18 +134,13 @@ const withPWA = require("next-pwa")({
   reloadOnOnline: true,
 });
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   output: "standalone",
   outputFileTracingRoot: __dirname,
 
-  // Disable ESLint during builds (for Docker)
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
   // Performance optimizations with stable features
   experimental: {
-    // Enhanced package optimization - stable in 15.5.2
+    // Enhanced package optimization
     optimizePackageImports: [
       'lucide-react',
       'react-markdown',
@@ -156,32 +151,10 @@ const nextConfig: NextConfig = {
     optimizeCss: true,
   },
 
-  // Bundle optimization
-  webpack: (config, { isServer }) => {
-    // Optimize bundle splitting
-    if (!isServer) {
-      config.optimization.splitChunks = {
-        ...config.optimization.splitChunks,
-        chunks: 'all',
-        cacheGroups: {
-          ...config.optimization.splitChunks.cacheGroups,
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-            priority: 10,
-          },
-          react: {
-            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-            name: 'react',
-            chunks: 'all',
-            priority: 20,
-          },
-        },
-      };
-    }
-
-    return config;
+  // Turbopack configuration (Next.js 16 default)
+  turbopack: {
+    // Empty config to acknowledge Turbopack as default
+    // This silences the webpack warning
   },
 
   // Enhanced image optimization with advanced settings

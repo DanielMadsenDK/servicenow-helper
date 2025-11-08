@@ -17,7 +17,7 @@ This document provides comprehensive information about database setup, configura
 
 ## Overview
 
-ServiceNow Helper uses **PostgreSQL 15.4** with **pgvector 0.8.0** extension for data storage and vector-based search capabilities.
+ServiceNow Helper uses **PostgreSQL 15.x** with **pgvector 0.8.1** extension for data storage and vector-based search capabilities.
 
 ### Key Database Tables
 
@@ -42,7 +42,7 @@ ServiceNow Helper uses **PostgreSQL 15.4** with **pgvector 0.8.0** extension for
 
 ## Database Technology
 
-### PostgreSQL 15.4
+### PostgreSQL 15.x
 
 **Why PostgreSQL:**
 - Robust, enterprise-grade open-source database
@@ -52,11 +52,12 @@ ServiceNow Helper uses **PostgreSQL 15.4** with **pgvector 0.8.0** extension for
 - Proven reliability and performance
 
 **Version:**
-- PostgreSQL 15.4 (stable release)
+- PostgreSQL 15.x (stable release, latest patch)
 - Compatible with Docker containerization
 - Supports all required features and extensions
+- Supported until November 2027
 
-### pgvector 0.8.0 Extension
+### pgvector 0.8.1 Extension
 
 **Purpose:**
 - Enable vector similarity search for AI embeddings

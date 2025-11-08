@@ -488,7 +488,7 @@ After:
 
 ### TailwindCSS Configuration
 
-The application uses **TailwindCSS 4.1.11** with custom configuration for the design system.
+The application uses **TailwindCSS 4.1.16** with custom configuration for the design system.
 
 **Key features:**
 - Custom color palette with semantic colors

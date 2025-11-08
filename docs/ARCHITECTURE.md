@@ -19,14 +19,14 @@ This document provides comprehensive technical architecture information for the 
 
 ## System Overview
 
-ServiceNow Helper follows a **containerized, multi-service architecture** orchestrated by Docker Compose, featuring a modern tech stack with Next.js 15, n8n workflow automation, and PostgreSQL database.
+ServiceNow Helper follows a **containerized, multi-service architecture** orchestrated by Docker Compose, featuring a modern tech stack with Next.js 16, n8n 1.118.2 workflow automation, and PostgreSQL database.
 
 ### High-Level Architecture
 
 ```mermaid
 graph TB
     subgraph "Frontend Layer"
-        A[Next.js 15 App] --> B[React Components]
+        A[Next.js 16 App] --> B[React Components]
         B --> C[TailwindCSS]
         B --> D[TypeScript]
     end
@@ -75,9 +75,9 @@ graph TB
 
 | Service | Technology | Port | Purpose |
 |---------|-----------|------|---------|
-| **Frontend** | Next.js 15.5.2 | 3000 | User interface, authentication, streaming responses |
-| **Backend** | n8n | 5678 | Workflow automation, AI processing, ServiceNow integration |
-| **Database** | PostgreSQL 15.4 + pgvector | 5432 | Data persistence, vector search, user settings |
+| **Frontend** | Next.js 16.0.0 | 3000 | User interface, authentication, streaming responses |
+| **Backend** | n8n 1.118.2 | 5678 | Workflow automation, AI processing, ServiceNow integration |
+| **Database** | PostgreSQL 15.x + pgvector 0.8.1 | 5432 | Data persistence, vector search, user settings |
 | **Containerization** | Docker Compose | N/A | Service orchestration, networking, volumes |
 
 ---
@@ -86,7 +86,7 @@ graph TB
 
 ### 1. Presentation Layer (Frontend)
 
-**Technology:** Next.js 15.5.2 with App Router
+**Technology:** Next.js 16.0.0 with App Router
 
 **Components:**
 - `SearchInterface` - Main application interface
@@ -136,7 +136,7 @@ graph TB
 
 ### 3. API Layer
 
-**Technology:** Next.js 15 App Router API Routes
+**Technology:** Next.js 16 App Router API Routes
 
 **Key Endpoints:**
 
@@ -163,7 +163,7 @@ graph TB
 
 ### 4. Workflow Layer
 
-**Technology:** n8n (Workflow Automation)
+**Technology:** n8n 1.118.2 (Workflow Automation)
 
 **Purpose:**
 - Orchestrate AI processing workflows
@@ -188,7 +188,7 @@ graph TB
 
 ### 5. Data Layer
 
-**Technology:** PostgreSQL 15.4 with pgvector 0.8.0
+**Technology:** PostgreSQL 15.x with pgvector 0.8.1
 
 **Schema Design:**
 - User isolation with `user_id` foreign keys
@@ -755,24 +755,25 @@ App
 
 | Technology | Version | Purpose |
 |-----------|---------|---------|
-| **Next.js** | 15.5.2 | React framework, SSR, API routes |
-| **React** | 19.0.0 | UI library, component architecture |
-| **TypeScript** | 5.9.2 | Type safety, developer experience |
-| **TailwindCSS** | 4.1.11 | Utility-first styling, responsive design |
-| **Lucide React** | 0.542.0 | Icon library |
+| **Next.js** | 16.0.0 | React framework, SSR, API routes, Turbopack |
+| **React** | 19.2.0 | UI library, component architecture |
+| **TypeScript** | 5.9.3 | Type safety, developer experience |
+| **TailwindCSS** | 4.1.16 | Utility-first styling, responsive design |
+| **Lucide React** | 0.553.0 | Icon library |
 | **ReactMarkdown** | 10.1.0 | Markdown rendering |
 | **highlight.js** | 11.11.1 | Syntax highlighting |
-| **jsPDF** | 2.5.2 | PDF generation |
-| **Mermaid** | 11+ | Diagram rendering |
+| **jsPDF** | 3.0.3 | PDF generation |
+| **Mermaid** | 11.12.1 | Diagram rendering |
 
 ### Backend Stack
 
 | Technology | Version | Purpose |
 |-----------|---------|---------|
-| **n8n** | Latest | Workflow automation, AI orchestration |
-| **PostgreSQL** | 15.4 | Relational database |
-| **pgvector** | 0.8.0 | Vector search extension |
+| **n8n** | 1.118.2 | Workflow automation, AI orchestration |
+| **PostgreSQL** | 15.x | Relational database |
+| **pgvector** | 0.8.1 | Vector search extension |
 | **Docker** | Latest | Containerization |
+| **Node.js** | 22 LTS | Runtime environment |
 | **Docker Compose** | Latest | Multi-container orchestration |
 
 ### Development Tools
@@ -780,10 +781,11 @@ App
 | Tool | Version | Purpose |
 |------|---------|---------|
 | **Jest** | 30.1.1 | Unit testing framework |
-| **Playwright** | 1.55.0 | E2E testing |
-| **ESLint** | 9.34.0 | Code linting |
-| **Husky** | Latest | Git hooks |
-| **lint-staged** | Latest | Staged file linting |
+| **Playwright** | 1.56.1 | E2E testing |
+| **ESLint** | 9.39.1 | Code linting |
+| **Husky** | 9.1.7 | Git hooks |
+| **lint-staged** | 16.1.6 | Staged file linting |
+| **ts-jest** | 29.4.5 | TypeScript Jest support |
 
 ---
 
@@ -799,12 +801,12 @@ services:
     depends_on: [postgres, n8n]
 
   n8n:
-    image: n8nio/n8n
+    image: n8nio/n8n:1.118.2
     ports: ["5678:5678"]
     depends_on: [postgres]
 
   postgres:
-    image: postgres:15.4
+    image: ankane/pgvector:v0.8.1-pg15
     ports: ["5432:5432"]
     volumes: [postgres_data]
 ```

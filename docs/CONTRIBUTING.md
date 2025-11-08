@@ -50,7 +50,7 @@ git checkout -b fix/your-fix-name
 - Follow the existing code style and patterns
 - Add comments for complex logic
 - Update documentation if needed
-- Follow Next.js 15 and React 19 best practices
+- Follow Next.js 16 and React 19.2 best practices
 
 ### 3. Testing
 Run all tests before submitting:
@@ -151,9 +151,9 @@ chore: maintenance tasks
 ## Architecture Considerations
 
 ### Core Components
-- **Frontend**: Next.js 15.5.2 with App Router
-- **Backend**: n8n workflows for AI processing  
-- **Database**: PostgreSQL 15.4 with pgvector 0.8.0 for data persistence
+- **Frontend**: Next.js 16.0.0 with App Router
+- **Backend**: n8n 1.118.2 workflows for AI processing  
+- **Database**: PostgreSQL 15.x with pgvector 0.8.1 for data persistence
 - **Authentication**: JWT-based auth system
 
 ### Key Patterns
