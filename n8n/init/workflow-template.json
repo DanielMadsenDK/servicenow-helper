@@ -2116,19 +2116,39 @@
               "aiModel": "google/gemini-2.5-flash-lite",
               "agentModels": [
                 {
-                  "agent": "business_rule",
-                  "model": "google/gemini-2.5-flash"
-                },
-                {
-                  "agent": "client_script",
-                  "model": "moonshotai/kimi-k2"
-                },
-                {
                   "agent": "orchestration",
-                  "model": "x-ai/grok-4"
+                  "model": "anthropic/claude-sonnet-4"
                 },
                 {
-                  "agent": "script_include",
+                  "agent": "planner_large",
+                  "model": "anthropic/claude-sonnet-4"
+                },
+                {
+                  "agent": "planner_small",
+                  "model": "anthropic/claude-sonnet-4"
+                },
+                {
+                  "agent": "coder_large",
+                  "model": "anthropic/claude-sonnet-4"
+                },
+                {
+                  "agent": "coder_small",
+                  "model": "anthropic/claude-sonnet-4"
+                },
+                {
+                  "agent": "architect_large",
+                  "model": "anthropic/claude-sonnet-4"
+                },
+                {
+                  "agent": "architect_small",
+                  "model": "anthropic/claude-sonnet-4"
+                },
+                {
+                  "agent": "process_sme_large",
+                  "model": "anthropic/claude-sonnet-4"
+                },
+                {
+                  "agent": "process_sme_small",
                   "model": "anthropic/claude-sonnet-4"
                 }
               ],

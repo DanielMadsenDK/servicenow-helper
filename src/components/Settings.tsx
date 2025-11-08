@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Image, Headphones, Bot, Brain, Zap, Server, Monitor, Filter } from 'lucide-react';
+import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Image, Headphones, Bot, Brain, Zap, Server, Monitor, Filter, Compass, NotepadText, CodeXml, DraftingCompass, UserStar } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { useSettings } from '@/contexts/SettingsContext';
@@ -251,18 +251,38 @@ export default function Settings() {
   };
 
   const getAgentIcon = (agentName: string) => {
-    switch (agentName) {
-      case 'orchestration':
-        return Zap;
-      case 'business_rule':
-        return Server;
-      case 'client_script':
-        return Monitor;
-      case 'script_include':
-        return Code2;
+    switch (true) {
+      case agentName === 'orchestration':
+        return Compass;
+      case agentName.startsWith('planner_'):
+        return NotepadText;
+      case agentName.startsWith('coder_'):
+        return CodeXml;
+      case agentName.startsWith('architect_'):
+        return DraftingCompass;
+      case agentName.startsWith('process_sme_'):
+        return UserStar;
       default:
         return Bot;
     }
+  };
+
+  const getAgentGroup = (agentName: string): string | null => {
+    if (agentName === 'orchestration') return null;
+    if (agentName.startsWith('planner_')) return 'Planner Agents';
+    if (agentName.startsWith('coder_')) return 'Coder Agents';
+    if (agentName.startsWith('architect_')) return 'Architect Agents';
+    if (agentName.startsWith('process_sme_')) return 'Process SME Agents';
+    return null;
+  };
+
+  const getTypeDescription = (agentName: string): string | null => {
+    if (agentName === 'orchestration') return null;
+    if (agentName.startsWith('planner_')) return 'Analyzes requirements, designs solutions, and creates implementation strategies';
+    if (agentName.startsWith('coder_')) return 'Generates scripts, code snippets, and technical implementations';
+    if (agentName.startsWith('architect_')) return 'Designs system architecture, data models, and technical frameworks';
+    if (agentName.startsWith('process_sme_')) return 'Provides expertise on ServiceNow workflows, business processes, and platform configuration';
+    return null;
   };
 
 
@@ -679,8 +699,9 @@ export default function Settings() {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    {getDefaultAgents().map((agent) => {
+                  <div className="space-y-4">
+                    {/* Orchestration Agent - Standalone */}
+                    {getDefaultAgents().filter(a => a.name === 'orchestration').map((agent) => {
                       const AgentIcon = getAgentIcon(agent.name);
                       const currentModel = agentModels[agent.name];
                       const selectedModel = models.find(m => m.model_name === currentModel);
@@ -688,8 +709,8 @@ export default function Settings() {
                       const isSaving = saving === `agent_${agent.name}`;
 
                       return (
-                        <div 
-                          key={agent.name} 
+                        <div
+                          key={agent.name}
                           className="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden"
                         >
                           <button
@@ -823,8 +844,172 @@ export default function Settings() {
                         </div>
                       );
                     })}
+
+                    {/* Agent Groups - Planner, Coder, Architect, Process SME */}
+                    {['Planner Agents', 'Coder Agents', 'Architect Agents', 'Process SME Agents'].map((groupName) => {
+                      const groupAgents = getDefaultAgents().filter(a => getAgentGroup(a.name) === groupName);
+                      if (groupAgents.length === 0) return null;
+
+                      const groupTypeDescription = getTypeDescription(groupAgents[0].name);
+
+                      return (
+                        <div key={groupName} className="space-y-2">
+                          <div className="px-1">
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{groupName}</h3>
+                            {groupTypeDescription && (
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{groupTypeDescription}</p>
+                            )}
+                          </div>
+                          <div className="space-y-2 pl-2 border-l-2 border-gray-300 dark:border-gray-600">
+                            {groupAgents.map((agent) => {
+                              const AgentIcon = getAgentIcon(agent.name);
+                              const currentModel = agentModels[agent.name];
+                              const selectedModel = models.find(m => m.model_name === currentModel);
+                              const isExpanded = expandedAgents[agent.name];
+                              const isSaving = saving === `agent_${agent.name}`;
+
+                              return (
+                                <div
+                                  key={agent.name}
+                                  className="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden"
+                                >
+                                  <button
+                                    onClick={() => toggleAgentExpanded(agent.name)}
+                                    disabled={agentModelsLoading || !isAuthenticated}
+                                    aria-expanded={isExpanded}
+                                    aria-controls={`agent-models-${agent.name}`}
+                                    aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${agent.displayName} model options`}
+                                    className="group w-full px-4 py-3 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                                  >
+                                    <div className="flex items-center space-x-3">
+                                      <AgentIcon className="w-5 h-5 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors" />
+                                      <div className="text-left">
+                                        <div
+                                          id={`agent-${agent.name}-heading`}
+                                          className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-800 dark:group-hover:text-blue-200 transition-colors"
+                                        >
+                                          {agent.displayName}
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">{agent.description}</div>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      {isSaving ? (
+                                        <div className="animate-spin w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
+                                      ) : (
+                                        <>
+                                          {selectedModel && (
+                                            <div className="flex items-center space-x-1">
+                                              {selectedModel.is_free ? (
+                                                <Gift className="w-4 h-4 sm:w-3 sm:h-3 text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300 transition-colors" />
+                                              ) : (
+                                                <DollarSign className="w-4 h-4 sm:w-3 sm:h-3 text-yellow-600 dark:text-yellow-400 group-hover:text-yellow-700 dark:group-hover:text-yellow-300 transition-colors" />
+                                              )}
+                                              <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                                                {selectedModel.display_name || selectedModel.model_name}
+                                              </span>
+                                            </div>
+                                          )}
+                                          <ChevronDown className={`w-4 h-4 text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all ${isExpanded ? 'rotate-180' : ''}`} />
+                                        </>
+                                      )}
+                                    </div>
+                                  </button>
+
+                                  {isExpanded && (
+                                    <div
+                                      id={`agent-models-${agent.name}`}
+                                      className="px-4 pt-3 pb-4 bg-gray-50 dark:bg-gray-700/50"
+                                      role="group"
+                                      aria-labelledby={`agent-${agent.name}-heading`}
+                                    >
+                                      <div className="space-y-3">
+                                        {filteredAndSortedModels.map((model) => (
+                                          <button
+                                            key={model.id}
+                                            onClick={() => handleAgentModelChange(agent.name, model.model_name)}
+                                            disabled={isSaving || !isAuthenticated}
+                                            aria-label={`Select ${model.display_name || model.model_name} for ${agent.displayName}. ${model.is_free ? 'Free model' : 'Paid model'}${model.capabilities && model.capabilities.length > 0 ? ', multimodal capabilities' : ''}`}
+                                            aria-pressed={currentModel === model.model_name}
+                                            className={`group w-full px-4 py-3 rounded-lg text-left flex items-center justify-between transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
+                                              currentModel === model.model_name
+                                                ? 'bg-blue-100 dark:bg-blue-800/50 border-2 border-blue-300 dark:border-blue-600 shadow-sm'
+                                                : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-200 dark:hover:border-blue-700'
+                                            }`}
+                                          >
+                                            <div className="flex items-center space-x-2">
+                                              {model.is_free ? (
+                                                <Gift className={`w-5 h-5 sm:w-4 sm:h-4 transition-colors ${
+                                                  currentModel === model.model_name
+                                                    ? 'text-green-800 dark:text-green-200'
+                                                    : 'text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300'
+                                                }`} />
+                                              ) : (
+                                                <DollarSign className={`w-5 h-5 sm:w-4 sm:h-4 transition-colors ${
+                                                  currentModel === model.model_name
+                                                    ? 'text-yellow-800 dark:text-yellow-200'
+                                                    : 'text-yellow-600 dark:text-yellow-400 group-hover:text-yellow-700 dark:group-hover:text-yellow-300'
+                                                }`} />
+                                              )}
+                                              <div className="flex items-center space-x-2 min-w-0">
+                                                <span className={`text-sm font-medium truncate transition-colors ${
+                                                  currentModel === model.model_name
+                                                    ? 'text-blue-950 dark:text-blue-50'
+                                                    : 'text-gray-900 dark:text-gray-100 group-hover:text-blue-800 dark:group-hover:text-blue-200'
+                                                }`}>
+                                                  {model.display_name || model.model_name}
+                                                </span>
+                                                {isModelMultimodal(model) && (
+                                                  <div className="flex items-center space-x-1">
+                                                    <span className={`text-xs font-medium transition-colors ${
+                                                      currentModel === model.model_name
+                                                        ? 'text-blue-800 dark:text-blue-200'
+                                                        : 'text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300'
+                                                    }`}>MultiModal</span>
+                                                    <div className="flex space-x-1">
+                                                      {model.capabilities?.map((cap) => {
+                                                        const IconComponent = getCapabilityIcon(cap.name);
+                                                        return (
+                                                          <IconComponent
+                                                            key={cap.id}
+                                                            className={`w-4 h-4 sm:w-3 sm:h-3 transition-colors ${
+                                                              currentModel === model.model_name
+                                                                ? 'text-blue-800 dark:text-blue-200'
+                                                                : 'text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300'
+                                                            }`}
+                                                          />
+                                                        );
+                                                      })}
+                                                    </div>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </div>
+                                            {currentModel === model.model_name && (
+                                              <Check className="w-5 h-5 sm:w-4 sm:h-4 text-blue-800 dark:text-blue-200" />
+                                            )}
+                                          </button>
+                                        ))}
+                                        {filteredAndSortedModels.length === 0 && (
+                                          <div className="px-3 py-2 text-gray-500 dark:text-gray-400 text-sm text-center">
+                                            {models.length === 0
+                                              ? "No AI models available. Add one using the + button above."
+                                              : "No models match the current filters. Try adjusting your filter settings."
+                                            }
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                  
+
                   <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400 mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
                     <div className="flex items-center space-x-1">
                       <Gift className="w-3 h-3 text-green-600 dark:text-green-400" />

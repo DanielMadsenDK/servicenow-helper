@@ -459,9 +459,9 @@ export class AgentModelManager {
       WHERE user_id = $1
       ORDER BY agent_name
     `;
-    
+
     const result = await this.db.query(query, [userId]);
-    
+
     const agentModels: Record<string, string> = {};
     for (const row of result.rows) {
       const r = row as AgentModelRow;
@@ -472,11 +472,16 @@ export class AgentModelManager {
     if (Object.keys(agentModels).length === 0) {
       const defaultModels = {
         orchestration: 'anthropic/claude-sonnet-4',
-        business_rule: 'anthropic/claude-sonnet-4',
-        client_script: 'anthropic/claude-sonnet-4',
-        script_include: 'anthropic/claude-sonnet-4'
+        planner_large: 'anthropic/claude-sonnet-4',
+        planner_small: 'anthropic/claude-sonnet-4',
+        coder_large: 'anthropic/claude-sonnet-4',
+        coder_small: 'anthropic/claude-sonnet-4',
+        architect_large: 'anthropic/claude-sonnet-4',
+        architect_small: 'anthropic/claude-sonnet-4',
+        process_sme_large: 'anthropic/claude-sonnet-4',
+        process_sme_small: 'anthropic/claude-sonnet-4'
       };
-      
+
       await this.updateUserAgentModels(userId, defaultModels);
       return defaultModels;
     }
@@ -545,7 +550,7 @@ export class AgentModelManager {
     return (result.rowCount || 0) > 0;
   }
 
-  getDefaultAgents(): Array<{ name: string; displayName: string; description: string; defaultModel: string }> {
+  getDefaultAgents(): Array<{ name: string; displayName: string; description: string; typeDescription?: string; defaultModel: string }> {
     return [
       {
         name: 'orchestration',
@@ -554,21 +559,59 @@ export class AgentModelManager {
         defaultModel: 'anthropic/claude-sonnet-4'
       },
       {
-        name: 'business_rule',
-        displayName: 'Business Rule Agent',
-        description: 'Specializes in ServiceNow business rules, server-side scripts, and workflow logic',
+        name: 'planner_large',
+        displayName: 'Planner Agent (Large)',
+        description: 'For complex tasks requiring deep thought and analysis. Slower and more expensive.',
+        typeDescription: 'Analyzes requirements, designs solutions, and creates implementation strategies',
         defaultModel: 'anthropic/claude-sonnet-4'
       },
       {
-        name: 'client_script',
-        displayName: 'Client Script Agent',
-        description: 'Handles ServiceNow client scripts, UI policies, and front-end customizations',
+        name: 'planner_small',
+        displayName: 'Planner Agent (Small)',
+        description: 'For well-defined tasks. Faster and more cost-effective.',
+        typeDescription: 'Analyzes requirements, designs solutions, and creates implementation strategies',
         defaultModel: 'anthropic/claude-sonnet-4'
       },
       {
-        name: 'script_include',
-        displayName: 'Script Include Agent',
-        description: 'Specializes in ServiceNow Script Includes, reusable server-side JavaScript libraries',
+        name: 'coder_large',
+        displayName: 'Coder Agent (Large)',
+        description: 'For complex tasks requiring deep thought and analysis. Slower and more expensive.',
+        typeDescription: 'Generates scripts, code snippets, and technical implementations',
+        defaultModel: 'anthropic/claude-sonnet-4'
+      },
+      {
+        name: 'coder_small',
+        displayName: 'Coder Agent (Small)',
+        description: 'For well-defined tasks. Faster and more cost-effective.',
+        typeDescription: 'Generates scripts, code snippets, and technical implementations',
+        defaultModel: 'anthropic/claude-sonnet-4'
+      },
+      {
+        name: 'architect_large',
+        displayName: 'Architect Agent (Large)',
+        description: 'For complex tasks requiring deep thought and analysis. Slower and more expensive.',
+        typeDescription: 'Designs system architecture, data models, and technical frameworks',
+        defaultModel: 'anthropic/claude-sonnet-4'
+      },
+      {
+        name: 'architect_small',
+        displayName: 'Architect Agent (Small)',
+        description: 'For well-defined tasks. Faster and more cost-effective.',
+        typeDescription: 'Designs system architecture, data models, and technical frameworks',
+        defaultModel: 'anthropic/claude-sonnet-4'
+      },
+      {
+        name: 'process_sme_large',
+        displayName: 'Process SME Agent (Large)',
+        description: 'For complex tasks requiring deep thought and analysis. Slower and more expensive.',
+        typeDescription: 'Provides expertise on ServiceNow workflows, business processes, and platform configuration',
+        defaultModel: 'anthropic/claude-sonnet-4'
+      },
+      {
+        name: 'process_sme_small',
+        displayName: 'Process SME Agent (Small)',
+        description: 'For well-defined tasks. Faster and more cost-effective.',
+        typeDescription: 'Provides expertise on ServiceNow workflows, business processes, and platform configuration',
         defaultModel: 'anthropic/claude-sonnet-4'
       }
     ];

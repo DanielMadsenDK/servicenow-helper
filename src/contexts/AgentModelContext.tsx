@@ -25,21 +25,51 @@ const defaultAgents: DefaultAgent[] = [
     defaultModel: 'anthropic/claude-sonnet-4'
   },
   {
-    name: 'business_rule',
-    displayName: 'Business Rule Agent',
-    description: 'Specializes in ServiceNow business rules, server-side scripts, and workflow logic',
+    name: 'planner_large',
+    displayName: 'Planner Agent (Large)',
+    description: 'For complex tasks requiring deep thought and analysis. Slower and more expensive.',
     defaultModel: 'anthropic/claude-sonnet-4'
   },
   {
-    name: 'client_script',
-    displayName: 'Client Script Agent',
-    description: 'Handles ServiceNow client scripts, UI policies, and front-end customizations',
+    name: 'planner_small',
+    displayName: 'Planner Agent (Small)',
+    description: 'For well-defined tasks. Faster and more cost-effective.',
     defaultModel: 'anthropic/claude-sonnet-4'
   },
   {
-    name: 'script_include',
-    displayName: 'Script Include Agent',
-    description: 'Specializes in ServiceNow Script Includes, reusable server-side JavaScript libraries',
+    name: 'coder_large',
+    displayName: 'Coder Agent (Large)',
+    description: 'For complex tasks requiring deep thought and analysis. Slower and more expensive.',
+    defaultModel: 'anthropic/claude-sonnet-4'
+  },
+  {
+    name: 'coder_small',
+    displayName: 'Coder Agent (Small)',
+    description: 'For well-defined tasks. Faster and more cost-effective.',
+    defaultModel: 'anthropic/claude-sonnet-4'
+  },
+  {
+    name: 'architect_large',
+    displayName: 'Architect Agent (Large)',
+    description: 'For complex tasks requiring deep thought and analysis. Slower and more expensive.',
+    defaultModel: 'anthropic/claude-sonnet-4'
+  },
+  {
+    name: 'architect_small',
+    displayName: 'Architect Agent (Small)',
+    description: 'For well-defined tasks. Faster and more cost-effective.',
+    defaultModel: 'anthropic/claude-sonnet-4'
+  },
+  {
+    name: 'process_sme_large',
+    displayName: 'Process SME Agent (Large)',
+    description: 'For complex tasks requiring deep thought and analysis. Slower and more expensive.',
+    defaultModel: 'anthropic/claude-sonnet-4'
+  },
+  {
+    name: 'process_sme_small',
+    displayName: 'Process SME Agent (Small)',
+    description: 'For well-defined tasks. Faster and more cost-effective.',
     defaultModel: 'anthropic/claude-sonnet-4'
   }
 ];
