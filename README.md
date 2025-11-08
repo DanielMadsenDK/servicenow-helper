@@ -21,7 +21,7 @@
 
 ## Features
 
-- **Multi-Agent AI Architecture** - Specialized AI agents (Orchestration, Business Rules, Client Scripts, Script Includes) with individual model configuration
+- **Multi-Agent AI Architecture** - 9 specialized AI agents (Orchestration, Planner, Coder, Architect, Process SME) with Large/Small variants and individual model configuration
 - **Multi-Provider Support** - OpenRouter, Hugging Face, and extensible provider system for cost optimization
 - **Real-time Streaming** - ChatGPT-like live response generation with Server-Sent Events (SSE)
 - **Custom AI Skills** - Create tailored AI solutions for unique organizational challenges like intelligent triage and automated categorization
@@ -103,9 +103,10 @@ graph TB
         L --> HF[Hugging Face]
         L --> EX[Extensible Providers]
         OR --> M[Orchestration Agent]
-        HF --> N[Business Rule Agent]
-        OR --> O[Client Script Agent]
-        HF --> SI[Script Include Agent]
+        HF --> N[Planner Agent L/S]
+        OR --> O[Coder Agent L/S]
+        HF --> AR[Architect Agent L/S]
+        OR --> SI[Process SME L/S]
     end
 
     subgraph "ServiceNow Integration"

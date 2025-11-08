@@ -48,12 +48,14 @@ graph TB
         L --> HF[Hugging Face]
         L --> EX[Extensible Providers]
         OR --> M[Orchestration Agent]
-        HF --> N[Business Rule Agent]
-        OR --> O[Client Script Agent]
-        HF --> SI[Script Include Agent]
+        HF --> N[Planner Agent L/S]
+        OR --> O[Coder Agent L/S]
+        HF --> AR[Architect Agent L/S]
+        OR --> SI[Process SME L/S]
         M --> P[Claude/GPT/Gemini]
         N --> Q[Claude/GPT/Gemini]
         O --> R[Claude/GPT/Gemini]
+        AR --> ARMOD[Claude/GPT/Gemini]
         SI --> SIM[Claude/GPT/Gemini]
     end
 
@@ -300,7 +302,7 @@ sequenceDiagram
 
 ### Agent Specialization
 
-The multi-agent architecture allows different AI models to specialize in different tasks.
+The multi-agent architecture allows different AI models to specialize in different tasks. Each specialized agent type has Large and Small variants for complex vs. well-defined tasks.
 
 **Orchestration Agent:**
 - **Role**: Coordinator and router
@@ -309,53 +311,98 @@ The multi-agent architecture allows different AI models to specialize in differe
   - Determine which specialized agents to invoke
   - Coordinate responses from multiple agents
   - Synthesize final unified response
-- **Model Selection**: Typically uses most capable model (e.g., Claude 3.5 Sonnet)
+- **Model Selection**: Typically uses most capable model (e.g., Claude Sonnet 4)
 
-**Business Rule Agent:**
-- **Role**: ServiceNow business logic specialist
+**Planner Agents (Large/Small):**
+- **Role**: Strategic planning and solution design specialist
 - **Responsibilities**:
-  - Generate server-side business rules
-  - Explain business logic concepts
-  - Optimize workflow efficiency
-  - Handle data validation rules
+  - Analyze requirements and design solutions
+  - Create implementation strategies
+  - Design technical approaches
+  - Plan process optimization
+- **Large Variant**: Complex strategic planning requiring deep analysis
+- **Small Variant**: Well-defined planning tasks
+- **Model Selection**: Optimized for analysis and strategic thinking
+
+**Coder Agents (Large/Small):**
+- **Role**: Code generation and technical implementation specialist
+- **Responsibilities**:
+  - Generate scripts, code snippets, and technical implementations
+  - Create business rules, client scripts, and service-side logic
+  - Implement technical solutions
+  - Debug and optimize code
+- **Large Variant**: Complex coding tasks requiring sophisticated logic
+- **Small Variant**: Simple code snippets and well-defined implementations
 - **Model Selection**: Optimized for code generation and logic
 
-**Client Script Agent:**
-- **Role**: Client-side scripting specialist
+**Architect Agents (Large/Small):**
+- **Role**: System design and architecture specialist
 - **Responsibilities**:
-  - Generate UI client scripts
-  - Handle form validation
-  - Implement UI interactions
-  - Create client-side logic
-- **Model Selection**: Optimized for JavaScript and UI patterns
+  - Design system architecture and data models
+  - Create technical frameworks
+  - Design scalable solutions
+  - Plan system integration
+- **Large Variant**: Complex architecture design requiring deep analysis
+- **Small Variant**: Well-defined architectural tasks
+- **Model Selection**: Optimized for system design and framework thinking
 
-**Script Include Agent:**
-- **Role**: Reusable library specialist
+**Process SME Agents (Large/Small):**
+- **Role**: Subject matter expert for ServiceNow workflows and processes
 - **Responsibilities**:
-  - Generate reusable script includes
-  - Create utility functions
-  - Design API interfaces
-  - Implement complex algorithms
-- **Model Selection**: Optimized for modular, reusable code
+  - Provide expertise on ServiceNow workflows
+  - Optimize business processes
+  - Configure platform features
+  - Explain process best practices
+- **Large Variant**: Complex workflow analysis and optimization
+- **Small Variant**: Quick process questions and guidance
+- **Model Selection**: Optimized for process expertise and platform knowledge
+
+### Size Variants
+
+**Large Variant:**
+- For complex tasks requiring more thought and analysis
+- Slower processing and more expensive
+- Better for intricate problems requiring deeper reasoning
+
+**Small Variant:**
+- For well-defined, straightforward tasks
+- Faster processing and more cost-effective
+- Ideal for routine requests with clear parameters
 
 ### Agent Communication
 
 **Routing Logic:**
 ```typescript
 // Simplified agent routing logic
-function routeToAgents(question: string, type: RequestType) {
+function routeToAgents(question: string, type: RequestType, complexity: 'large' | 'small') {
   const agents = [orchestration];
 
+  // Determine complexity level for specialized agents
+  const sizeVariant = complexity; // 'large' for complex, 'small' for well-defined
+
+  if (type === 'recommendation' || type === 'documentation') {
+    // Planning tasks
+    agents.push(`planner_${sizeVariant}`);
+  }
+
   if (type === 'script') {
-    if (question.includes('business rule')) {
-      agents.push(businessRule);
+    // Code generation tasks
+    agents.push(`coder_${sizeVariant}`);
+  }
+
+  if (type === 'troubleshoot' || type === 'ai-skill') {
+    // May involve architecture or process expertise
+    if (question.includes('architecture') || question.includes('design')) {
+      agents.push(`architect_${sizeVariant}`);
+    } else {
+      agents.push(`process_sme_${sizeVariant}`);
     }
-    if (question.includes('client script')) {
-      agents.push(clientScript);
-    }
-    if (question.includes('script include')) {
-      agents.push(scriptInclude);
-    }
+  }
+
+  if (type === 'ai-agent') {
+    // Agent building requires planning and coding
+    agents.push(`planner_${sizeVariant}`);
+    agents.push(`coder_${sizeVariant}`);
   }
 
   return agents;

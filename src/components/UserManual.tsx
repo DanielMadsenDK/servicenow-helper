@@ -373,16 +373,20 @@ export default function UserManual() {
                     <p className="text-xs text-indigo-800 dark:text-indigo-200">Coordinates overall response and routing between different specialized agents</p>
                   </div>
                   <div className="p-3 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
-                    <h4 className="font-medium text-indigo-900 dark:text-indigo-100 text-sm mb-1">Business Rule Agent</h4>
-                    <p className="text-xs text-indigo-800 dark:text-indigo-200">Specialized for ServiceNow business logic and rule configuration</p>
+                    <h4 className="font-medium text-indigo-900 dark:text-indigo-100 text-sm mb-1">Planner Agent (Large/Small)</h4>
+                    <p className="text-xs text-indigo-800 dark:text-indigo-200">Analyzes requirements and designs solutions. Large: complex strategy; Small: well-defined tasks</p>
                   </div>
                   <div className="p-3 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
-                    <h4 className="font-medium text-indigo-900 dark:text-indigo-100 text-sm mb-1">Client Script Agent</h4>
-                    <p className="text-xs text-indigo-800 dark:text-indigo-200">Optimized for client-side scripting and UI component development</p>
+                    <h4 className="font-medium text-indigo-900 dark:text-indigo-100 text-sm mb-1">Coder Agent (Large/Small)</h4>
+                    <p className="text-xs text-indigo-800 dark:text-indigo-200">Generates scripts and code implementations. Large: complex code; Small: simple snippets</p>
                   </div>
                   <div className="p-3 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
-                    <h4 className="font-medium text-indigo-900 dark:text-indigo-100 text-sm mb-1">Script Include Agent</h4>
-                    <p className="text-xs text-indigo-800 dark:text-indigo-200">Specializes in reusable server-side JavaScript libraries</p>
+                    <h4 className="font-medium text-indigo-900 dark:text-indigo-100 text-sm mb-1">Architect Agent (Large/Small)</h4>
+                    <p className="text-xs text-indigo-800 dark:text-indigo-200">Designs system architecture and frameworks. Large: complex design; Small: well-defined tasks</p>
+                  </div>
+                  <div className="p-3 bg-white dark:bg-indigo-800/30 rounded-lg border border-indigo-300 dark:border-indigo-600">
+                    <h4 className="font-medium text-indigo-900 dark:text-indigo-100 text-sm mb-1">Process SME Agent (Large/Small)</h4>
+                    <p className="text-xs text-indigo-800 dark:text-indigo-200">ServiceNow workflow expertise. Large: complex analysis; Small: quick guidance</p>
                   </div>
                 </div>
 

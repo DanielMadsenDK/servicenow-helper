@@ -98,12 +98,13 @@ Configure different AI models from multiple providers for specialized agents to 
 
 ### Available Agents
 
-| Agent | Purpose | Configurable Models | Provider Options |
-|-------|---------|--------------------|-------------------|
-| **Orchestration Agent** | Coordinates overall response and routing | Claude, GPT, Gemini, and more | OpenRouter, Hugging Face |
-| **Business Rule Agent** | Specialized for ServiceNow business logic | Claude, GPT, Gemini, and more | OpenRouter, Hugging Face |
-| **Client Script Agent** | Optimized for client-side scripting | Claude, GPT, Gemini, and more | OpenRouter, Hugging Face |
-| **Script Include Agent** | Specializes in reusable server-side JavaScript libraries | Claude, GPT, Gemini, and more | OpenRouter, Hugging Face |
+| Agent | Purpose | Complexity | Configurable Models |
+|-------|---------|-----------|-----|
+| **Orchestration Agent** | Coordinates overall response and routing | N/A | Claude, GPT, Gemini, and more |
+| **Planner Agent** | Analyzes requirements and designs solutions | Large: Complex strategy; Small: Well-defined tasks | Claude, GPT, Gemini, and more |
+| **Coder Agent** | Generates scripts, code, and implementations | Large: Complex code; Small: Simple snippets | Claude, GPT, Gemini, and more |
+| **Architect Agent** | Designs system architecture and frameworks | Large: Complex design; Small: Well-defined architecture | Claude, GPT, Gemini, and more |
+| **Process SME Agent** | Provides expertise on workflows and processes | Large: Complex analysis; Small: Quick guidance | Claude, GPT, Gemini, and more |
 
 ### How to Configure Agent Models
 
@@ -549,16 +550,20 @@ Efficiently manage your curated Q&A Knowledge Store with comprehensive managemen
 
 ### Optimizing AI Responses
 
-**Choose the Right Agent:**
-- Use Business Rule Agent for server-side logic
-- Use Client Script Agent for UI-related tasks
-- Use Script Include Agent for reusable libraries
-- Let Orchestration Agent coordinate complex requests
+**Choose the Right Agent & Complexity Level:**
+- Use **Planner Agent** for strategy, requirements analysis, and solution design
+- Use **Coder Agent** for script generation, code snippets, and implementations
+- Use **Architect Agent** for system design, data models, and technical frameworks
+- Use **Process SME Agent** for ServiceNow workflows and business process questions
+- Select **Large variant** for complex tasks requiring deep analysis
+- Select **Small variant** for well-defined, straightforward tasks
+- Let **Orchestration Agent** coordinate and route between specialized agents
 
 **Select Appropriate Models:**
-- Use cost-effective models for simple questions
-- Reserve premium models for complex tasks
+- Use cost-effective models (small variants) for simple, well-defined questions
+- Reserve premium models (large variants) for complex tasks requiring deeper reasoning
 - Configure different models per agent for optimization
+- Match model capability to task complexity for best performance/cost ratio
 
 **Iterative Refinement:**
 - Ask follow-up questions to clarify

@@ -229,16 +229,22 @@ docker exec -i servicenow-helper-postgres-1 psql -U n8n -d n8n < scripts/migrate
 Check migration success:
 
 ```bash
-docker exec -it servicenow-helper-postgres-1 psql -U n8n -d n8n -c "SELECT * FROM agent_models LIMIT 5;"
+docker exec -it servicenow-helper-postgres-1 psql -U n8n -d n8n -c "SELECT * FROM agent_models LIMIT 9;"
 ```
 
 Expected output:
 ```
- id | user_id | agent_name     | model_name                    | created_at          | updated_at
-----+---------+----------------+-------------------------------+---------------------+---------------------
-  1 | admin   | orchestration  | anthropic/claude-3.5-sonnet  | 2024-01-15 10:30:00 | 2024-01-15 10:30:00
-  2 | admin   | business_rule  | anthropic/claude-3.5-sonnet  | 2024-01-15 10:30:00 | 2024-01-15 10:30:00
-  3 | admin   | client_script  | anthropic/claude-3.5-sonnet  | 2024-01-15 10:30:00 | 2024-01-15 10:30:00
+ id | user_id | agent_name        | model_name                   | created_at          | updated_at
+----+---------+-------------------+------------------------------+---------------------+---------------------
+  1 | admin   | orchestration     | anthropic/claude-sonnet-4    | 2024-01-15 10:30:00 | 2024-01-15 10:30:00
+  2 | admin   | planner_large     | anthropic/claude-sonnet-4    | 2024-01-15 10:30:00 | 2024-01-15 10:30:00
+  3 | admin   | planner_small     | anthropic/claude-sonnet-4    | 2024-01-15 10:30:00 | 2024-01-15 10:30:00
+  4 | admin   | coder_large       | anthropic/claude-sonnet-4    | 2024-01-15 10:30:00 | 2024-01-15 10:30:00
+  5 | admin   | coder_small       | anthropic/claude-sonnet-4    | 2024-01-15 10:30:00 | 2024-01-15 10:30:00
+  6 | admin   | architect_large   | anthropic/claude-sonnet-4    | 2024-01-15 10:30:00 | 2024-01-15 10:30:00
+  7 | admin   | architect_small   | anthropic/claude-sonnet-4    | 2024-01-15 10:30:00 | 2024-01-15 10:30:00
+  8 | admin   | process_sme_large | anthropic/claude-sonnet-4    | 2024-01-15 10:30:00 | 2024-01-15 10:30:00
+  9 | admin   | process_sme_small | anthropic/claude-sonnet-4    | 2024-01-15 10:30:00 | 2024-01-15 10:30:00
 ```
 
 ---
@@ -267,19 +273,34 @@ CREATE TABLE IF NOT EXISTS agent_models (
 |--------|------|-------------|-------------|
 | `id` | SERIAL | Primary key | Auto-increment, NOT NULL |
 | `user_id` | VARCHAR(255) | User identifier | NOT NULL |
-| `agent_name` | VARCHAR(100) | Agent identifier | NOT NULL (orchestration, business_rule, client_script, script_include) |
-| `model_name` | VARCHAR(500) | Selected AI model | NOT NULL (e.g., `anthropic/claude-3.5-sonnet`) |
+| `agent_name` | VARCHAR(100) | Agent identifier | NOT NULL (orchestration, planner_large, planner_small, coder_large, coder_small, architect_large, architect_small, process_sme_large, process_sme_small) |
+| `model_name` | VARCHAR(500) | Selected AI model | NOT NULL (e.g., `anthropic/claude-sonnet-4`) |
 | `created_at` | TIMESTAMP | Record creation time | DEFAULT CURRENT_TIMESTAMP |
 | `updated_at` | TIMESTAMP | Last modification time | DEFAULT CURRENT_TIMESTAMP |
 
 **Constraints:**
 - `UNIQUE(user_id, agent_name)` - One model per agent per user
 
-**Supported Agents:**
-- `orchestration` - Coordinates overall response and routing
-- `business_rule` - Specialized for ServiceNow business logic
-- `client_script` - Optimized for client-side scripting
-- `script_include` - Specializes in reusable server-side libraries
+**Supported Agents (9 Total):**
+
+**Orchestration Agent:**
+- `orchestration` - Coordinates overall response and routing between specialized agents
+
+**Planner Agents:**
+- `planner_large` - Strategic planning for complex tasks requiring deep analysis
+- `planner_small` - Planning for well-defined, straightforward tasks
+
+**Coder Agents:**
+- `coder_large` - Complex code generation and implementations
+- `coder_small` - Simple code snippets and well-defined implementations
+
+**Architect Agents:**
+- `architect_large` - Complex system architecture and framework design
+- `architect_small` - Well-defined architecture and design tasks
+
+**Process SME Agents:**
+- `process_sme_large` - Complex workflow analysis and process optimization
+- `process_sme_small` - Quick process questions and basic guidance
 
 ### `user_settings` Table
 
