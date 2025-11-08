@@ -14,7 +14,7 @@ export function validateRequest(body: StreamingRequest): string | null {
         return 'Either aiModel or agentModels with at least one agent configuration must be provided';
     }
     if (body.agentModels) {
-        const allowedAgents = ['orchestration', 'business_rule', 'client_script', 'script_include'];
+        const allowedAgents = ['orchestration', 'planner_large', 'planner_small', 'coder_large', 'coder_small', 'architect_large', 'architect_small', 'process_sme_large', 'process_sme_small'];
         for (const agentModel of body.agentModels) {
             if (!agentModel.agent || !agentModel.model) {
                 return 'Each agent configuration must have both agent and model properties';
