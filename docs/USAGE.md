@@ -9,6 +9,7 @@ This comprehensive guide covers all features and workflows for using the Service
 - [Multi-Provider AI Architecture](#multi-provider-ai-architecture)
 - [Multi-Agent AI Configuration](#multi-agent-ai-configuration)
 - [Asking Questions](#asking-questions)
+- [Voice Input](#voice-input)
 - [File Attachments (Multimodal Support)](#file-attachments-multimodal-support)
 - [Script Deployment to ServiceNow](#script-deployment-to-servicenow)
 - [Mermaid Diagram Support](#mermaid-diagram-support)
@@ -180,6 +181,189 @@ The application provides ChatGPT-like live response generation:
 - **Cancel Anytime**: Stop generation with the stop button
 - **Connection Status**: Visual indicators show connection health
 - **Network Resilience**: Automatic retry on connection issues
+
+---
+
+## Voice Input
+
+Ask questions naturally using voice recording with WhatsApp-style press-and-hold interaction.
+
+### Voice Input Features
+
+| Feature | Description | Benefit |
+|---------|-------------|---------|
+| **Press-and-Hold Recording** | WhatsApp-style voice recording interface | Intuitive mobile-first interaction |
+| **Automatic Transcription** | Speech-to-text conversion via N8N | Hands-free question input |
+| **Auto-Submit** | Automatically send question after transcription | Seamless conversation flow |
+| **Quick Send** | Optional instant send on button release | Speed up workflow |
+| **Cross-Platform Support** | Works on Desktop, Android, and iOS Safari | Universal compatibility |
+| **Visual Feedback** | Timer, waveform animation, recording status | Clear user feedback |
+
+### How to Enable Voice Input
+
+Voice input is enabled by default. To configure settings:
+
+1. Navigate to **Settings** via the hamburger menu (☰)
+2. Scroll to **Voice Input** section
+3. Configure the three available settings:
+   - **Enable Voice Input** - Show/hide microphone button (default: ON)
+   - **Auto-Submit After Transcription** - Automatically press "Get Help" after text insertion (default: ON)
+   - **Quick Send (Advanced)** - Skip confirmation modal, send immediately on release (default: OFF)
+
+### Voice Recording Workflow
+
+**Standard Mode** (Quick Send OFF):
+1. **Press and Hold** the microphone button (🎤) in the search interface
+2. **Speak your question** - Timer shows recording duration
+3. **Release button** to stop recording
+4. **Confirmation modal appears** showing recording duration with waveform
+5. **Choose action**:
+   - Click **Send** to transcribe and insert text
+   - Click **Cancel** to discard recording
+   - Press **Enter** to send (keyboard shortcut)
+   - Press **Escape** to cancel (keyboard shortcut)
+6. **Transcription processing** - "Transcribing..." indicator displays
+7. **Text inserted** into question textarea automatically
+8. **Auto-submit** (if enabled) - "Get Help" button automatically pressed
+
+**Quick Send Mode** (Quick Send ON):
+1. **Press and Hold** the microphone button
+2. **Speak your question** - Timer shows recording duration
+3. **Release button** - Recording sent immediately (no confirmation)
+4. **Transcription processing** begins automatically
+5. **Text inserted** and submitted (if auto-submit enabled)
+
+### Voice Input Settings
+
+| Setting | Default | Description | Use Case |
+|---------|---------|-------------|----------|
+| **Enable Voice Input** | ON | Shows microphone button in search interface | Disable if voice not needed |
+| **Auto-Submit After Transcription** | ON | Automatically presses "Get Help" after text insertion | Talk to machine seamlessly |
+| **Quick Send (Advanced)** | OFF | Skip confirmation modal, send on button release | Power users, quick queries |
+
+**Setting Dependencies:**
+- Auto-Submit and Quick Send are disabled when Voice Input is disabled
+- Quick Send marked as "Advanced" - use with caution for important queries
+
+### Browser and Platform Compatibility
+
+**Full Support:**
+- ✅ **Desktop Browsers**: Chrome, Edge, Firefox, Safari (all major versions)
+- ✅ **Android**: Chrome, Firefox, Samsung Internet (all browsers with WebRTC)
+- ✅ **iOS Safari (Browser Mode)**: Full voice recording support
+
+**Limited Support:**
+- ⚠️ **iOS PWA Standalone Mode**: Voice recording NOT available due to Apple security restrictions
+
+**Audio Format Support:**
+- **Desktop & Android**: WebM format (Opus codec)
+- **iOS**: MP4 format (AAC codec)
+- **Automatic Detection**: Platform-specific format selected automatically
+
+### iOS PWA Limitations
+
+**Important Notice for iOS Users:**
+
+Due to Apple security restrictions, the `getUserMedia` API (required for microphone access) does **not work** in iOS Progressive Web Apps when running in standalone mode (installed to home screen).
+
+**Workaround for iOS Users:**
+
+1. **Use Safari Browser Mode** instead of PWA standalone mode
+2. **Open the app in Safari browser** - Voice features work perfectly
+3. **iOS PWA Warning** - When iOS standalone mode is detected, a yellow warning banner appears with:
+   - Explanation of the limitation
+   - "Open in Safari" button
+   - "Copy URL" button for easy sharing
+   - Dismissible (saves preference in localStorage)
+
+**iOS User Flow:**
+1. If using iOS PWA standalone mode → **Warning banner appears**
+2. Click **"Open in Safari"** button
+3. App opens in Safari browser with full voice support
+4. Optionally add to home screen with **"display": "browser"** mode for permanent access
+
+**Technical Details:**
+- iOS PWA uses `manifest-ios.json` with `"display": "browser"` for voice support
+- Trade-off: Shows browser UI but enables microphone access
+- Detection: Platform detection identifies iOS + standalone mode automatically
+
+### Best Practices
+
+**Effective Voice Questions:**
+- **Speak Clearly**: Enunciate words for accurate transcription
+- **Reduce Background Noise**: Find quiet environment for best results
+- **Use Punctuation Phrases**: Say "comma", "period", "question mark" if needed
+- **Review Transcription**: Check text before submitting (with Quick Send OFF)
+
+**Settings Recommendations:**
+- **First-Time Users**: Keep Quick Send OFF to review transcriptions
+- **Experienced Users**: Enable Quick Send for faster workflow
+- **Critical Questions**: Disable Auto-Submit to review before sending
+- **Casual Use**: Enable both Auto-Submit and Quick Send for seamless experience
+
+**Platform-Specific Tips:**
+- **iOS Users**: Use Safari browser mode, not PWA standalone
+- **Android Users**: Use Chrome for best compatibility
+- **Desktop Users**: Grant microphone permission when prompted
+- **All Platforms**: Check microphone icon color (blue = ready, red = recording)
+
+### Privacy and Security
+
+**Audio Processing:**
+- Voice recordings processed server-side via N8N webhook
+- Audio transmitted as base64-encoded data over HTTPS
+- No audio stored permanently - transcribed text only
+- JWT authentication required for all voice API requests
+
+**Permissions:**
+- Browser requests microphone permission on first use
+- User can revoke permission anytime via browser settings
+- Permission status checked before each recording
+- Clear error messages if permission denied
+
+**Data Handling:**
+- Audio chunks stored temporarily in memory during recording
+- Automatic cleanup after transcription complete
+- Maximum recording duration: 5 minutes (enforced)
+- File size limit: 10MB (enforced server-side)
+
+### Troubleshooting Voice Input
+
+**Microphone Button Not Visible:**
+- Check Settings → Voice Input → "Enable Voice Input" is ON
+- Verify browser supports MediaRecorder API
+- Check platform compatibility (iOS standalone mode not supported)
+
+**Recording Not Starting:**
+- Grant microphone permission when prompted
+- Check microphone is not in use by another application
+- Verify browser has microphone access enabled
+- Try refreshing the page
+
+**Transcription Failed:**
+- Check network connectivity
+- Verify N8N service is running (port 5678)
+- Ensure voice recording is clear (not just silence)
+- Try shorter recordings (< 2 minutes optimal)
+
+**iOS Voice Not Working:**
+- Check if using PWA standalone mode (not supported)
+- Open in Safari browser instead
+- Follow iOS PWA warning banner instructions
+- Ensure iOS Safari has microphone permission
+
+**Poor Transcription Quality:**
+- Reduce background noise
+- Speak more clearly and slowly
+- Check microphone input level
+- Use external microphone if available
+- Try shorter, focused questions
+
+**Quick Send Not Working:**
+- Verify Settings → Voice Input → "Quick Send" is ON
+- Check "Enable Voice Input" is also ON
+- Try recording longer than 1 second
+- Ensure button fully released
 
 ---
 

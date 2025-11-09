@@ -28,7 +28,10 @@ const defaultSettings: UserSettings = {
     script_include: 'anthropic/claude-sonnet-4'
   },
   visible_request_types: DEFAULT_VISIBLE_MODES,
-  agent_block_display_mode: 'styled' // Default to styled markdown display
+  agent_block_display_mode: 'styled', // Default to styled markdown display
+  voice_mode_enabled: true, // Voice input enabled by default
+  voice_auto_submit: true, // Auto-submit after transcription by default
+  voice_auto_send: false // Show confirmation modal by default (safer UX)
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);

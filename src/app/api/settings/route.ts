@@ -64,7 +64,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse<SettingsAp
     const agentModelManager = new AgentModelManager();
     
     // Validate the settings object structure
-    const validKeys = ['welcome_section_visible', 'default_search_mode', 'default_request_type', 'servicenow_instance_url', 'default_ai_model', 'agent_models', 'visible_request_types'];
+    const validKeys = ['welcome_section_visible', 'default_search_mode', 'default_request_type', 'servicenow_instance_url', 'default_ai_model', 'agent_models', 'visible_request_types', 'voice_mode_enabled', 'voice_auto_submit', 'voice_auto_send'];
     const settings: Partial<UserSettings> = {};
     let agentModelsToUpdate: Record<string, string> | null = null;
     

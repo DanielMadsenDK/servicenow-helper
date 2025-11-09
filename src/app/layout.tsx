@@ -9,6 +9,7 @@ import { AIModelProvider } from "@/contexts/AIModelContext";
 import { AgentModelProvider } from "@/contexts/AgentModelContext";
 import { ProviderProvider } from "@/contexts/ProviderContext";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import ManifestLink from "@/components/ManifestLink";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -74,6 +75,7 @@ export default function RootLayout({
               <SettingsProvider>
                 <AIModelProvider>
                   <AgentModelProvider>
+                    <ManifestLink />
                     {children}
                     <PWAInstallPrompt />
                   </AgentModelProvider>

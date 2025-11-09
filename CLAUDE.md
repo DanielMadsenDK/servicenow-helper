@@ -97,6 +97,10 @@ The application follows a containerized, multi-service architecture orchestrated
 - `CodeBlock` - Enhanced code blocks with Send to ServiceNow functionality
 - `SendScriptButton` - Button component for script deployment with modal integration
 - `SendScriptModal` - Modal for script type selection (Business Rule, Script Include, Client Script)
+- `VoiceRecordButton` - WhatsApp-style press-and-hold voice recording button
+- `VoiceRecordingModal` - Voice recording confirmation modal with timer and waveform
+- `IOSPWAWarning` - iOS PWA standalone mode limitation warning component
+- `ManifestLink` - Dynamic PWA manifest injection for iOS compatibility
 
 ### Streaming Infrastructure
 - `StreamingClient` (`src/lib/streaming-client.ts`) - Core streaming connection management
@@ -109,7 +113,15 @@ The application follows a containerized, multi-service architecture orchestrated
 - `/api/knowledge-store` - Knowledge store management API
 - `/api/send-script` - Script deployment API endpoint using N8NClient
 - `/api/cancel-request` - Request cancellation API
+- `/api/voice-to-text` - Voice transcription API endpoint with N8N proxy
 - Custom streaming animations and CSS in `src/styles/streaming-animations.css`
+
+### Voice Input Infrastructure
+- `useVoiceRecorder` (`src/hooks/useVoiceRecorder.ts`) - MediaRecorder API integration with platform detection
+- `platform-detection` (`src/lib/platform-detection.ts`) - iOS/Android detection and capability checking
+- `manifest-ios.json` - iOS-specific PWA manifest with browser display mode for getUserMedia support
+- Voice settings: `voice_mode_enabled`, `voice_auto_submit`, `voice_auto_send`
+- Cross-platform audio format support (webm for Android/Desktop, mp4 for iOS)
 
 ### Agent Model Management
 - `AgentModelContext` (`src/contexts/AgentModelContext.tsx`) - Agent model state management
@@ -133,6 +145,7 @@ The application follows a containerized, multi-service architecture orchestrated
 - **Libraries**: Axios 1.13.2, ReactMarkdown 10.1.0, Lucide React 0.553.0, JWT 9.0.2, highlight.js 11.11.1, Mermaid 11.12.1
 - **Performance**: Dynamic imports, lazy loading, React.memo, code splitting, bundle analysis, and Core Web Vitals monitoring
 - **Streaming**: Server-Sent Events (SSE), real-time UI updates, connection pooling, retry logic, and performance monitoring
+- **Voice Input**: MediaRecorder API, getUserMedia, platform detection (iOS/Android), cross-platform audio format support (webm/mp4)
 - **Security**: Comprehensive security headers, XSS protection, CSRF prevention, streaming validation, and rate limiting
 - **Accessibility**: ARIA attributes, keyboard navigation, screen reader support, and WCAG compliance
 - **PWA Support**: Advanced Progressive Web App with offline support, install prompts, and app shortcuts
@@ -146,7 +159,7 @@ Key directories:
   - `app/` - Next.js App Router with API routes and pages
   - `components/` - React components for UI and functionality
   - `contexts/` - React contexts (Auth, Settings, Agent Models, AI Models, Theme)
-  - `hooks/` - Custom React hooks (Network status, Session management, etc.)
+  - `hooks/` - Custom React hooks (Network status, Session management, Voice recording, etc.)
   - `lib/` - Utilities and business logic
   - `styles/` - Custom CSS including streaming animations
   - `types/` - TypeScript type definitions
@@ -154,7 +167,7 @@ Key directories:
 - `docs/` - Detailed documentation
 - `n8n/` - Workflow templates
 - `scripts/` - Database migrations and setup utilities
-- `public/` - Static assets including PWA manifests and icons
+- `public/` - Static assets including PWA manifests (manifest.json, manifest-ios.json) and icons
 - `848250f153632210030191e0a0490ed5/` - ServiceNow Helper Companion App (excluded from code review, linting, and testing)
 - Configuration files: `Dockerfile`, `docker-compose.yml`, `package.json`, `tsconfig.json`, `jest.config.ts`, `playwright.config.ts`
 
@@ -271,6 +284,7 @@ This ensures that all code follows current best practices and takes advantage of
 ### Detailed Documentation
 
 *   [Getting Started & Setup](./docs/SETUP.md)
+*   [Voice Mode Guide](./docs/VOICE_MODE.md)
 *   [Progressive Web App (PWA)](./docs/PWA.md)
 *   [Environment Variables](./docs/ENVIRONMENT_VARIABLES.md)
 *   [Development Guide](./docs/DEVELOPMENT.md)
