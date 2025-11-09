@@ -245,6 +245,18 @@ body {
   animation: breathing 2s ease-in-out infinite;
 }
 
+/* Subtle breathing animation for voice button */
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4), 0 10px 10px -5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 25px 30px -5px rgba(59, 130, 246, 0.5), 0 15px 15px -5px rgba(59, 130, 246, 0.4);
+  }
+}
+
 /* Modern shadow for content containers */
 .content-shadow {
   box-shadow: 

@@ -145,15 +145,20 @@ export default function VoiceRecordButton({
       aria-label={getAriaLabel()}
       title={isRecording ? 'Recording... Release to stop' : 'Press and hold to record'}
     >
-      <Mic className="w-5 h-5" />
+      {/* Icon with scale animation when recording */}
+      <Mic className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-200 ${isRecording ? 'scale-110' : ''}`} />
+
+      {/* Recording pulse rings - multiple layers for depth */}
       {isRecording && (
         <>
-          {/* Recording pulse indicator */}
-          <span className="absolute -top-1 -right-1 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
-          </span>
+          <span className="absolute inset-0 rounded-full animate-ping bg-red-400 opacity-40"></span>
+          <span className="absolute inset-0 rounded-full animate-pulse bg-red-300 opacity-30" style={{ animationDelay: '150ms' }}></span>
         </>
+      )}
+
+      {/* Premium shine effect */}
+      {!disabled && (
+        <span className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 hover:opacity-100 transition-opacity duration-300"></span>
       )}
     </button>
   );

@@ -78,6 +78,7 @@ export default function SearchInterface() {
   const [showVoiceModal, setShowVoiceModal] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [showIOSWarning, setShowIOSWarning] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   /**
    * Cleans up streaming state and resources
@@ -696,6 +697,14 @@ export default function SearchInterface() {
   }, [voiceRecorder, settings.voice_auto_submit, handleSubmit, textareaRef, setQuestion, setError]);
 
   /**
+   * Client-side hydration check
+   * Prevents hydration mismatch for platform-dependent features
+   */
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  /**
    * Auto-send effect when voice_auto_send is enabled and recording completes
    */
   useEffect(() => {
@@ -705,8 +714,8 @@ export default function SearchInterface() {
     }
   }, [settings.voice_auto_send, voiceRecorder.base64Audio, voiceRecorder.isRecording, handleVoiceModalSend]);
 
-  // Determine if voice button should be shown
-  const showVoiceButton = settings.voice_mode_enabled && voiceRecorder.capabilities.canUseVoiceInput;
+  // Determine if voice button should be shown (only on client to prevent hydration mismatch)
+  const showVoiceButton = isClient && settings.voice_mode_enabled && voiceRecorder.capabilities.canUseVoiceInput;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-100 via-gray-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900 relative">
@@ -847,10 +856,10 @@ export default function SearchInterface() {
           </div>
 
           {/* Submit Button - Outside animated area */}
-          <form onSubmit={handleSubmit}>
-            <div className="mt-4 sm:mt-6 relative z-20 flex items-center space-x-3">
-              {/* Voice Record Button */}
-              {showVoiceButton && (
+          <form onSubmit={handleSubmit} className="relative">
+            {/* Voice Record Button - Floating on large screens, inline on mobile */}
+            {showVoiceButton && (
+              <div className="hidden md:block absolute -top-16 right-3 sm:right-4 z-30">
                 <VoiceRecordButton
                   isRecording={voiceRecorder.isRecording}
                   recordingState={voiceRecorder.recordingState}
@@ -858,16 +867,33 @@ export default function SearchInterface() {
                   onPressStart={handleVoiceRecordStart}
                   onPressEnd={handleVoiceRecordEnd}
                 />
-              )}
+              </div>
+            )}
 
-              {/* Submit Button */}
-              <div className="flex-1">
-                <SubmitButton
-                  isLoading={isLoading || isStreaming || isTranscribing}
-                  hasQuestion={!!question.trim()}
-                  onSubmit={() => handleSubmit()}
-                  onStop={handleStop}
-                />
+            <div className="mt-4 sm:mt-6 relative z-20">
+              {/* Mobile/Tablet: Voice button inline with submit button */}
+              <div className="flex items-center gap-3 md:block">
+                {showVoiceButton && (
+                  <div className="md:hidden flex-shrink-0">
+                    <VoiceRecordButton
+                      isRecording={voiceRecorder.isRecording}
+                      recordingState={voiceRecorder.recordingState}
+                      disabled={isLoading || isStreaming || isTranscribing}
+                      onPressStart={handleVoiceRecordStart}
+                      onPressEnd={handleVoiceRecordEnd}
+                    />
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <div className="flex-1">
+                  <SubmitButton
+                    isLoading={isLoading || isStreaming || isTranscribing}
+                    hasQuestion={!!question.trim()}
+                    onSubmit={() => handleSubmit()}
+                    onStop={handleStop}
+                  />
+                </div>
               </div>
             </div>
           </form>
