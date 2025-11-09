@@ -24,6 +24,7 @@
 - **Multi-Agent AI Architecture** - 9 specialized AI agents (Orchestration, Planner, Coder, Architect, Process SME) with Large/Small variants and individual model configuration
 - **Multi-Provider Support** - OpenRouter, Hugging Face, and extensible provider system for cost optimization
 - **Real-time Streaming** - ChatGPT-like live response generation with Server-Sent Events (SSE)
+- **Voice Input** - WhatsApp-style press-and-hold voice recording with automatic transcription and submission (iOS/Android/Desktop support)
 - **Custom AI Skills** - Create tailored AI solutions for unique organizational challenges like intelligent triage and automated categorization
 - **Robust Security** - JWT authentication, httpOnly cookies, comprehensive security headers
 - **Conversation Management** - Full history tracking, search/filtering, session continuity
@@ -73,6 +74,8 @@ docker compose up -d
 | **n8n Workflow Manager** | `http://localhost:5678` | `admin@servicenow-helper.local` / `Admin123` |
 
 > **New:** Real-time streaming responses enabled by default, providing ChatGPT-like live response generation!
+>
+> **Voice Input:** Press and hold the microphone button to record voice questions with automatic transcription. Configure voice settings in Settings → Voice Input. **Note:** iOS users should use Safari browser mode for voice features (PWA standalone mode not supported due to Apple restrictions).
 
 ## Architecture
 
@@ -133,8 +136,8 @@ graph TB
 ### Getting Started
 
 1. **Login** with your credentials
-2. **Configure settings** via hamburger menu (agent models, providers, preferences)
-3. **Ask questions** with real-time streaming responses
+2. **Configure settings** via hamburger menu (agent models, providers, preferences, voice input)
+3. **Ask questions** with real-time streaming responses (text or voice input)
 4. **Export answers** as Markdown or PDF
 5. **Deploy scripts** directly to ServiceNow
 6. **Manage knowledge store** for curated Q&A pairs
@@ -159,6 +162,13 @@ graph TB
 - Attach images, PDFs, audio files
 - AI analyzes screenshots, diagrams, error messages
 - Configure multimodal capabilities in settings
+
+**Voice Input:**
+- WhatsApp-style press-and-hold recording interface
+- Automatic speech-to-text transcription
+- Configurable auto-submit behavior
+- Cross-platform support (Desktop, Android, iOS Safari)
+- iOS PWA limitation handling with clear user guidance
 
 **Script Deployment:**
 - One-click deployment to ServiceNow
@@ -292,6 +302,7 @@ npm run test:e2e:debug      # Debug mode
 |--------------|-------------|
 | **[Architecture Guide](./docs/ARCHITECTURE.md)** | System architecture, components, and data flow |
 | **[Usage Guide](./docs/USAGE.md)** | Complete feature documentation and workflows |
+| **[Voice Mode Guide](./docs/VOICE_MODE.md)** | Voice input features, platform support, and troubleshooting |
 | **[UI Design System](./docs/UI_DESIGN.md)** | Design principles and component patterns |
 | **[Database Configuration](./docs/DATABASE.md)** | Database schema, setup, and management |
 | **[Setup Guide](./docs/SETUP.md)** | Installation and configuration |

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, lazy, Suspense, useCallback, useMemo } from 'react';
 import { History } from 'lucide-react';
 
-import { ServiceNowResponse, ConversationHistoryItem, StreamingRequest, StreamingChunk, StreamingStatus } from '@/types';
+import { ServiceNowResponse, ConversationHistoryItem, StreamingRequest, StreamingChunk, StreamingStatus, VoiceToTextResponse } from '@/types';
 import { cancelRequest, submitQuestionStreaming } from '@/lib/api';
 import { StreamingClient } from '@/lib/streaming-client';
 import { streamingCancellation } from '@/lib/streaming-cancellation';
@@ -13,6 +13,7 @@ import { useAIModels } from '@/contexts/AIModelContext';
 import { useAgentModels } from '@/contexts/AgentModelContext';
 import { usePlaceholderRotation } from '@/hooks/usePlaceholderRotation';
 import { useSessionManager } from '@/hooks/useSessionManager';
+import { useVoiceRecorder } from '@/hooks/useVoiceRecorder';
 import { RequestType, DEFAULT_VISIBLE_MODES } from '@/lib/constants';
 
 import BurgerMenu from './BurgerMenu';
@@ -26,6 +27,9 @@ import SubmitButton from './SubmitButton';
 import ResultsSection from './ResultsSection';
 import Footer from './Footer';
 import FileUpload from './FileUpload';
+import VoiceRecordButton from './VoiceRecordButton';
+import VoiceRecordingModal from './VoiceRecordingModal';
+import IOSPWAWarning from './IOSPWAWarning';
 
 // Lazy load heavy components
 const HistoryPanel = lazy(() => import('./HistoryPanel'));
@@ -68,6 +72,12 @@ export default function SearchInterface() {
   // Use custom hooks
   const { continueMode, setContinueMode, getSessionKey, currentSessionKey } = useSessionManager();
   const currentPlaceholder = usePlaceholderRotation({ textareaRef, question });
+
+  // Voice recording hook and state
+  const voiceRecorder = useVoiceRecorder();
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [showIOSWarning, setShowIOSWarning] = useState(false);
 
   /**
    * Cleans up streaming state and resources
@@ -581,6 +591,123 @@ export default function SearchInterface() {
     setSelectedFile(null); // Also clear any selected file
   }, []);
 
+  // Check for iOS PWA standalone mode on mount
+  useEffect(() => {
+    if (settings.voice_mode_enabled && voiceRecorder.capabilities.isIOS && voiceRecorder.capabilities.isStandalone && !voiceRecorder.capabilities.canUseVoiceInput) {
+      setShowIOSWarning(true);
+    }
+  }, [settings.voice_mode_enabled, voiceRecorder.capabilities]);
+
+  /**
+   * Handle voice recording start (press)
+   */
+  const handleVoiceRecordStart = useCallback(async () => {
+    await voiceRecorder.startRecording();
+  }, [voiceRecorder]);
+
+  /**
+   * Handle voice recording end (release)
+   */
+  const handleVoiceRecordEnd = useCallback(() => {
+    voiceRecorder.stopRecording();
+
+    // Check if auto-send is enabled
+    if (settings.voice_auto_send) {
+      // Auto-send without showing modal
+      // We'll trigger the send in a useEffect when base64Audio is ready
+    } else {
+      // Show modal for confirmation
+      setShowVoiceModal(true);
+    }
+  }, [voiceRecorder, settings.voice_auto_send]);
+
+  /**
+   * Handle voice modal cancel
+   */
+  const handleVoiceModalCancel = useCallback(() => {
+    setShowVoiceModal(false);
+    voiceRecorder.cancelRecording();
+  }, [voiceRecorder]);
+
+  /**
+   * Handle voice modal send / auto-send
+   */
+  const handleVoiceModalSend = useCallback(async () => {
+    setShowVoiceModal(false);
+
+    if (!voiceRecorder.base64Audio || !voiceRecorder.capabilities.preferredAudioFormat) {
+      setError('No audio recording available');
+      voiceRecorder.cancelRecording();
+      return;
+    }
+
+    // Store audio data before clearing recorder state
+    const audioData = voiceRecorder.base64Audio;
+    const audioFormat = voiceRecorder.capabilities.preferredAudioFormat;
+
+    // Immediately reset recorder state to prevent UI showing recording state
+    voiceRecorder.cancelRecording();
+
+    setIsTranscribing(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/voice-to-text', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          audio: audioData,
+          format: audioFormat,
+        }),
+      });
+
+      const data: VoiceToTextResponse = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Transcription failed');
+      }
+
+      if (data.text) {
+        // Insert transcribed text into question textarea
+        setQuestion(data.text);
+
+        // Auto-submit if enabled
+        if (settings.voice_auto_submit) {
+          // Small delay to ensure question state is updated
+          setTimeout(() => {
+            handleSubmit();
+          }, 100);
+        }
+
+        // Focus textarea for user to review/edit if auto-submit is disabled
+        if (!settings.voice_auto_submit && textareaRef.current) {
+          textareaRef.current.focus();
+        }
+      }
+    } catch (err) {
+      console.error('[SearchInterface] Voice transcription error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to transcribe voice recording. Please try again.');
+    } finally {
+      setIsTranscribing(false);
+    }
+  }, [voiceRecorder, settings.voice_auto_submit, handleSubmit, textareaRef, setQuestion, setError]);
+
+  /**
+   * Auto-send effect when voice_auto_send is enabled and recording completes
+   */
+  useEffect(() => {
+    if (settings.voice_auto_send && voiceRecorder.base64Audio && !voiceRecorder.isRecording) {
+      // Trigger send automatically
+      handleVoiceModalSend();
+    }
+  }, [settings.voice_auto_send, voiceRecorder.base64Audio, voiceRecorder.isRecording, handleVoiceModalSend]);
+
+  // Determine if voice button should be shown
+  const showVoiceButton = settings.voice_mode_enabled && voiceRecorder.capabilities.canUseVoiceInput;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-100 via-gray-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900 relative">
       {/* Skip link for accessibility */}
@@ -639,6 +766,9 @@ export default function SearchInterface() {
           isVisible={isWelcomeSectionVisible}
           onClose={handleWelcomeClose}
         />
+
+        {/* iOS PWA Warning */}
+        {showIOSWarning && <IOSPWAWarning onDismiss={() => setShowIOSWarning(false)} />}
 
         {/* Search Form */}
         <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg shadow-blue-500/5 dark:shadow-blue-500/10 border border-gray-200/50 dark:border-gray-700/50 p-6 sm:p-8 md:p-10 mb-6 sm:mb-8 relative overflow-hidden animate-in slide-in-from-bottom-4 fade-in-0 duration-500 transition-all hover:shadow-xl hover:shadow-blue-500/10">
@@ -718,13 +848,27 @@ export default function SearchInterface() {
 
           {/* Submit Button - Outside animated area */}
           <form onSubmit={handleSubmit}>
-            <div className="mt-4 sm:mt-6 relative z-20">
-              <SubmitButton
-                isLoading={isLoading || isStreaming}
-                hasQuestion={!!question.trim()}
-                onSubmit={() => handleSubmit()}
-                onStop={handleStop}
-              />
+            <div className="mt-4 sm:mt-6 relative z-20 flex items-center space-x-3">
+              {/* Voice Record Button */}
+              {showVoiceButton && (
+                <VoiceRecordButton
+                  isRecording={voiceRecorder.isRecording}
+                  recordingState={voiceRecorder.recordingState}
+                  disabled={isLoading || isStreaming || isTranscribing}
+                  onPressStart={handleVoiceRecordStart}
+                  onPressEnd={handleVoiceRecordEnd}
+                />
+              )}
+
+              {/* Submit Button */}
+              <div className="flex-1">
+                <SubmitButton
+                  isLoading={isLoading || isStreaming || isTranscribing}
+                  hasQuestion={!!question.trim()}
+                  onSubmit={() => handleSubmit()}
+                  onStop={handleStop}
+                />
+              </div>
             </div>
           </form>
         </div>
@@ -760,6 +904,16 @@ export default function SearchInterface() {
             onSelectConversation={handleHistorySelect}
           />
         </Suspense>
+      )}
+
+      {/* Voice Recording Modal */}
+      {showVoiceModal && (
+        <VoiceRecordingModal
+          isOpen={showVoiceModal}
+          duration={voiceRecorder.recordingDuration}
+          onSend={handleVoiceModalSend}
+          onCancel={handleVoiceModalCancel}
+        />
       )}
     </div>
   );

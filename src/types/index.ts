@@ -94,6 +94,9 @@ export interface UserSettings {
   visible_request_types?: RequestType[]; // New field: modes to show in UI
   agent_block_display_mode?: 'raw' | 'styled'; // New field: how to display agent block content (default: 'raw')
   agent_tool_block_display_mode?: 'raw' | 'styled'; // New field: how to display agent tool block content (default: 'styled')
+  voice_mode_enabled?: boolean; // New field: enable/disable voice input feature
+  voice_auto_submit?: boolean; // New field: auto-submit after voice transcription
+  voice_auto_send?: boolean; // New field: skip confirmation modal and auto-send on release
 }
 
 export interface Capability {
@@ -329,4 +332,36 @@ export interface ExportOptions {
   includeQuestion: boolean;
   question?: string;
   answer: string;
+}
+
+// Voice Mode Types
+export enum VoiceRecordingState {
+  IDLE = 'idle',
+  RECORDING = 'recording',
+  PROCESSING = 'processing',
+  ERROR = 'error'
+}
+
+export type AudioFormat = 'webm' | 'mp4';
+
+export interface PlatformCapabilities {
+  isIOS: boolean;
+  isAndroid: boolean;
+  isStandalone: boolean;
+  supportsMediaRecorder: boolean;
+  supportsGetUserMedia: boolean;
+  preferredAudioFormat: AudioFormat;
+  canUseVoiceInput: boolean;
+  warning?: string; // Warning message if voice input has limitations
+}
+
+export interface VoiceToTextRequest {
+  audio: string; // base64 encoded audio data
+  format: AudioFormat;
+}
+
+export interface VoiceToTextResponse {
+  success: boolean;
+  text?: string;
+  error?: string;
 }

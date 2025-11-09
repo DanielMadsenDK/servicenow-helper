@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Image, Headphones, Bot, Brain, Zap, Server, Monitor, Filter, Compass, NotepadText, CodeXml, DraftingCompass, UserStar } from 'lucide-react';
+import { ArrowLeft, Settings as SettingsIcon, Eye, EyeOff, FileText, Lightbulb, Code2, Wrench, Check, X, Globe, Plus, DollarSign, Gift, ChevronDown, Image, Headphones, Bot, Brain, Zap, Server, Monitor, Filter, Compass, NotepadText, CodeXml, DraftingCompass, UserStar, Mic, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { useSettings } from '@/contexts/SettingsContext';
@@ -592,6 +592,121 @@ export default function Settings() {
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     At least one mode must be visible
                   </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Voice Input Settings */}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Voice Input</h2>
+              <div className="space-y-4">
+                {/* Voice Mode Enabled */}
+                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-700/30">
+                  <div className="flex items-center space-x-3">
+                    <Mic className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <div>
+                      <label className="text-gray-900 dark:text-gray-100 font-medium">Enable Voice Input</label>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Show microphone button for voice questions</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleToggle('voice_mode_enabled', !settings.voice_mode_enabled)}
+                    disabled={saving === 'voice_mode_enabled' || isLoading || !isAuthenticated}
+                    className="flex items-center space-x-2"
+                  >
+                    {saving === 'voice_mode_enabled' ? (
+                      <div className="animate-spin w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
+                    ) : (
+                      <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                        settings.voice_mode_enabled ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
+                      }`}>
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                            settings.voice_mode_enabled ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </div>
+                    )}
+                  </button>
+                </div>
+
+                {/* Voice Auto Submit */}
+                <div className={`flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-700/30 ${!settings.voice_mode_enabled ? 'opacity-50' : ''}`}>
+                  <div className="flex items-center space-x-3">
+                    <Zap className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <div>
+                      <label className="text-gray-900 dark:text-gray-100 font-medium">Auto-Submit After Voice Input</label>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Automatically submit question after voice transcription</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleToggle('voice_auto_submit', !settings.voice_auto_submit)}
+                    disabled={saving === 'voice_auto_submit' || isLoading || !isAuthenticated || !settings.voice_mode_enabled}
+                    className="flex items-center space-x-2"
+                  >
+                    {saving === 'voice_auto_submit' ? (
+                      <div className="animate-spin w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
+                    ) : (
+                      <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                        settings.voice_auto_submit ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
+                      }`}>
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                            settings.voice_auto_submit ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </div>
+                    )}
+                  </button>
+                </div>
+
+                {/* Voice Auto Send */}
+                <div className={`flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-700/30 ${!settings.voice_mode_enabled ? 'opacity-50' : ''}`}>
+                  <div className="flex items-center space-x-3">
+                    <Send className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2">
+                        <label className="text-gray-900 dark:text-gray-100 font-medium">Quick Send - Skip Confirmation</label>
+                        <span className="px-2.5 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 text-xs font-medium rounded-full">Advanced</span>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Skip Send/Cancel dialog and send immediately on release</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleToggle('voice_auto_send', !settings.voice_auto_send)}
+                    disabled={saving === 'voice_auto_send' || isLoading || !isAuthenticated || !settings.voice_mode_enabled}
+                    className="flex items-center space-x-2"
+                  >
+                    {saving === 'voice_auto_send' ? (
+                      <div className="animate-spin w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
+                    ) : (
+                      <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                        settings.voice_auto_send ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
+                      }`}>
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                            settings.voice_auto_send ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </div>
+                    )}
+                  </button>
+                </div>
+
+                {/* Platform Info Box */}
+                <div className="p-4 rounded-xl border border-blue-200 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/20">
+                  <div className="flex items-start space-x-3">
+                    <Monitor className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">Platform Compatibility</h3>
+                      <p className="text-xs text-blue-800 dark:text-blue-200 mb-2">
+                        Voice recording works on most modern browsers. iOS users should use Safari browser mode for full functionality.
+                      </p>
+                      <p className="text-xs text-blue-700 dark:text-blue-300">
+                        <strong>Note:</strong> Voice recording is not available in iOS PWA standalone mode due to Apple security restrictions.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
