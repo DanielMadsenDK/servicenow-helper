@@ -171,3 +171,17 @@ export function isAndroidDevice(): boolean {
   const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera || '';
   return /android/i.test(userAgent);
 }
+
+/**
+ * Checks if running in iOS PWA standalone mode (where voice input is disabled)
+ * @returns true if iOS device running in PWA standalone mode
+ */
+export function isIOSPWAStandalone(): boolean {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+
+  const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera || '';
+  const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
+  const isStandalone = isStandaloneMode();
+
+  return isIOS && isStandalone;
+}

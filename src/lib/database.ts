@@ -380,16 +380,21 @@ export class UserSettingsManager {
       FROM "user_settings"
       WHERE user_id = $1
     `;
-    
+
     const result = await this.db.query(query, [userId]);
-    
+
     const defaults: UserSettings = {
       welcome_section_visible: true,
       default_search_mode: false,
       default_request_type: 'recommendation',
       servicenow_instance_url: '',
       default_ai_model: 'anthropic/claude-sonnet-4',
-      visible_request_types: DEFAULT_VISIBLE_MODES
+      visible_request_types: DEFAULT_VISIBLE_MODES,
+      agent_block_display_mode: 'raw',
+      agent_tool_block_display_mode: 'styled',
+      voice_mode_enabled: true,
+      voice_auto_submit: true,
+      voice_auto_send: false
     };
 
     if (result.rows.length === 0) {

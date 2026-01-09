@@ -10,9 +10,11 @@ interface SettingsContextType {
   isLoading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+  savingSettings: Record<string, boolean>; // Track individual setting saves
   updateSetting: <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => Promise<void>;
   updateSettings: (newSettings: Partial<UserSettings>) => Promise<void>;
   refreshSettings: () => Promise<void>;
+  retryUpdateSetting: <K extends keyof UserSettings>(key: K, value: UserSettings[K], attempt?: number) => Promise<void>;
 }
 
 const defaultSettings: UserSettings = {
@@ -38,9 +40,11 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<UserSettings>(defaultSettings);
+  const [optimisticSettings, setOptimisticSettings] = useState<UserSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [savingSettings, setSavingSettings] = useState<Record<string, boolean>>({});
 
   const fetchSettings = useCallback(async (): Promise<UserSettings> => {
     const response = await fetch('/api/settings', {
@@ -96,16 +100,29 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     key: K,
     value: UserSettings[K]
   ): Promise<void> => {
+    const settingKey = key as string;
+
     try {
       setError(null);
+      setSavingSettings(prev => ({ ...prev, [settingKey]: true }));
+
+      // Optimistic update
+      setOptimisticSettings(prev => prev ? { ...prev, [key]: value } : { ...settings, [key]: value });
+
       const updatedSettings = await saveSettings({ [key]: value });
       setSettings(updatedSettings);
+      setOptimisticSettings(null); // Clear optimistic update on success
     } catch (err) {
+      // Revert optimistic update on error
+      setOptimisticSettings(null);
+
       const errorMessage = err instanceof Error ? err.message : 'Failed to update setting';
       setError(errorMessage);
       throw err;
+    } finally {
+      setSavingSettings(prev => ({ ...prev, [settingKey]: false }));
     }
-  }, [saveSettings]);
+  }, [saveSettings, settings]);
 
   const updateSettings = useCallback(async (newSettings: Partial<UserSettings>): Promise<void> => {
     try {
@@ -118,6 +135,29 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       throw err;
     }
   }, [saveSettings]);
+
+  const retryUpdateSetting = useCallback(async <K extends keyof UserSettings>(
+    key: K,
+    value: UserSettings[K],
+    attempt: number = 1
+  ): Promise<void> => {
+    const maxRetries = 3;
+    const baseDelay = 1000; // 1 second
+
+    try {
+      await updateSetting(key, value);
+    } catch (err) {
+      if (attempt < maxRetries && err instanceof Error && err.message.includes('network')) {
+        // Exponential backoff for network errors
+        const delay = baseDelay * Math.pow(2, attempt - 1);
+        console.log(`Retrying setting update in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
+
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return retryUpdateSetting(key, value, attempt + 1);
+      }
+      throw err; // Re-throw if max retries reached or non-network error
+    }
+  }, [updateSetting]);
 
   const refreshSettings = useCallback(async (): Promise<void> => {
     try {
@@ -139,21 +179,26 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
   }, [fetchSettings]);
 
+  // Get current settings (with optimistic updates applied)
+  const currentSettings = optimisticSettings || settings;
+
   // Initialize settings on mount
   useEffect(() => {
     refreshSettings();
   }, [refreshSettings]);
 
   return (
-    <SettingsContext.Provider 
-      value={{ 
-        settings, 
-        isLoading, 
-        error, 
+    <SettingsContext.Provider
+      value={{
+        settings: currentSettings,
+        isLoading,
+        error,
         isAuthenticated,
-        updateSetting, 
-        updateSettings, 
-        refreshSettings 
+        savingSettings,
+        updateSetting,
+        updateSettings,
+        refreshSettings,
+        retryUpdateSetting
       }}
     >
       {children}
