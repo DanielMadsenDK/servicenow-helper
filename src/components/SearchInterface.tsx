@@ -15,6 +15,7 @@ import { usePlaceholderRotation } from '@/hooks/usePlaceholderRotation';
 import { useSessionManager } from '@/hooks/useSessionManager';
 import { useVoiceRecorder } from '@/hooks/useVoiceRecorder';
 import { RequestType, DEFAULT_VISIBLE_MODES } from '@/lib/constants';
+import { isIOSPWAStandalone } from '@/lib/platform-detection';
 
 import BurgerMenu from './BurgerMenu';
 import ThemeToggle from './ThemeToggle';
@@ -715,7 +716,7 @@ export default function SearchInterface() {
   }, [settings.voice_auto_send, voiceRecorder.base64Audio, voiceRecorder.isRecording, handleVoiceModalSend]);
 
   // Determine if voice button should be shown (only on client to prevent hydration mismatch)
-  const showVoiceButton = isClient && settings.voice_mode_enabled && voiceRecorder.capabilities.canUseVoiceInput;
+  const showVoiceButton = isClient && settings.voice_mode_enabled && voiceRecorder.capabilities.canUseVoiceInput && !isIOSPWAStandalone();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-100 via-gray-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900 relative">
@@ -857,34 +858,9 @@ export default function SearchInterface() {
 
           {/* Submit Button - Outside animated area */}
           <form onSubmit={handleSubmit} className="relative">
-            {/* Voice Record Button - Floating on large screens, inline on mobile */}
-            {showVoiceButton && (
-              <div className="hidden md:block absolute -top-16 right-3 sm:right-4 z-30">
-                <VoiceRecordButton
-                  isRecording={voiceRecorder.isRecording}
-                  recordingState={voiceRecorder.recordingState}
-                  disabled={isLoading || isStreaming || isTranscribing}
-                  onPressStart={handleVoiceRecordStart}
-                  onPressEnd={handleVoiceRecordEnd}
-                />
-              </div>
-            )}
-
             <div className="mt-4 sm:mt-6 relative z-20">
-              {/* Mobile/Tablet: Voice button inline with submit button */}
-              <div className="flex items-center gap-3 md:block">
-                {showVoiceButton && (
-                  <div className="md:hidden flex-shrink-0">
-                    <VoiceRecordButton
-                      isRecording={voiceRecorder.isRecording}
-                      recordingState={voiceRecorder.recordingState}
-                      disabled={isLoading || isStreaming || isTranscribing}
-                      onPressStart={handleVoiceRecordStart}
-                      onPressEnd={handleVoiceRecordEnd}
-                    />
-                  </div>
-                )}
-
+              {/* Voice button inline with submit button across all screen sizes */}
+              <div className="flex items-center gap-3">
                 {/* Submit Button */}
                 <div className="flex-1">
                   <SubmitButton
@@ -894,6 +870,18 @@ export default function SearchInterface() {
                     onStop={handleStop}
                   />
                 </div>
+
+                {showVoiceButton && (
+                  <div className="flex-shrink-0">
+                    <VoiceRecordButton
+                      isRecording={voiceRecorder.isRecording}
+                      recordingState={voiceRecorder.recordingState}
+                      disabled={isLoading || isStreaming || isTranscribing}
+                      onPressStart={handleVoiceRecordStart}
+                      onPressEnd={handleVoiceRecordEnd}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </form>
