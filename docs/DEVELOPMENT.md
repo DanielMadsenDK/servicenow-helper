@@ -26,7 +26,7 @@
 The application follows a containerized, multi-service architecture orchestrated by Docker Compose.
 
 ### Core Components
-- **Next.js 16.0.0 Frontend**: A web application for user interaction, authentication, and displaying results.
+- **Next.js 16.1.1 Frontend**: A web application for user interaction, authentication, and displaying results.
 - **n8n 1.118.2 Workflow Engine**: Handles the backend AI processing with **multi-agent architecture**, integrating with multiple AI providers (OpenRouter, Hugging Face) to provide access to diverse AI models for specialized agents.
 - **PostgreSQL 15.x Database with pgvector 0.8.1**: Provides data storage for n8n, session storage for the Next.js app, and provider management configurations.
 
@@ -63,19 +63,19 @@ The application follows a containerized, multi-service architecture orchestrated
 
 ## Technical Stack
 
-- **Frontend**: Next.js 16.0.0 (App Router), React 19.2.0, TypeScript 5.9.3, TailwindCSS 4.1.16
+- **Frontend**: Next.js 16.1.1 (App Router), React 19.2.3, TypeScript 5.9.3, TailwindCSS 4.1.18
 - **Backend/Workflow**: n8n 1.118.2
 - **Database**: PostgreSQL 15.x with pgvector 0.8.1 (with tables: `ServiceNowSupportTool` for conversations, `user_settings` for user preferences, `agent_models` for agent model configurations)
 - **Containerization**: Docker, Docker Compose (Dockerfile with Node.js 22 and docker-compose.yml in root)
-- **Libraries**: Axios 1.13.2, ReactMarkdown 10.1.0, Lucide React 0.553.0, JWT 9.0.2, jsPDF 3.0.3, Mermaid 11.12.1
+- **Libraries**: Axios 1.13.2, ReactMarkdown 10.1.0, Lucide React 0.562.0, JWT 9.0.3, jsPDF 3.0.4, Mermaid 11.12.2
 - **Performance**: Dynamic imports, lazy loading, React.memo, code splitting, bundle analysis, and Core Web Vitals monitoring
 - **Export**: jsPDF for PDF generation, File System Access API for native save dialogs
 - **Streaming**: Server-Sent Events (SSE), real-time UI updates, connection pooling, retry logic, and performance monitoring
 - **Security**: Comprehensive security headers, XSS protection, CSRF prevention, streaming validation, and rate limiting
 - **Accessibility**: ARIA attributes, keyboard navigation, screen reader support, and WCAG compliance
 - **PWA Support**: Advanced Progressive Web App with offline support, install prompts, and app shortcuts
-- **Testing**: Jest 30.1.1 with coverage reporting, Playwright 1.56.1 for E2E, enhanced ESLint 9.39.1 rules, and pre-commit quality gates
-- **Quality Assurance**: Husky 9.1.7 pre-commit hooks, lint-staged 16.1.6, TypeScript strict mode, and automated testing
+- **Testing**: Jest 30.1.1 with coverage reporting, Playwright 1.57.0 for E2E, enhanced ESLint 9.39.2 rules, and pre-commit quality gates
+- **Quality Assurance**: Husky 9.1.7 pre-commit hooks, lint-staged 16.2.7, TypeScript strict mode, and automated testing
 
 ## Key Development Files
 

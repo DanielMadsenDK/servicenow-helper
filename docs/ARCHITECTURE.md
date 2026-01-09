@@ -19,7 +19,7 @@ This document provides comprehensive technical architecture information for the 
 
 ## System Overview
 
-ServiceNow Helper follows a **containerized, multi-service architecture** orchestrated by Docker Compose, featuring a modern tech stack with Next.js 16, n8n 1.118.2 workflow automation, and PostgreSQL database.
+ServiceNow Helper follows a **containerized, multi-service architecture** orchestrated by Docker Compose, featuring a modern tech stack with Next.js 16.1.1, n8n 1.118.2 workflow automation, and PostgreSQL database.
 
 ### High-Level Architecture
 
@@ -75,7 +75,7 @@ graph TB
 
 | Service | Technology | Port | Purpose |
 |---------|-----------|------|---------|
-| **Frontend** | Next.js 16.0.0 | 3000 | User interface, authentication, streaming responses |
+| **Frontend** | Next.js 16.1.1 | 3000 | User interface, authentication, streaming responses |
 | **Backend** | n8n 1.118.2 | 5678 | Workflow automation, AI processing, ServiceNow integration |
 | **Database** | PostgreSQL 15.x + pgvector 0.8.1 | 5432 | Data persistence, vector search, user settings |
 | **Containerization** | Docker Compose | N/A | Service orchestration, networking, volumes |
@@ -86,7 +86,7 @@ graph TB
 
 ### 1. Presentation Layer (Frontend)
 
-**Technology:** Next.js 16.0.0 with App Router
+**Technology:** Next.js 16.1.1 with App Router
 
 **Components:**
 - `SearchInterface` - Main application interface
@@ -755,15 +755,15 @@ App
 
 | Technology | Version | Purpose |
 |-----------|---------|---------|
-| **Next.js** | 16.0.0 | React framework, SSR, API routes, Turbopack |
-| **React** | 19.2.0 | UI library, component architecture |
+| **Next.js** | 16.1.1 | React framework, SSR, API routes, Turbopack |
+| **React** | 19.2.3 | UI library, component architecture |
 | **TypeScript** | 5.9.3 | Type safety, developer experience |
-| **TailwindCSS** | 4.1.16 | Utility-first styling, responsive design |
-| **Lucide React** | 0.553.0 | Icon library |
+| **TailwindCSS** | 4.1.18 | Utility-first styling, responsive design |
+| **Lucide React** | 0.562.0 | Icon library |
 | **ReactMarkdown** | 10.1.0 | Markdown rendering |
 | **highlight.js** | 11.11.1 | Syntax highlighting |
-| **jsPDF** | 3.0.3 | PDF generation |
-| **Mermaid** | 11.12.1 | Diagram rendering |
+| **jsPDF** | 3.0.4 | PDF generation |
+| **Mermaid** | 11.12.2 | Diagram rendering |
 
 ### Backend Stack
 
@@ -781,8 +781,8 @@ App
 | Tool | Version | Purpose |
 |------|---------|---------|
 | **Jest** | 30.1.1 | Unit testing framework |
-| **Playwright** | 1.56.1 | E2E testing |
-| **ESLint** | 9.39.1 | Code linting |
+| **Playwright** | 1.57.0 | E2E testing |
+| **ESLint** | 9.39.2 | Code linting |
 | **Husky** | 9.1.7 | Git hooks |
 | **lint-staged** | 16.1.6 | Staged file linting |
 | **ts-jest** | 29.4.5 | TypeScript Jest support |
